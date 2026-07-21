@@ -35,6 +35,9 @@ services:
     ports:
       - "8080:8080"
     env_file:
+      # ⚠ ชี้ไป ../su-server/.env ไม่ใช่ .env ของ repo นี้
+      #    ค่าพวกนี้เป็นของ Go app (DB creds ฯลฯ) — repo นี้ไม่ได้ใช้เลย
+      #    ตัว web อ่าน env ตัวเดียวคือ API_UPSTREAM ซึ่งมาจาก build arg ข้างบน
       - ../su-server/.env
     environment:
       # ทับค่าจาก .env เฉพาะตอนรันใน compose

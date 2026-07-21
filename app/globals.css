@@ -9,6 +9,9 @@
   --color-leaf: #40916c;
   --color-gold: #dda15e;       /* accent (clay) — ตรงกับ theme.css เดิม */
   --color-golddeep: #c9883f;   /* accent เข้ม (active) */
+  /* accent สำหรับพื้นเข้ม — gold เดิมได้แค่ 3.95:1 บนแผงฟอร์มตอนฉากสว่างกลางวัน
+     ซึ่งตกเกณฑ์ AA ของตัวอักษรเล็ก (ป้าย stepper 11px, eyebrow 10px) · ตัวนี้ 4.55:1 */
+  --color-goldsoft: #e2b078;
   --color-ink: #22271f;        /* ตัวอักษรหลัก */
   --color-muted: #6b6f66;      /* ตัวอักษรรอง */
   --color-line: #e6e1d6;       /* เส้นขอบบาง */
@@ -151,4 +154,49 @@ body {
 /* ช่องที่ error → เส้นใต้แดง */
 .wave-group.is-error .wg-input {
   border-bottom-color: var(--color-danger);
+}
+
+/* ============================================================
+   .on-dark — ชุดฟอร์มเดียวกันแต่วางบนพื้นเข้ม (หน้าสมัครที่ลอยทับฉาก 3D)
+   ต้อง scope ไว้ ไม่ใช่แก้ .wave-group ตรง ๆ เพราะ TextField/SelectField
+   ตัวเดียวกันนี้ถูกใช้ในแผงผู้ดูแลซึ่งยังเป็นพื้นครีมอยู่
+   ============================================================ */
+.on-dark {
+  /* ให้ปฏิทิน/นาฬิกา native ของ input[type=date] ออกมาเป็นธีมมืดด้วย */
+  color-scheme: dark;
+}
+.on-dark .wave-group .wg-input {
+  color: var(--color-cream);
+  border-bottom-color: rgba(250, 247, 240, 0.42);
+}
+.on-dark .wave-group .wg-input[readonly] {
+  color: rgba(250, 247, 240, 0.82);
+}
+/* รายการใน dropdown เป็น native widget — บังคับสีเอง ไม่งั้นบางเบราว์เซอร์ได้ครีมบนครีม */
+.on-dark .wave-group option {
+  color: var(--color-ink);
+  background-color: #ffffff;
+}
+.on-dark .wave-group .wg-label {
+  color: rgba(250, 247, 240, 0.82);
+}
+.on-dark .wave-group .wg-input:focus ~ .wg-label .wg-char,
+.on-dark .wave-group .wg-input:not(:placeholder-shown) ~ .wg-label .wg-char {
+  color: var(--color-goldsoft);
+}
+.on-dark .wave-group.is-filled .wg-label {
+  color: var(--color-goldsoft);
+}
+/* คำใบ้ใต้ช่อง (TextField เขียน text-muted ไว้ ซึ่งจมหายบนพื้นเข้ม) */
+.on-dark .wave-group p {
+  color: rgba(250, 247, 240, 0.74);
+}
+.on-dark .wave-group.is-error p {
+  color: #ffa7a7;
+}
+.on-dark .wave-group.is-error .wg-input {
+  border-bottom-color: #ffa7a7;
+}
+.on-dark .wave-group .wg-req {
+  color: #ffa7a7;
 }

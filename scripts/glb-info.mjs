@@ -136,7 +136,11 @@ function profile(file, name) {
   }
 }
 
-const dir = new URL("../public/models/", import.meta.url).pathname;
+// รับ path โฟลเดอร์เป็น argument ได้ (เช่น public/models/growth) · ไม่ใส่ = public/models
+const dirArg = process.argv.slice(2).find((a) => !a.startsWith("--"));
+const dir = dirArg
+  ? path.resolve(process.cwd(), dirArg) + path.sep
+  : new URL("../public/models/", import.meta.url).pathname;
 const files = fs.readdirSync(dir).filter((f) => f.endsWith(".glb")).sort();
 
 if (process.argv.includes("--profile")) {

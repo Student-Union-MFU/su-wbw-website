@@ -9,7 +9,7 @@ import { useLang, useT } from "@/lib/i18n/LanguageProvider";
    หลักการ: white space เยอะ, เส้นขอบบาง, micro interaction ตอน hover/focus
    ============================================================ */
 
-/* ---------- ตัวบอกขั้นตอน (progress) ---------- */
+/* ---------- ตัวบอกขั้นตอน (progress) — อยู่บนแผงเข้มของหน้าสมัคร ---------- */
 export function Stepper({ current, steps }: { current: number; steps: string[] }) {
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-3">
@@ -22,13 +22,13 @@ export function Stepper({ current, steps }: { current: number; steps: string[] }
               <span
                 className={[
                   "h-2.5 w-2.5 rounded-full transition-all duration-300",
-                  active ? "w-7 bg-forest" : done ? "bg-gold" : "bg-line",
+                  active ? "w-7 bg-gold" : done ? "bg-gold/55" : "bg-cream/20",
                 ].join(" ")}
               />
               <span
                 className={[
                   "hidden text-[11px] transition-colors sm:block",
-                  active ? "text-forest" : "text-muted",
+                  active ? "text-goldsoft" : "text-cream/65",
                 ].join(" ")}
               >
                 {label}
@@ -213,13 +213,13 @@ export function PhotoPicker({ value, onChange }: { value: string | null; onChang
         onClick={() => inputRef.current?.click()}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        className="group relative h-24 w-24 overflow-hidden rounded-full border border-line bg-cream transition-transform duration-200 hover:scale-[1.03]"
+        className="group relative h-24 w-24 overflow-hidden rounded-full border border-cream/25 bg-cream/10 transition-transform duration-200 hover:scale-[1.03]"
       >
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value} alt={t.photo.alt} className="h-full w-full object-cover" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-muted">
+          <span className="flex h-full w-full items-center justify-center text-cream/72">
             <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="1.6">
               <circle cx="12" cy="8.5" r="3.5" />
               <path d="M4.5 19c1.5-3.5 4.2-5 7.5-5s6 1.5 7.5 5" strokeLinecap="round" />
@@ -253,7 +253,7 @@ export function PrimaryButton({ children, onClick, type = "button" }: { children
     <button
       type={type}
       onClick={onClick}
-      className="rounded-full bg-forest px-8 py-3 font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-forestdeep active:translate-y-0"
+      className="rounded-full bg-cream px-8 py-3 font-semibold text-forestdeep transition-all duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0"
     >
       {children}
     </button>
@@ -266,7 +266,7 @@ export function GhostButton({ children, onClick }: { children: ReactNode; onClic
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full px-5 py-3 font-medium text-muted transition-colors duration-200 hover:text-forest"
+      className="inline-flex items-center gap-1.5 rounded-full px-5 py-3 font-medium text-cream/75 transition-colors duration-200 hover:text-cream"
     >
       <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M12 5 7 10l5 5" strokeLinecap="round" strokeLinejoin="round" />

@@ -74,6 +74,8 @@ const th = {
     heading: "สมัครเข้าร่วมกิจกรรม",
     deadline: "การสมัครต้องทำตอนออนไลน์ ก่อนวันงาน 29 ส.ค. 2569",
     steps: ["ข้อมูลส่วนตัว", "โรคประจำตัว", "Medical ID", "เบอร์โทรฉุกเฉิน", "ยินยอม"],
+    /** ระยะการเติบโตของต้นไม้ข้างฟอร์ม — หนึ่งระยะต่อหนึ่ง step */
+    growth: ["เมล็ด", "ต้นกล้า", "ต้นอ่อน", "แตกกิ่ง", "ยืนต้น"],
     back: "ย้อนกลับ",
     next: "ถัดไป",
     submit: "ยืนยันสมัคร",
@@ -533,6 +535,7 @@ const en: Dict = {
     heading: "Join the event",
     deadline: "Registration must be completed online before the event on 29 August 2026.",
     steps: ["Personal info", "Health", "Medical ID", "Emergency contact", "Consent"],
+    growth: ["Seed", "Seedling", "Sapling", "Branching", "Full grown"],
     back: "Back",
     next: "Next",
     submit: "Confirm registration",

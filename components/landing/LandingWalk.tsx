@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useProgress } from "@react-three/drei";
 import { useLang } from "@/lib/i18n/LanguageProvider";
+import FilmGrain from "@/components/FilmGrain";
 import { BEATS, beatOpacity, clamp01 } from "./trail";
 
 /**
@@ -43,6 +44,7 @@ export default function LandingWalk() {
   const { t, lang } = useLang();
   const wrapRef = useRef<HTMLDivElement>(null);
   const cueRef = useRef<HTMLDivElement>(null);
+  const chromeRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const kmRef = useRef<HTMLSpanElement>(null);
   const progress = useRef(0);
@@ -90,6 +92,15 @@ export default function LandingWalk() {
         el.style.transform = `translateY(${(0.5 - local) * 26}px)`;
       }
 
+      // เลื่อนเลยช่วงเดินไปเท่าไหร่แล้ว (หน่วยพิกเซล) — ใช้จางของที่ลอยทับฉาก
+      // ออกก่อนที่ footer จะเลื่อนขึ้นมาถึง · ฉาก 3D ยังอยู่ ให้ footer ทับได้เลย
+      const overrun = -rect.top - total;
+      const chrome = 1 - clamp01(overrun / (window.innerHeight * 0.45));
+      if (chromeRef.current) {
+        chromeRef.current.style.opacity = String(chrome);
+        chromeRef.current.style.pointerEvents = chrome > 0.5 ? "" : "none";
+      }
+
       if (cueRef.current) cueRef.current.style.opacity = String(1 - clamp01(p / 0.05));
       if (barRef.current) barRef.current.style.transform = `scaleY(${p})`;
       if (kmRef.current) kmRef.current.textContent = (p * 12).toFixed(1);
@@ -116,21 +127,22 @@ export default function LandingWalk() {
 
   return (
     <section ref={wrapRef} style={{ height: `${SCROLL_VH}vh` }} className="relative">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-forestdeep">
+      {/* fixed ไม่ใช่ sticky — footer เป็นพื้นโปร่ง เลยต้องให้ฉากยังอยู่ข้างหลัง
+          ตอนเลื่อนเลยช่วงเดินไปแล้ว (แบบเดียวกับหน้าสมัคร) · section ที่ครอบอยู่
+          กลายเป็นตัวกันความสูงเฉย ๆ แต่ยังใช้วัด progress ได้เหมือนเดิม */}
+      <div className="fixed inset-0 z-0 overflow-hidden bg-forestdeep">
         <TrailScene progress={progress} reduced={reduced} />
 
         {/* ไล่เฉดเข้มหัว/ท้ายจอ ให้ตัวหนังสืออ่านออกทับฉากสว่าง */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,28,20,0.6)_0%,rgba(12,28,20,0)_30%,rgba(12,28,20,0)_55%,rgba(12,28,20,0.7)_100%)]" />
 
         {/* film grain */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
-          }}
-        />
+        <FilmGrain />
 
+        {/* ของที่ลอยทับฉากทั้งหมด — ต้องจางหายตอนเดินจบ ไม่งั้นพอ footer เลื่อน
+            ขึ้นมา ปุ่มสมัคร/มาตรวัดระยะจะยังลอยค้างทับ footer อยู่ (เพราะฉาก
+            เป็น fixed แล้ว มันไม่เลื่อนตามไปเองเหมือนตอนเป็น sticky) */}
+        <div ref={chromeRef}>
         {/* ---- beat 0: หัวเรื่อง ---- */}
         {/* hero เริ่มที่ opacity 1 ตั้งแต่ HTML แรก — เห็นทันทีที่หน้าโหลด
             ไม่ต้องรอ JS คำนวณ scroll ก่อน (beat อื่นเริ่มที่ 0 แล้วค่อยเฟดเข้า) */}
@@ -252,6 +264,7 @@ export default function LandingWalk() {
         <p className="pointer-events-none absolute bottom-3 left-4 max-w-[60vw] text-[9px] leading-tight text-cream/30">
           {t.landing.credit}
         </p>
+        </div>
 
         {/* ---- หน้า loading ---- */}
         <div

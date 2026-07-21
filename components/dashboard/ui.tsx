@@ -1,14 +1,26 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, type ReactNode } from "react";
 import { adminLogin, type AdminSession } from "@/lib/adminApi";
 import { TextField } from "@/components/register/ui";
+import NavBar from "@/components/landing/NavBar";
 import LanguageToggle from "@/components/register/LanguageToggle";
-import { useT } from "@/lib/i18n/LanguageProvider";
+import { useLang, useT } from "@/lib/i18n/LanguageProvider";
+import { DAY_STILL } from "@/lib/dayCycle";
 
-/* ---------- หน้าเข้าสู่ระบบผู้ดูแล ---------- */
+/**
+ * ฉากป่าโหลดฝั่ง client เท่านั้น (three.js ห้ามเข้า server bundle) และเป็น
+ * chunk แยก — โหลดตอนเรนเดอร์หน้า login เท่านั้น ไม่ติดไปกับแผงผู้ดูแลที่ล็อกอินแล้ว
+ */
+const ForestScene = dynamic(() => import("@/components/ForestScene"), {
+  ssr: false,
+  loading: () => <div className="fixed inset-0 z-0 bg-forestdeep" aria-hidden />,
+});
+
+/* ---------- หน้าเข้าสู่ระบบผู้ดูแล — สไตล์เดียวกับหน้าสมัคร แต่ฟอร์มอยู่กลางจอ ---------- */
 export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => void }) {
-  const t = useT();
+  const { t, lang } = useLang();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -27,30 +39,48 @@ export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => vo
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <LanguageToggle />
-      <div className="w-full max-w-sm">
-        <header className="mb-8 text-center">
-          <p className="text-sm tracking-wide text-gold">{t.dash.brand}</p>
-          <h1 className="mt-1 text-2xl font-bold text-forestdeep">{t.dash.title}</h1>
-        </header>
-        <div className="space-y-5 rounded-[26px] border border-line bg-card p-7 shadow-[0_20px_60px_-40px_rgba(27,67,50,0.35)]">
-          <TextField label={t.dash.login.username} value={username} onChange={setUsername} autoComplete="username" />
-          <TextField label={t.dash.login.password} type="password" value={password} onChange={setPassword} autoComplete="current-password" />
-          {error && <p className="rounded-[14px] bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>}
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={submit}
-              disabled={busy}
-              className="w-full rounded-full bg-forest py-3 font-medium text-white transition-all duration-200 hover:bg-forestdeep disabled:opacity-60"
+    <>
+      {/* ฉากป่าเดียวกับหน้าสมัคร แต่ไม่มีต้นไม้ที่โตตาม step และแสงนิ่งอยู่เวลาเดียว */}
+      <ForestScene day={DAY_STILL} focus="center" />
+
+      <NavBar />
+
+      <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
+        <div className="on-dark w-full max-w-sm">
+          <header className="mb-7 text-center">
+            <p className="text-[10px] uppercase tracking-[0.42em] text-goldsoft sm:text-xs">
+              {t.dash.brand}
+            </p>
+            <h1
+              className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
+              style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
             >
-              {busy ? t.dash.login.signingIn : t.dash.login.signIn}
-            </button>
+              {t.dash.title}
+            </h1>
+          </header>
+
+          <div className="space-y-5 rounded-[26px] border border-cream/15 bg-ink/82 p-7 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+            <TextField label={t.dash.login.username} value={username} onChange={setUsername} autoComplete="username" />
+            <TextField label={t.dash.login.password} type="password" value={password} onChange={setPassword} autoComplete="current-password" />
+            {error && (
+              <p className="rounded-[14px] border border-danger/40 bg-danger/20 px-4 py-3 text-sm text-[#ffc4c4]">
+                {error}
+              </p>
+            )}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={submit}
+                disabled={busy}
+                className="w-full rounded-full bg-cream py-3 font-semibold text-forestdeep transition-all duration-200 hover:bg-white disabled:opacity-60"
+              >
+                {busy ? t.dash.login.signingIn : t.dash.login.signIn}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 

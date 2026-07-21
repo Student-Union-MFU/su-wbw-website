@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Sky } from "@react-three/drei";
 import * as THREE from "three";
@@ -42,7 +42,10 @@ import {
 
 /* ---------- ผังฉาก: สุ่มครั้งเดียวด้วย seed คงที่ ---------- */
 
-function useLayout() {
+/** พื้นที่โล่งที่ขอให้ไม่มีของกระจายอยู่ (หน้าสมัครใช้ปลูกต้นไม้ของตัวเองตรงนี้) */
+export type Clearing = { x: number; z: number; r: number };
+
+function useLayout(clearing?: Clearing) {
   return useMemo(() => {
     const rand = mulberry32(20690829); // seed = วันงาน 29 ส.ค. 2569
 
@@ -145,8 +148,22 @@ function useLayout() {
       mountains.push({ url: "/models/mountain-snow.glb", x, z, y: lowestGroundIn(x, z, radius) - 4, h, rot: 0.6 });
     }
 
+    // ถางที่ให้โล่ง — ของที่กระจายไว้อาจงอกทับจุดที่หน้าสมัครจะปลูกต้นไม้ของตัวเอง
+    // (ผังสุ่มด้วย seed คงที่ ก็จริง แต่ตำแหน่งที่โล่งพอดีนั้นไม่ได้การันตี)
+    if (clearing) {
+      const clear = <T extends { x: number; z: number; r: number }>(list: T[]) =>
+        list.filter((o) => Math.hypot(o.x - clearing.x, o.z - clearing.z) > clearing.r + o.r);
+      return {
+        trees: clear(trees),
+        grass: clear(grass),
+        rocksSmall: clear(rocksSmall),
+        rocksLarge: clear(rocksLarge),
+        mountains,
+      };
+    }
+
     return { trees, grass, rocksSmall, rocksLarge, mountains };
-  }, []);
+  }, [clearing]);
 }
 
 /* ---------- พื้นผิว (สร้างด้วย canvas ตอน runtime ไม่ต้องโหลดไฟล์รูป) ---------- */
@@ -525,19 +542,25 @@ function CameraRig({
   progress,
   pointer,
   reduced,
+  parkAt,
 }: {
   progress: React.RefObject<number>;
   pointer: React.RefObject<{ x: number; y: number }>;
   reduced: boolean;
+  /** ยืนอยู่กับที่ตรง progress นี้ (หน้าสมัคร) แทนการเดินไปตาม progress */
+  parkAt?: number;
 }) {
   const target = useRef(new THREE.Vector3());
-  const smoothed = useRef(0);
+  const smoothed = useRef(parkAt ?? 0);
 
   useFrame((state, dt) => {
     const camera = state.camera;
     const k = Math.min(1, dt * 4);
 
-    smoothed.current = lerp(smoothed.current, progress.current, Math.min(1, dt * 3.5));
+    smoothed.current =
+      parkAt === undefined
+        ? lerp(smoothed.current, progress.current, Math.min(1, dt * 3.5))
+        : parkAt;
     const p = smoothed.current;
     const z = zAt(p);
     const x = curve(z);
@@ -566,12 +589,18 @@ function Scene({
   progress,
   pointer,
   reduced,
+  parkAt,
+  clearing,
+  children,
 }: {
   progress: React.RefObject<number>;
   pointer: React.RefObject<{ x: number; y: number }>;
   reduced: boolean;
+  parkAt?: number;
+  clearing?: Clearing;
+  children?: ReactNode;
 }) {
-  const { trees, grass, rocksSmall, rocksLarge, mountains } = useLayout();
+  const { trees, grass, rocksSmall, rocksLarge, mountains } = useLayout(clearing);
 
   return (
     <>
@@ -580,7 +609,7 @@ function Scene({
 
       <DayCycle progress={progress} />
       <Stars progress={progress} />
-      <CameraRig progress={progress} pointer={pointer} reduced={reduced} />
+      <CameraRig progress={progress} pointer={pointer} reduced={reduced} parkAt={parkAt} />
 
       <Ground />
       <TrailPath />
@@ -610,6 +639,7 @@ function Scene({
           );
         })}
 
+        {children}
       </Suspense>
 
       <Dust />
@@ -620,9 +650,18 @@ function Scene({
 export default function TrailScene({
   progress,
   reduced,
+  parkAt,
+  clearing,
+  children,
 }: {
   progress: React.RefObject<number>;
   reduced: boolean;
+  /** ยืนอยู่กับที่แทนการเดิน — หน้าสมัครใช้ค่านี้ ส่วนหน้า landing ไม่ส่งมา */
+  parkAt?: number;
+  /** ถางที่ตรงนี้ให้โล่ง ก่อนกระจายต้นไม้/หิน */
+  clearing?: Clearing;
+  /** ของที่วางเพิ่มเข้าไปในฉาก (เช่น ต้นไม้ที่โตตาม step ของหน้าสมัคร) */
+  children?: ReactNode;
 }) {
   const pointer = useRef({ x: 0, y: 0 });
 
@@ -647,7 +686,15 @@ export default function TrailScene({
         gl.toneMappingExposure = 1.0;
       }}
     >
-      <Scene progress={progress} pointer={pointer} reduced={reduced} />
+      <Scene
+        progress={progress}
+        pointer={pointer}
+        reduced={reduced}
+        parkAt={parkAt}
+        clearing={clearing}
+      >
+        {children}
+      </Scene>
     </Canvas>
   );
 }

@@ -20,6 +20,14 @@
 | `signpost.glb` | Signpost | Kenney | CC0 | [poly.pizza](https://poly.pizza/m/3U2lj1gpeH) |
 | `grass.glb` | Grass Patch 01 | Jarlan Perez | **CC BY 4.0** | [poly.pizza](https://poly.pizza/m/6XEjsza95ys) |
 
+### หน้าสมัคร (`/register`) — ต้นไม้ที่โตตาม step
+
+ไม่มีไฟล์เพิ่ม · ใช้ `tree.glb` ต้นเดียวกับป่ารอบ ๆ แล้วไล่ขนาดตาม step ของฟอร์ม
+(ดู `PHASE_HEIGHTS` ใน `components/register/GrowingPlant.tsx`)
+
+> ⚠️ `tree.glb` เป็น **CC BY 4.0 = ต้องแสดงเครดิตบนหน้าที่ใช้** — `ForestScene.tsx`
+> แสดง `t.landing.credit` ไว้มุมล่างซ้ายเหมือนหน้า landing ห้ามเอาออก
+
 CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
 

@@ -1,14 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { GhostButton, PhotoPicker, PrimaryButton, SelectField, Stepper, TextField } from "@/components/register/ui";
-import WelcomeHero from "@/components/register/WelcomeHero";
 import SiteFooter from "@/components/register/SiteFooter";
-import CoverSheet from "@/components/register/CoverSheet";
 import { ApologyPopup, DiseaseCheck, useChronic } from "@/components/register/disease";
 import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/components/register/mfu-data";
-import LanguageToggle from "@/components/register/LanguageToggle";
-import { useT } from "@/lib/i18n/LanguageProvider";
+import NavBar from "@/components/landing/NavBar";
+import { useLang, useT } from "@/lib/i18n/LanguageProvider";
+import { dayForStep } from "@/lib/dayCycle";
+
+/**
+ * ฉาก 3D โหลดฝั่ง client เท่านั้น — three.js/drei ห้ามหลุดเข้า server bundle
+ * (เหมือนที่หน้า landing ทำกับ TrailScene)
+ */
+const ForestScene = dynamic(() => import("@/components/ForestScene"), {
+  ssr: false,
+  loading: () => <div className="fixed inset-0 z-0 bg-forestdeep" aria-hidden />,
+});
 
 // ข้อมูลฟอร์มทั้งหมด (ค่อยเติมทีละ step)
 type FormData = {
@@ -249,24 +258,31 @@ export default function RegisterPage() {
 
   return (
     <>
-      <LanguageToggle />
-      <WelcomeHero />
-      <CoverSheet
-        id="register"
-        className="relative z-10 -mt-[44vh] min-h-screen rounded-t-[44px] bg-cream px-4 pb-16 pt-16 shadow-[0_-26px_70px_-28px_rgba(27,67,50,0.55)] sm:pt-20"
-      >
-      <div className="mx-auto w-full max-w-xl">
-        {/* หัวเรื่อง */}
-        <header className="mb-8 text-center">
-          <p className="text-sm tracking-wide text-gold">{t.page.eyebrow}</p>
-          <h1 className="mt-1 text-2xl font-bold text-forestdeep sm:text-3xl">{t.page.heading}</h1>
-        </header>
+      {/* ฉากป่าเดียวกับหน้า landing — ยืนอยู่กับที่ · แสงและต้นไม้เดินตาม step */}
+      <ForestScene day={dayForStep(step, STEPS.length)} plantStep={step} />
 
-        {/* การ์ดฟอร์ม */}
-        <div className="rounded-[26px] border border-line bg-card p-6 shadow-[0_20px_60px_-40px_rgba(27,67,50,0.35)] sm:p-9">
-          <div className="mb-8">
+      <NavBar />
+
+      {/* ฟอร์มชิดขวา เว้นครึ่งซ้ายไว้ให้เห็นต้นไม้ที่กำลังโต */}
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <main
+          id="register"
+          className="flex flex-1 justify-center px-4 pb-20 pt-24 sm:pt-28 lg:justify-end lg:px-[5vw]"
+        >
+        <div className="on-dark w-full max-w-xl lg:max-w-[31rem]">
+          <PageHeader />
+
+          {/* การ์ดฟอร์ม — กระจกเข้มทับฉาก */}
+          <div className="rounded-[26px] border border-cream/15 bg-ink/82 p-6 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl sm:p-8">
+            <div className="mb-3">
             <Stepper current={step} steps={STEPS} />
           </div>
+
+          {/* ระยะการเติบโตของต้นไม้ข้าง ๆ — ผูกกับ step ตรง ๆ */}
+          <p className="mb-7 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.28em] text-goldsoft">
+            <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+            {t.page.growth[Math.min(step, t.page.growth.length - 1)]}
+          </p>
 
           {step === 0 && (
             <Step1
@@ -285,7 +301,9 @@ export default function RegisterPage() {
           {step === 4 && <Step5 data={data} error={errors.consent} onToggle={toggleConsent} />}
 
           {submitError && (
-            <p className="mt-5 rounded-[14px] bg-danger/10 px-4 py-3 text-sm text-danger">{submitError}</p>
+            <p className="mt-5 rounded-[14px] border border-danger/40 bg-danger/20 px-4 py-3 text-sm text-[#ffc4c4]">
+              {submitError}
+            </p>
           )}
 
           {/* ปุ่มนำทาง: ย้อนกลับ + ถัดไป/ยืนยันสมัคร (ซ่อนตอนเลือกโรคประจำตัว) */}
@@ -299,10 +317,11 @@ export default function RegisterPage() {
           </div>
 
           {isLast && (
-            <p className="mt-4 text-center text-[13px] text-muted">
+            <p className="mt-4 text-center text-[13px] text-cream/70">
               {t.page.deadline}
             </p>
           )}
+          </div>
         </div>
 
         {/* popup จดหมายขออภัย เมื่อมีโรคประจำตัว */}
@@ -313,10 +332,28 @@ export default function RegisterPage() {
             onClose={() => setShowApology(false)}
           />
         )}
+        </main>
+        <SiteFooter />
       </div>
-      </CoverSheet>
-      <SiteFooter />
     </>
+  );
+}
+
+/* ============ หัวเรื่องเหนือการ์ดฟอร์ม — โทนเดียวกับหน้า landing ============ */
+function PageHeader() {
+  const { t, lang } = useLang();
+  return (
+    <header className="mb-7 px-1">
+      <p className="text-[10px] uppercase tracking-[0.42em] text-goldsoft sm:text-xs">
+        {t.page.eyebrow}
+      </p>
+      <h1
+        className="mt-4 text-[clamp(1.9rem,4.2vw,3rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
+        style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+      >
+        {t.page.heading}
+      </h1>
+    </header>
   );
 }
 
@@ -343,7 +380,7 @@ function Step1({
     <div className="space-y-5">
       <div className="flex flex-col items-center gap-2">
         <PhotoPicker value={data.photo} onChange={set("photo")} />
-        <span className="text-xs text-muted">{t.step1.photoLabel}</span>
+        <span className="text-xs text-cream/72">{t.step1.photoLabel}</span>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -423,8 +460,8 @@ function Step2({ selected, onToggle }: { selected: string[]; onToggle: (v: strin
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-forestdeep">{t.step2.heading}</h2>
-        <p className="mt-1 text-sm text-muted">{t.step2.sub}</p>
+        <h2 className="text-lg font-semibold text-cream">{t.step2.heading}</h2>
+        <p className="mt-1 text-sm text-cream/78">{t.step2.sub}</p>
       </div>
       <div className="space-y-2.5">
         {chronic.map((c) => (
@@ -484,14 +521,14 @@ function Step3({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-forestdeep">{t.step3.heading}</h2>
-        <p className="mt-1 text-sm text-muted">{t.step3.sub}</p>
+        <h2 className="text-lg font-semibold text-cream">{t.step3.heading}</h2>
+        <p className="mt-1 text-sm text-cream/78">{t.step3.sub}</p>
       </div>
 
       {/* ชื่อ (อ่านอย่างเดียว จาก step 1) */}
-      <div className="rounded-[14px] bg-cream px-4 py-3">
-        <span className="block text-xs text-muted">{t.step3.name}</span>
-        <span className="font-medium text-ink">{fullName}</span>
+      <div className="rounded-[14px] border border-cream/12 bg-cream/[0.07] px-4 py-3">
+        <span className="block text-xs text-cream/72">{t.step3.name}</span>
+        <span className="font-medium text-cream">{fullName}</span>
       </div>
 
       <TextField
@@ -555,8 +592,8 @@ function Step4({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-forestdeep">{t.step4.heading}</h2>
-        <p className="mt-1 text-sm text-muted">{t.step4.sub}</p>
+        <h2 className="text-lg font-semibold text-cream">{t.step4.heading}</h2>
+        <p className="mt-1 text-sm text-cream/78">{t.step4.sub}</p>
       </div>
 
       <TextField
@@ -591,8 +628,8 @@ function Step5({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-forestdeep">{t.step5.heading}</h2>
-        <p className="mt-1 text-sm text-muted">{t.step5.sub}</p>
+        <h2 className="text-lg font-semibold text-cream">{t.step5.heading}</h2>
+        <p className="mt-1 text-sm text-cream/78">{t.step5.sub}</p>
       </div>
 
       <div className="space-y-2.5">
@@ -637,55 +674,61 @@ function ConsentCheck({
       onClick={onToggle}
       className={[
         "flex w-full items-start gap-3 rounded-[16px] border p-4 text-left transition-all duration-200",
-        checked ? "border-forest bg-forest/5" : "border-line bg-white hover:border-forest/40",
+        checked
+          ? "border-gold bg-gold/15"
+          : "border-cream/15 bg-cream/[0.06] hover:border-cream/35",
       ].join(" ")}
     >
       <span
         className={[
           "mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border transition-all duration-200",
-          checked ? "border-forest bg-forest" : "border-line bg-white",
+          checked ? "border-gold bg-gold" : "border-cream/30 bg-transparent",
         ].join(" ")}
       >
         {checked && (
-          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-ink" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="m5 10.5 3.5 3.5L15 6.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </span>
-      <span className="text-sm leading-relaxed text-ink">
+      <span className="text-sm leading-relaxed text-cream/90">
         {text}
-        {required && <span className="ml-1 font-medium text-danger">{t.step5.required}</span>}
+        {required && <span className="ml-1 font-medium text-[#ffa7a7]">{t.step5.required}</span>}
       </span>
     </button>
   );
 }
 
-/* ============ หน้าสำเร็จ ============ */
+/* ============ หน้าสำเร็จ — ต้นไม้โตเต็มที่แล้ว ============ */
 function SuccessScreen({ name, studentId }: { name: string; studentId: string }) {
   const t = useT();
+  const last = t.page.steps.length - 1;
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <LanguageToggle />
-      <div className="w-full max-w-md rounded-[26px] border border-line bg-card p-8 text-center shadow-[0_20px_60px_-40px_rgba(27,67,50,0.35)]">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-forest/10">
-          <svg viewBox="0 0 24 24" className="h-8 w-8 text-forest" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold text-forestdeep">{t.success.heading}</h1>
-        <p className="mt-2 text-muted">{t.success.welcome(name.trim() || t.page.fallbackName)}</p>
+    <>
+      <ForestScene day={dayForStep(last, t.page.steps.length)} plantStep={last} />
+      <NavBar />
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-28 lg:justify-end lg:px-[5vw]">
+        <div className="w-full max-w-md rounded-[26px] border border-cream/15 bg-ink/82 p-8 text-center shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold/15">
+            <svg viewBox="0 0 24 24" className="h-8 w-8 text-gold" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-cream">{t.success.heading}</h1>
+          <p className="mt-2 text-cream/78">{t.success.welcome(name.trim() || t.page.fallbackName)}</p>
 
-        {/* ชื่อผู้ใช้สำหรับเข้าสู่ระบบ — ต้องเห็นชัด */}
-        <div className="my-5 rounded-[10px] border border-line bg-cream p-4">
-          <div className="text-[13px] text-muted">{t.success.usernameLabel}</div>
-          <div className="text-[22px] font-extrabold tracking-[0.5px] text-forestdeep">{studentId}</div>
-        </div>
+          {/* ชื่อผู้ใช้สำหรับเข้าสู่ระบบ — ต้องเห็นชัด */}
+          <div className="my-5 rounded-[10px] border border-cream/15 bg-cream/[0.07] p-4">
+            <div className="text-[13px] text-cream/72">{t.success.usernameLabel}</div>
+            <div className="text-[22px] font-extrabold tracking-[0.5px] text-goldsoft">{studentId}</div>
+          </div>
 
-        <p className="text-sm leading-relaxed text-muted">
-          <b className="text-ink">{t.success.nextStepLabel}</b> {t.success.nextStepBefore}{" "}
-          <b className="text-ink">“{t.meta.appName}”</b> {t.success.nextStepAfter}
-        </p>
+          <p className="text-sm leading-relaxed text-cream/78">
+            <b className="text-cream">{t.success.nextStepLabel}</b> {t.success.nextStepBefore}{" "}
+            <b className="text-cream">“{t.meta.appName}”</b> {t.success.nextStepAfter}
+          </p>
+        </div>
       </div>
-    </main>
+    </>
   );
 }

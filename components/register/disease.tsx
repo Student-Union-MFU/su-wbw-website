@@ -51,24 +51,26 @@ export function DiseaseCheck({
       onClick={onToggle}
       className={[
         "flex w-full items-start gap-3 rounded-[16px] border p-4 text-left transition-all duration-200",
-        checked ? "border-forest bg-forest/5" : "border-line bg-white hover:border-forest/40",
+        checked
+          ? "border-gold bg-gold/15"
+          : "border-cream/15 bg-cream/[0.06] hover:border-cream/35",
       ].join(" ")}
     >
       <span
         className={[
           "mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border transition-all duration-200",
-          checked ? "border-forest bg-forest" : "border-line bg-white",
+          checked ? "border-gold bg-gold" : "border-cream/30 bg-transparent",
         ].join(" ")}
       >
         {checked && (
-          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-ink" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="m5 10.5 3.5 3.5L15 6.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </span>
       <span>
-        <span className="block font-medium text-ink">{label}</span>
-        {desc && <span className="mt-0.5 block text-sm leading-relaxed text-muted">{desc}</span>}
+        <span className="block font-medium text-cream">{label}</span>
+        {desc && <span className="mt-0.5 block text-sm leading-relaxed text-cream/78">{desc}</span>}
       </span>
     </button>
   );

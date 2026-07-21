@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+/* ===== Design tokens (ธีมเดินรอบดอย: ป่า ครีม ทอง โปร่งสบาย) ===== */
+@theme {
+  --color-cream: #faf7f0;      /* พื้นหลังหลัก อบอุ่นโปร่ง */
+  --color-card: #ffffff;       /* การ์ด */
+  --color-forest: #2d6a4f;     /* เขียวป่าหลัก */
+  --color-forestdeep: #1b4332;
+  --color-leaf: #40916c;
+  --color-gold: #dda15e;       /* accent (clay) — ตรงกับ theme.css เดิม */
+  --color-golddeep: #c9883f;   /* accent เข้ม (active) */
+  --color-ink: #22271f;        /* ตัวอักษรหลัก */
+  --color-muted: #6b6f66;      /* ตัวอักษรรอง */
+  --color-line: #e6e1d6;       /* เส้นขอบบาง */
+  --color-danger: #b23a3a;
+
+  --radius-field: 14px;
+  --radius-card: 26px;
+
+  --font-sans: var(--font-sarabun);
+}
+
+/* ===== Base ===== */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ============================================================
+   wave-group — floating label + underline animate
+   (ยกมาจาก web/assets/theme.css เดิม ให้หน้าตาเหมือนของเดิม)
+   ============================================================ */
+.wave-group {
+  position: relative;
+  padding-top: 10px;
+}
+.wave-group .wg-input {
+  font-size: 16px;
+  padding: 10px 4px 8px;
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid var(--color-line);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--color-ink);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.wave-group select.wg-input {
+  padding-right: 30px;
+}
+.wave-group .wg-input:focus {
+  outline: none;
+}
+.wave-group .wg-input[readonly] {
+  color: #4a4f45;
+}
+.wave-group .wg-label {
+  color: var(--color-muted);
+  font-size: 16px;
+  font-weight: 500;
+  position: absolute;
+  pointer-events: none;
+  left: 4px;
+  top: 20px;
+  display: flex;
+  margin: 0;
+}
+.wave-group .wg-char {
+  transition: 0.2s ease all;
+  transition-delay: calc(var(--index) * 0.035s);
+  white-space: pre;
+}
+.wave-group .wg-input:focus ~ .wg-label .wg-char,
+.wave-group .wg-input:not(:placeholder-shown) ~ .wg-label .wg-char {
+  transform: translateY(-24px);
+  font-size: 12.5px;
+  color: var(--color-golddeep);
+}
+/* ช่องที่มีค่าเสมอ (select / date) → label ลอยค้างไว้ */
+.wave-group.is-filled .wg-label {
+  transform: translateY(-24px);
+  font-size: 12.5px;
+  color: var(--color-forest);
+}
+.wave-group.is-filled .wg-char {
+  transform: none;
+  font-size: inherit;
+  color: inherit;
+}
+.wave-group .wg-bar {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.wave-group .wg-bar::before,
+.wave-group .wg-bar::after {
+  content: "";
+  height: 2px;
+  width: 0;
+  bottom: 0;
+  position: absolute;
+  background: var(--color-gold);
+  transition: 0.2s ease all;
+}
+.wave-group .wg-bar::before {
+  left: 50%;
+}
+.wave-group .wg-bar::after {
+  right: 50%;
+}
+.wave-group .wg-input:focus ~ .wg-bar::before,
+.wave-group .wg-input:focus ~ .wg-bar::after {
+  width: 50%;
+}
+.wave-group .wg-req {
+  color: var(--color-danger);
+}
+/* ช่องที่ error → เส้นใต้แดง */
+.wave-group.is-error .wg-input {
+  border-bottom-color: var(--color-danger);
+}

@@ -26,6 +26,49 @@ const th = {
     scrollAria: "เลื่อนไปหน้าสมัคร",
   },
 
+  /** แถบเมนูด้านบน (NavBar) */
+  nav: {
+    home: "หน้าแรก",
+    map: "แผนที่",
+    announcements: "ประกาศ",
+    login: "เข้าสู่ระบบ",
+    soon: "เร็ว ๆ นี้",
+    soonBody: "หน้านี้กำลังจัดทำ ติดตามได้เร็ว ๆ นี้",
+    back: "กลับหน้าแรก",
+  },
+
+  /** หน้า landing 3D (/landing) — เดินไปตามเส้นทาง ข้อมูลโผล่ทีละช่วง */
+  landing: {
+    cta: "สมัครเข้าร่วม",
+    ctaNote: "เปิดรับถึง 29 ส.ค. 2569",
+    scrollCue: "เลื่อนเพื่อออกเดิน",
+    sections: [
+      {
+        eyebrow: "เส้นทาง",
+        title: "12 กิโลเมตร รอบดอย",
+        body: "ออกเดินจากลานเฉลิมพระเกียรติตั้งแต่ฟ้ายังไม่สาง วนรอบดอยแม่ฟ้าหลวงแล้วกลับเข้าสู่มหาวิทยาลัย",
+      },
+      {
+        eyebrow: "ป่าต้นน้ำ",
+        title: "ผ่านป่าและสันเขา",
+        body: "ทางดินลูกรังลัดเลาะป่าต้นน้ำ ขึ้นสันเขาที่มองเห็นมหาวิทยาลัยทั้งหมดในมุมเดียว",
+      },
+      {
+        eyebrow: "ระหว่างทาง",
+        title: "5 ฐานกิจกรรม",
+        body: "จุดพักพร้อมน้ำดื่ม อาหารว่าง และทีมปฐมพยาบาล ประจำอยู่ทุกฐานตลอดเส้นทาง",
+      },
+      {
+        eyebrow: "ถึงเส้นชัย",
+        title: "เดินไปด้วยกัน",
+        body: "ไม่แข่งเวลา ไม่มีผู้แพ้ เดินช้าหรือเร็วก็ถึงพร้อมกันเมื่อแสงแรกแตะยอดดอย",
+      },
+    ],
+    closingHeading: "พร้อมออกเดินหรือยัง",
+    closingBody: "ลงทะเบียนล่วงหน้าออนไลน์ ใช้เวลาไม่ถึง 5 นาที",
+    credit: "โมเดล 3D: Quaternius, Kenney, Poly by Google และอื่น ๆ — ดู /models/CREDITS.md",
+  },
+
   page: {
     eyebrow: "เดินรอบดอย 2569",
     heading: "สมัครเข้าร่วมกิจกรรม",
@@ -442,6 +485,47 @@ const en: Dict = {
     subtitle: "Carrying the vision forward · 2026",
     scrollCue: "scroll down for more info",
     scrollAria: "Scroll to the registration form",
+  },
+
+  nav: {
+    home: "Home",
+    map: "Map",
+    announcements: "Announcements",
+    login: "Log in",
+    soon: "Coming soon",
+    soonBody: "This page is still being built — check back soon.",
+    back: "Back to home",
+  },
+
+  landing: {
+    cta: "Register now",
+    ctaNote: "Open until 29 Aug 2026",
+    scrollCue: "Scroll to start walking",
+    sections: [
+      {
+        eyebrow: "The route",
+        title: "12 kilometres around the mountain",
+        body: "Setting off from the Royal Commemoration Ground before first light, looping around Doi Mae Fah Luang and back into the university.",
+      },
+      {
+        eyebrow: "Headwater forest",
+        title: "Through forest and ridge",
+        body: "A dirt track winding through headwater forest, climbing to a ridge where the whole university comes into view at once.",
+      },
+      {
+        eyebrow: "Along the way",
+        title: "Five activity stops",
+        body: "Rest points with drinking water, snacks and a first-aid team stationed at every stop along the route.",
+      },
+      {
+        eyebrow: "The finish",
+        title: "Nobody walks alone",
+        body: "Not a race, no losers — fast or slow, everyone arrives together as first light touches the summit.",
+      },
+    ],
+    closingHeading: "Ready to set off?",
+    closingBody: "Register online in advance — it takes under five minutes.",
+    credit: "3D models: Quaternius, Kenney, Poly by Google and others — see /models/CREDITS.md",
   },
 
   page: {

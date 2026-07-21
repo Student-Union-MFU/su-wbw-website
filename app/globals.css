@@ -30,6 +30,33 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* หัวเรื่อง hero หน้า landing — ลอยขึ้นตอนเข้าหน้า (ไม่ผูกกับ scroll) */
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* scroll cue หน้า landing — ขีดสั้นไหลลงในราง */
+@keyframes cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[cue_1\.8s_ease-in-out_infinite\] {
+    animation: none;
+  }
+}
+
 /* ============================================================
    wave-group — floating label + underline animate
    (ยกมาจาก web/assets/theme.css เดิม ให้หน้าตาเหมือนของเดิม)

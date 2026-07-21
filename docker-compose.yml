@@ -1,0 +1,76 @@
+# Full stack: web (Next.js) + backend (Go/su-server) + database (Postgres)
+#
+# backend/database ยกมาจาก ../su-server/docker-compose.yml — ตั้งชื่อ container
+# เหมือนเดิม (su-server, postgres-db) เพราะ Makefile ของ su-server อ้างชื่อพวกนี้ตรง ๆ
+# เช่น `docker exec -it postgres-db psql ...` → เปลี่ยนชื่อแล้ว target พวกนั้นพัง
+#
+# ⚠ ตั้ง name เป็น su-server ให้ตรงกับ project ของ ../su-server/docker-compose.yml
+#    compose เติม prefix ชื่อ project ให้ volume/network → ไม่ตั้งจะกลายเป็น
+#    volume ใหม่ชื่อ su-wbw-website_pgdata = DB ว่างเปล่า ข้อมูลเดิมอยู่ su-server_pgdata
+#    ตั้งแล้ว = stack เดียวกัน รันจากโฟลเดอร์ไหนก็คุมตัวเดิม (ไม่ชนกัน)
+name: su-server
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        # ⚠ ต้องเป็น build arg ไม่ใช่ environment
+        # next.config.ts serialize rewrites ลง routes-manifest.json ตอน build
+        # ตั้งตอน runtime ไม่มีผล — จะยิงไป upstream ที่ฝังไว้ตอน build แทน
+        #
+        # "backend" = ชื่อ service (ใน container คำว่า localhost = ตัวมันเอง)
+        # ต่อท้ายด้วย /wbw ให้ตรง prefix ใน cmd/main.go → r.Route("/wbw", ...)
+        API_UPSTREAM: http://backend:8080/wbw
+    container_name: su-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ../su-server
+    container_name: su-server
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../su-server/.env
+    environment:
+      # ทับค่าจาก .env เฉพาะตอนรันใน compose
+      # .env ยังเป็น localhost ไว้ให้ `make dev` (go run บนเครื่อง) ใช้ได้เหมือนเดิม
+      - DB_HOST=database
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    develop:
+      watch:
+        - path: ../su-server
+          target: /app
+          action: rebuild
+
+  database:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=yion
+      - POSTGRES_DB=sudb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sudb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  default:
+    name: fullstack-network
+
+volumes:
+  pgdata:

@@ -42,7 +42,7 @@ export function Users({ token, currentUsername }: { token: string; currentUserna
         <button
           type="button"
           onClick={() => setModal({ type: "create" })}
-          className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-forestdeep"
+          className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
         >
           {t.dash.users.add}
         </button>
@@ -143,7 +143,7 @@ function Actions({ onClose, onSave, busy, saveLabel, danger }: { onClose: () => 
         type="button"
         onClick={onSave}
         disabled={busy}
-        className={["rounded-full px-6 py-2.5 font-medium text-white transition-all duration-200 disabled:opacity-60", danger ? "bg-danger hover:brightness-95" : "bg-forest hover:bg-forestdeep"].join(" ")}
+        className={["rounded-full px-6 py-2.5 font-medium text-white transition-all duration-200 disabled:opacity-60", danger ? "bg-danger hover:brightness-95" : "bg-forest hover:brightness-110"].join(" ")}
       >
         {busy ? t.dash.common.saving : saveLabel ?? t.dash.common.save}
       </button>

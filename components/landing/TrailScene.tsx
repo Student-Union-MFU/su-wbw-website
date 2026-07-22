@@ -652,6 +652,7 @@ export default function TrailScene({
   reduced,
   parkAt,
   clearing,
+  active = true,
   children,
 }: {
   progress: React.RefObject<number>;
@@ -660,24 +661,28 @@ export default function TrailScene({
   parkAt?: number;
   /** ถางที่ตรงนี้ให้โล่ง ก่อนกระจายต้นไม้/หิน */
   clearing?: Clearing;
+  /** false = หยุด render loop (ตอนฉากถูกซ่อน) ประหยัดเครื่อง · ยัง mount อยู่ */
+  active?: boolean;
   /** ของที่วางเพิ่มเข้าไปในฉาก (เช่น ต้นไม้ที่โตตาม step ของหน้าสมัคร) */
   children?: ReactNode;
 }) {
   const pointer = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || !active) return;
     const onMove = (e: PointerEvent) => {
       pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
-  }, [reduced]);
+  }, [reduced, active]);
 
   return (
     <Canvas
       shadows
+      // ซ่อนอยู่ = "never" หยุด rAF ไม่เผาแบต · โชว์อยู่ = "always" ลื่นต่อเนื่อง
+      frameloop={active ? "always" : "never"}
       dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ fov: 55, near: 0.1, far: 900, position: [0, EYE_HEIGHT, CAM_START_Z] }}

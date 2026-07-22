@@ -1,24 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProgress } from "@react-three/drei";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import FilmGrain from "@/components/FilmGrain";
+import { useScene } from "@/components/scene/SceneHost";
+import { isSceneLoaded, markSceneLoaded } from "@/components/scene/loadState";
 import { BEATS, beatOpacity, clamp01 } from "./trail";
-
-/**
- * โหลดฉาก 3D แบบ client-only — WebGL เริ่มทำงานตอน mount ฝั่ง client เท่านั้น
- * และกัน three.js/drei หลุดเข้า server bundle
- */
-const TrailScene = dynamic(() => import("./TrailScene"), { ssr: false });
 
 /**
  * หน้า landing = การเดินหนึ่งรอบ
  *
- * ทั้งหน้าเป็นฉาก 3D ฉากเดียวที่ตรึงเต็มจอ · scroll = ระยะทางที่เดินไปได้
- * ข้อความแต่ละช่วง (BEATS) ลอยทับเป็น DOM แล้วเฟดเข้า/ออกตามระยะ
+ * ฉาก 3D จริงอยู่ที่ SceneHost (layout) ตัวเดียวตลอดทั้งเว็บ — หน้านี้แค่สั่งให้
+ * เข้า "โหมดเดิน" (parkAt undefined) แล้วป้อน progress จาก scroll · ข้อความแต่ละ
+ * ช่วง (BEATS) ลอยทับเป็น DOM แล้วเฟดเข้า/ออกตามระยะ
  *
  * ทุกอย่างที่ขยับตาม scroll เขียนผ่าน ref โดยตรง ไม่ผ่าน state —
  * setState ทุกเฟรมจะ re-render ทับ render loop ของ three.js
@@ -27,34 +23,27 @@ const TrailScene = dynamic(() => import("./TrailScene"), { ssr: false });
 /** ความสูงของหน้า = ระยะ scroll ทั้งหมด (ยิ่งมาก เดินยิ่งช้า/นุ่ม) */
 const SCROLL_VH = 900;
 
-const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
-function subscribeReduced(cb: () => void) {
-  const mq = window.matchMedia(REDUCED_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-function getReduced() {
-  return window.matchMedia(REDUCED_QUERY).matches;
-}
-function getReducedServer() {
-  return false;
-}
-
 export default function LandingWalk() {
   const { t, lang } = useLang();
+  const { progress, setConfig } = useScene();
   const wrapRef = useRef<HTMLDivElement>(null);
   const cueRef = useRef<HTMLDivElement>(null);
   const chromeRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const kmRef = useRef<HTMLSpanElement>(null);
-  const progress = useRef(0);
 
   const { active, progress: loadPct } = useProgress();
-  const [ready, setReady] = useState(false);
-  const reduced = useSyncExternalStore(subscribeReduced, getReduced, getReducedServer);
+  const [ready, setReady] = useState(isSceneLoaded);
+
+  // เข้าโหมดเดินตอน mount (parkAt undefined) · ปิดฉากตอน unmount
+  useEffect(() => {
+    setConfig({ enabled: true, parkAt: undefined, plantStep: undefined });
+    return () => setConfig({ enabled: false });
+  }, [setConfig]);
 
   useEffect(() => {
     if (active) return;
+    markSceneLoaded();
     const id = setTimeout(() => setReady(true), 400);
     return () => clearTimeout(id);
   }, [active]);
@@ -127,14 +116,11 @@ export default function LandingWalk() {
 
   return (
     <section ref={wrapRef} style={{ height: `${SCROLL_VH}vh` }} className="relative">
-      {/* fixed ไม่ใช่ sticky — footer เป็นพื้นโปร่ง เลยต้องให้ฉากยังอยู่ข้างหลัง
-          ตอนเลื่อนเลยช่วงเดินไปแล้ว (แบบเดียวกับหน้าสมัคร) · section ที่ครอบอยู่
-          กลายเป็นตัวกันความสูงเฉย ๆ แต่ยังใช้วัด progress ได้เหมือนเดิม */}
-      <div className="fixed inset-0 z-0 overflow-hidden bg-forestdeep">
-        <TrailScene progress={progress} reduced={reduced} />
-
+      {/* overlay ตรึงเต็มจอทับฉาก 3D (ฉากอยู่ที่ SceneHost หลัง z-0) · section
+          ที่ครอบเป็นแค่ตัวกันความสูงให้ scroll ได้ แต่ยังใช้วัด progress เหมือนเดิม */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         {/* ไล่เฉดเข้มหัว/ท้ายจอ ให้ตัวหนังสืออ่านออกทับฉากสว่าง */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,28,20,0.6)_0%,rgba(12,28,20,0)_30%,rgba(12,28,20,0)_55%,rgba(12,28,20,0.7)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(12,28,20,0.6)_0%,rgba(12,28,20,0)_30%,rgba(12,28,20,0)_55%,rgba(12,28,20,0.7)_100%)]" />
 
         {/* film grain */}
         <FilmGrain />

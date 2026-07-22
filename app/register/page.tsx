@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import ForestScene from "@/components/ForestScene";
 import { useEffect, useMemo, useState } from "react";
 import { GhostButton, PhotoPicker, PrimaryButton, SelectField, Stepper, TextField } from "@/components/register/ui";
 import SiteFooter from "@/components/register/SiteFooter";
@@ -14,10 +14,6 @@ import { dayForStep } from "@/lib/dayCycle";
  * ฉาก 3D โหลดฝั่ง client เท่านั้น — three.js/drei ห้ามหลุดเข้า server bundle
  * (เหมือนที่หน้า landing ทำกับ TrailScene)
  */
-const ForestScene = dynamic(() => import("@/components/ForestScene"), {
-  ssr: false,
-  loading: () => <div className="fixed inset-0 z-0 bg-forestdeep" aria-hidden />,
-});
 
 // ข้อมูลฟอร์มทั้งหมด (ค่อยเติมทีละ step)
 type FormData = {

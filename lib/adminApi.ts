@@ -1,8 +1,20 @@
 // เรียก backend admin ผ่าน proxy /api
 
-export type AdminSession = { token: string; username: string };
+/** บทบาทที่ backend ส่งกลับมาตอนล็อกอิน (ยืนยันจาก /auth/login จริง) */
+export type Role = "admin" | "staff" | "participant";
 
-export async function adminLogin(username: string, password: string): Promise<AdminSession> {
+export type Session = { token: string; username: string; role: Role };
+
+/**
+ * เข้าสู่ระบบ — ใช้ได้กับทุกบทบาท
+ *
+ * `/auth/login` เป็น endpoint กลางอยู่แล้ว เมื่อก่อนฝั่งนี้ดักไว้เองว่า
+ * ถ้า role ไม่ใช่ admin ให้โยน error ทิ้ง · ตอนนี้คืน role กลับไปให้ผู้เรียก
+ * ตัดสินใจว่าจะพาไปหน้าไหนแทน
+ *
+ * ผู้เข้าร่วมใช้ "รหัสนักศึกษา" เป็น username (ค่าเดียวกับตอนสมัคร)
+ */
+export async function login(username: string, password: string): Promise<Session> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -13,8 +25,42 @@ export async function adminLogin(username: string, password: string): Promise<Ad
     throw new Error(b.error || "เข้าสู่ระบบไม่สำเร็จ");
   }
   const data = await res.json();
-  if (data.user?.role !== "admin") throw new Error("บัญชีนี้ไม่ใช่ผู้ดูแล");
-  return { token: data.token as string, username: data.user.username as string };
+  return {
+    token: data.token as string,
+    username: data.user?.username as string,
+    role: (data.user?.role ?? "participant") as Role,
+  };
+}
+
+/** โปรไฟล์ของผู้เข้าร่วมที่ล็อกอินอยู่ — ตรงกับ model.ParticipantDetail ฝั่ง backend (/wbw/me) */
+export type MyProfile = {
+  id: string;
+  student_id: string | null;
+  bib: number | null;
+  first_name: string | null;
+  last_name: string | null;
+  sex: string | null;
+  date_of_birth: string | null;
+  contact_phone: string | null;
+  school_id: number | null;
+  school_name: string | null;
+  major: string | null;
+  group_number: number | null;
+  photo_url: string | null;
+  checked_in: boolean;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  blood_type: string | null;
+  weight_kg: number | null;
+  height_cm: number | null;
+};
+
+/** ดึงโปรไฟล์ตัวเอง (ผู้เข้าร่วม) — ต้องมี token */
+export async function getMyProfile(token: string): Promise<MyProfile> {
+  const res = await fetch("/api/me", { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
+  return res.json();
 }
 
 export type Stats = {
@@ -28,7 +74,8 @@ export async function getStats(token: string): Promise<Stats> {
   const res = await fetch("/api/admin/dashboard", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
   return res.json();
 }
@@ -36,8 +83,10 @@ export async function getStats(token: string): Promise<Stats> {
 export type BaseOverview = {
   id: number;
   name: string;
+  name_en: string | null;
   sequence: number | null;
   activity_name: string | null;
+  activity_name_en: string | null;
   checkin_count: number;
   staff: { id: string; name: string }[];
 };
@@ -46,7 +95,8 @@ export async function getBasesOverview(token: string): Promise<BaseOverview[]> {
   const res = await fetch("/api/admin/bases-overview", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   if (!res.ok) throw new Error("โหลดข้อมูลฐานไม่สำเร็จ");
   return res.json();
 }
@@ -73,7 +123,8 @@ export async function getParticipants(token: string): Promise<Participant[]> {
   const res = await fetch("/api/admin/participants", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   if (!res.ok) throw new Error("โหลดรายชื่อไม่สำเร็จ");
   return res.json();
 }
@@ -176,7 +227,8 @@ async function handle<T>(res: Response, fallback: string): Promise<T> {
 
 export async function getUsers(token: string): Promise<AdminUser[]> {
   const res = await fetch("/api/admin/users", { headers: { Authorization: `Bearer ${token}` } });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดรายชื่อไม่สำเร็จ");
 }
 
@@ -212,6 +264,7 @@ export type CheckpointStaff = { id: string; username: string; display_name: stri
 export type Checkpoint = {
   id: number;
   name: string;
+  name_en: string | null;
   type: string;
   sequence: number | null;
   staff: CheckpointStaff[];
@@ -219,13 +272,14 @@ export type Checkpoint = {
 
 export async function getCheckpoints(token: string): Promise<Checkpoint[]> {
   const res = await fetch("/api/admin/checkpoints", { headers: { Authorization: `Bearer ${token}` } });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดฐานไม่สำเร็จ");
 }
 
 export async function createCheckpoint(
   token: string,
-  data: { name: string; type: string; sequence?: number | null },
+  data: { name: string; name_en?: string | null; type: string; sequence?: number | null },
 ): Promise<Checkpoint> {
   const res = await fetch("/api/admin/checkpoints", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
   return handle(res, "เพิ่มฐานไม่สำเร็จ");
@@ -234,7 +288,7 @@ export async function createCheckpoint(
 export async function patchCheckpoint(
   token: string,
   id: number,
-  patch: { name?: string; type?: string; sequence?: number | null },
+  patch: { name?: string; name_en?: string | null; type?: string; sequence?: number | null },
 ): Promise<Checkpoint> {
   const res = await fetch(`/api/admin/checkpoints/${id}`, { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(patch) });
   return handle(res, "แก้ไขฐานไม่สำเร็จ");
@@ -273,7 +327,8 @@ export type LogEntry = {
 
 export async function getLogs(token: string): Promise<LogEntry[]> {
   const res = await fetch("/api/admin/logs", { headers: { Authorization: `Bearer ${token}` } });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดบันทึกไม่สำเร็จ");
 }
 
@@ -311,9 +366,39 @@ export async function createNotification(token: string, data: NewNotification): 
   return handle(res, "ส่งประกาศไม่สำเร็จ");
 }
 
+/* ---------- ประกาศสำหรับหน้า /announcements ---------- */
+
+/** ประกาศหนึ่งชิ้นที่ผู้เข้าร่วม/สาธารณะเห็น */
+export type Announcement = {
+  id: number;
+  type: string;
+  title: string;
+  body: string | null;
+  level: NotiLevel;
+  created_at: string;
+  expires_at: string | null;
+  creator_name: string | null;
+};
+
+/** ประกาศสาธารณะ (audience=all) — ไม่ต้องล็อกอิน */
+export async function getPublicAnnouncements(): Promise<Announcement[]> {
+  const res = await fetch("/api/notifications/public");
+  if (!res.ok) throw new Error("โหลดประกาศไม่สำเร็จ");
+  return res.json();
+}
+
+/** ประกาศของผู้เข้าร่วมที่ล็อกอิน (all + เจาะจงกลุ่ม/สำนัก/รายบุคคล) */
+export async function getMyAnnouncements(token: string): Promise<Announcement[]> {
+  const res = await fetch("/api/notifications", { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (!res.ok) throw new Error("โหลดประกาศไม่สำเร็จ");
+  return res.json();
+}
+
 export async function getSentNotifications(token: string): Promise<SentNotification[]> {
   const res = await fetch("/api/notifications/sent", { headers: { Authorization: `Bearer ${token}` } });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดประกาศไม่สำเร็จ");
 }
 
@@ -366,7 +451,8 @@ export type School = { school_id: number; name: string };
 
 export async function getGroups(token: string): Promise<NotiGroup[]> {
   const res = await fetch("/api/groups", { headers: { Authorization: `Bearer ${token}` } });
-  if (res.status === 401 || res.status === 403) throw new Error("unauthorized");
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดรายชื่อกลุ่มไม่สำเร็จ");
 }
 

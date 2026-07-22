@@ -1,8 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import ForestScene from "@/components/ForestScene";
 import { useState, type ReactNode } from "react";
-import { adminLogin, type AdminSession } from "@/lib/adminApi";
+import Link from "next/link";
+import { login as apiLogin, type Session } from "@/lib/adminApi";
 import { TextField } from "@/components/register/ui";
 import NavBar from "@/components/landing/NavBar";
 import LanguageToggle from "@/components/register/LanguageToggle";
@@ -13,13 +14,9 @@ import { DAY_STILL } from "@/lib/dayCycle";
  * ฉากป่าโหลดฝั่ง client เท่านั้น (three.js ห้ามเข้า server bundle) และเป็น
  * chunk แยก — โหลดตอนเรนเดอร์หน้า login เท่านั้น ไม่ติดไปกับแผงผู้ดูแลที่ล็อกอินแล้ว
  */
-const ForestScene = dynamic(() => import("@/components/ForestScene"), {
-  ssr: false,
-  loading: () => <div className="fixed inset-0 z-0 bg-forestdeep" aria-hidden />,
-});
 
-/* ---------- หน้าเข้าสู่ระบบผู้ดูแล — สไตล์เดียวกับหน้าสมัคร แต่ฟอร์มอยู่กลางจอ ---------- */
-export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => void }) {
+/* ---------- หน้าเข้าสู่ระบบ — ใช้ได้ทุกบทบาท · สไตล์เดียวกับหน้าสมัคร ฟอร์มอยู่กลางจอ ---------- */
+export function SignIn({ onLogin }: { onLogin: (session: Session) => void }) {
   const { t, lang } = useLang();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +27,7 @@ export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => vo
     setError(null);
     setBusy(true);
     try {
-      onLogin(await adminLogin(username.trim(), password));
+      onLogin(await apiLogin(username.trim(), password));
     } catch (e) {
       setError(e instanceof Error ? e.message : t.dash.login.failed);
     } finally {
@@ -55,13 +52,26 @@ export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => vo
               className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
               style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
             >
-              {t.dash.title}
+              {t.dash.login.heading}
             </h1>
+            <p className="mt-3 text-sm text-cream/78">{t.dash.login.sub}</p>
           </header>
 
           <div className="space-y-5 rounded-[26px] border border-cream/15 bg-ink/82 p-7 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-            <TextField label={t.dash.login.username} value={username} onChange={setUsername} autoComplete="username" />
-            <TextField label={t.dash.login.password} type="password" value={password} onChange={setPassword} autoComplete="current-password" />
+            <TextField
+              label={t.dash.login.username}
+              value={username}
+              onChange={setUsername}
+              autoComplete="username"
+              hint={t.dash.login.usernameHint}
+            />
+            <TextField
+              label={t.dash.login.password}
+              type="password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+            />
             {error && (
               <p className="rounded-[14px] border border-danger/40 bg-danger/20 px-4 py-3 text-sm text-[#ffc4c4]">
                 {error}
@@ -72,12 +82,30 @@ export function AdminLogin({ onLogin }: { onLogin: (session: AdminSession) => vo
                 type="button"
                 onClick={submit}
                 disabled={busy}
-                className="w-full rounded-full bg-cream py-3 font-semibold text-forestdeep transition-all duration-200 hover:bg-white disabled:opacity-60"
+                className="w-full rounded-full bg-cream py-3 font-semibold text-forestdeep transition-all duration-200 hover:bg-card disabled:opacity-60"
               >
                 {busy ? t.dash.login.signingIn : t.dash.login.signIn}
               </button>
             </div>
+
+            {/* ยังไม่มีบัญชี → ไปหน้าสมัคร */}
+            <div className="border-t border-cream/15 pt-5 text-center">
+              <p className="text-sm text-cream/78">{t.dash.login.noAccount}</p>
+              <Link
+                href="/register"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-goldsoft underline-offset-4 transition-colors hover:text-cream hover:underline"
+              >
+                {t.dash.login.registerLink}
+                <svg width="14" height="11" viewBox="0 0 16 12" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  <path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
           </div>
+
+          <p className="mt-5 text-center text-xs leading-relaxed text-cream/70">
+            {t.dash.login.help}
+          </p>
         </div>
       </main>
     </>

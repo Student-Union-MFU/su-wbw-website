@@ -24,6 +24,7 @@ import {
 import { useRef } from "react";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
+import { formatTs } from "@/lib/datetime";
 import type { Dict } from "@/lib/i18n/dictionaries";
 
 /* ป้ายและสีตามระดับความสำคัญ (info เขียว, warning ทอง, emergency แดง) */
@@ -46,13 +47,7 @@ const audienceLabel = (t: Dict): Record<Audience, string> => ({
   user: t.dash.announce.audUser,
 });
 
-function fmtTime(iso: string, locale: string): string {
-  try {
-    return new Date(iso).toLocaleString(locale, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-  } catch {
-    return iso;
-  }
-}
+const fmtTime = (iso: string, locale: string) => formatTs(iso, locale);
 
 export function Announcements({ token }: { token: string }) {
   const t = useT();
@@ -180,7 +175,7 @@ function Composer({ token, onSent }: { token: string; onSent: () => void }) {
         {/* preset — กดโหลด / ลบ / บันทึกใหม่ */}
         <div className="flex flex-wrap items-center gap-2">
           {presets.map((p) => (
-            <span key={p.id} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1 text-xs text-ink">
+            <span key={p.id} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1 text-xs text-ink">
               <button type="button" onClick={() => loadPreset(p)} className="transition-colors hover:text-forest">{p.name}</button>
               <button type="button" onClick={() => doDeletePreset(p.id)} className="text-muted transition-colors hover:text-danger">✕</button>
             </span>
@@ -203,7 +198,7 @@ function Composer({ token, onSent }: { token: string; onSent: () => void }) {
             onChange={(e) => setBody(e.target.value)}
             rows={3}
             placeholder={t.dash.announce.bodyPlaceholder}
-            className="w-full resize-none rounded-[14px] border border-line bg-white px-4 py-3 text-ink outline-none transition-all duration-200 placeholder:text-muted/70 focus:border-forest focus:ring-2 focus:ring-forest/15"
+            className="w-full resize-none rounded-[14px] border border-line bg-card px-4 py-3 text-ink outline-none transition-all duration-200 placeholder:text-muted/70 focus:border-forest focus:ring-2 focus:ring-forest/15"
           />
         </label>
 
@@ -247,7 +242,7 @@ function Composer({ token, onSent }: { token: string; onSent: () => void }) {
           type="button"
           onClick={submit}
           disabled={busy}
-          className="w-full rounded-full bg-forest px-6 py-3 font-medium text-white transition-all duration-200 hover:bg-forestdeep disabled:opacity-60"
+          className="w-full rounded-full bg-forest px-6 py-3 font-medium text-white transition-all duration-200 hover:brightness-110 disabled:opacity-60"
         >
           {busy ? t.dash.announce.sending : t.dash.announce.send}
         </button>
@@ -314,7 +309,7 @@ function UserPicker({ token, value, onChange }: { token: string; value: string; 
     <div>
       <TextField label={t.dash.announce.searchRecipient} value={q} onChange={setQ} placeholder={t.dash.announce.searchRecipientPlaceholder} />
       {matches.length > 0 && (
-        <ul className="mt-2 overflow-hidden rounded-[14px] border border-line bg-white">
+        <ul className="mt-2 overflow-hidden rounded-[14px] border border-line bg-card">
           {matches.map((p) => (
             <li key={p.id}>
               <button

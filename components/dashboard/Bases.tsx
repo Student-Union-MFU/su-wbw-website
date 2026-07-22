@@ -13,8 +13,12 @@ import {
   type Checkpoint,
 } from "@/lib/adminApi";
 import { SelectField, TextField } from "@/components/register/ui";
-import { useT } from "@/lib/i18n/LanguageProvider";
+import { useLang, useT } from "@/lib/i18n/LanguageProvider";
 import type { Dict } from "@/lib/i18n/dictionaries";
+
+/** ชื่อฐานตามภาษาปัจจุบัน — ไม่มีคำแปลอังกฤษ → fall back เป็นไทย */
+const baseName = (b: { name: string; name_en: string | null }, lang: string) =>
+  lang === "en" && b.name_en ? b.name_en : b.name;
 
 const typeLabels = (t: Dict): Record<string, string> => ({
   activity: t.dash.bases.typeActivity,
@@ -62,7 +66,7 @@ export function Bases({ token }: { token: string }) {
         <button
           type="button"
           onClick={() => setModal({ type: "create" })}
-          className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-forestdeep"
+          className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
         >
           {t.dash.bases.add}
         </button>
@@ -118,7 +122,7 @@ function BaseCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const t = useT();
+  const { t, lang } = useLang();
   const assignedIds = new Set(base.staff.map((s) => s.id));
   const available = useMemo(() => allStaff.filter((u) => !assignedIds.has(u.id)), [allStaff, base.staff]);
 
@@ -129,7 +133,7 @@ function BaseCard({
           {base.sequence ?? "•"}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-medium text-ink">{base.name}</h3>
+          <h3 className="truncate font-medium text-ink">{baseName(base, lang)}</h3>
           <p className="text-xs text-muted">{typeLabels(t)[base.type] ?? base.type}</p>
         </div>
         <div className="flex flex-none gap-1">
@@ -157,7 +161,7 @@ function BaseCard({
 
         {adding ? (
           available.length > 0 ? (
-            <select autoFocus defaultValue="" onChange={(e) => e.target.value && onAssign(e.target.value)} className="rounded-full border border-forest bg-white px-3 py-1.5 text-sm text-ink outline-none">
+            <select autoFocus defaultValue="" onChange={(e) => e.target.value && onAssign(e.target.value)} className="rounded-full border border-forest bg-card px-3 py-1.5 text-sm text-ink outline-none">
               <option value="" disabled>{t.dash.bases.selectStaff}</option>
               {available.map((u) => <option key={u.id} value={u.id}>{u.display_name || u.username}</option>)}
             </select>
@@ -195,6 +199,7 @@ function CheckpointModal({ token, base, onClose, onDone }: { token: string; base
   const t = useT();
   const editing = !!base;
   const [name, setName] = useState(base?.name ?? "");
+  const [nameEn, setNameEn] = useState(base?.name_en ?? "");
   const [type, setType] = useState(base?.type ?? "activity");
   const [sequence, setSequence] = useState(base?.sequence != null ? String(base.sequence) : "");
   const [busy, setBusy] = useState(false);
@@ -206,8 +211,9 @@ function CheckpointModal({ token, base, onClose, onDone }: { token: string; base
     setBusy(true);
     try {
       const seq = sequence === "" ? null : Number(sequence);
-      if (editing) await patchCheckpoint(token, base!.id, { name: name.trim(), type, sequence: seq });
-      else await createCheckpoint(token, { name: name.trim(), type, sequence: seq });
+      const en = nameEn.trim() || null;
+      if (editing) await patchCheckpoint(token, base!.id, { name: name.trim(), name_en: en, type, sequence: seq });
+      else await createCheckpoint(token, { name: name.trim(), name_en: en, type, sequence: seq });
       onDone();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.dash.common.saveFailed);
@@ -220,6 +226,7 @@ function CheckpointModal({ token, base, onClose, onDone }: { token: string; base
     <Modal title={editing ? t.dash.bases.editTitle : t.dash.bases.add} onClose={onClose}>
       <div className="space-y-4">
         <TextField label={t.dash.bases.name} value={name} onChange={setName} placeholder={t.dash.bases.namePlaceholder} />
+        <TextField label={t.dash.bases.nameEn} value={nameEn} onChange={setNameEn} placeholder={t.dash.bases.nameEnPlaceholder} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <SelectField label={t.dash.bases.type} value={type} onChange={setType} options={Object.entries(typeLabels(t)).map(([value, label]) => ({ value, label }))} />
           <TextField label={t.dash.bases.sequence} value={sequence} onChange={(v) => setSequence(v.replace(/\D/g, ""))} inputMode="numeric" />
@@ -232,7 +239,7 @@ function CheckpointModal({ token, base, onClose, onDone }: { token: string; base
 }
 
 function DeleteBaseModal({ token, base, onClose, onDone }: { token: string; base: Checkpoint; onClose: () => void; onDone: () => void }) {
-  const t = useT();
+  const { t, lang } = useLang();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   async function confirm() {
@@ -247,7 +254,7 @@ function DeleteBaseModal({ token, base, onClose, onDone }: { token: string; base
   }
   return (
     <Modal title={t.dash.bases.deleteTitle} onClose={onClose}>
-      <p className="text-ink">{t.dash.bases.deleteConfirmBefore} <span className="font-medium">{base.name}</span>{t.dash.bases.deleteConfirmAfter}</p>
+      <p className="text-ink">{t.dash.bases.deleteConfirmBefore} <span className="font-medium">{baseName(base, lang)}</span>{t.dash.bases.deleteConfirmAfter}</p>
       {error && <p className="mt-4 rounded-[14px] bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>}
       <ModalActions onClose={onClose} onSave={confirm} busy={busy} saveLabel={t.dash.bases.deleteTitle} danger />
     </Modal>
@@ -270,7 +277,7 @@ function ModalActions({ onClose, onSave, busy, saveLabel, danger }: { onClose: (
   return (
     <div className="mt-6 flex justify-end gap-2">
       <button type="button" onClick={onClose} className="rounded-full px-5 py-2.5 text-muted transition-colors hover:text-ink">{t.dash.common.cancel}</button>
-      <button type="button" onClick={onSave} disabled={busy} className={["rounded-full px-6 py-2.5 font-medium text-white transition-all duration-200 disabled:opacity-60", danger ? "bg-danger hover:brightness-95" : "bg-forest hover:bg-forestdeep"].join(" ")}>
+      <button type="button" onClick={onSave} disabled={busy} className={["rounded-full px-6 py-2.5 font-medium text-white transition-all duration-200 disabled:opacity-60", danger ? "bg-danger hover:brightness-95" : "bg-forest hover:brightness-110"].join(" ")}>
         {busy ? t.dash.common.saving : saveLabel}
       </button>
     </div>

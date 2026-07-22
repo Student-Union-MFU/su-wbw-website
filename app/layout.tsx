@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Sarabun, Patrick_Hand, Itim, Kanit } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
+import SceneHost from "@/components/scene/SceneHost";
 import "./globals.css";
 
 // ฟอนต์ Sarabun รองรับไทย อ่านง่าย (ตาม design principle: typography ที่อ่านง่าย)
@@ -47,7 +48,11 @@ export default function RootLayout({
   return (
     <html lang="th" className={`${sarabun.variable} ${hand.variable} ${handTh.variable} ${kanit.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          {/* Canvas 3D ตัวเดียวของทั้งเว็บ อยู่ที่นี่ ไม่ unmount ตอนเปลี่ยนหน้า
+              (กันจอเขียวแวบ + ประหยัดหน่วยความจำ) · หน้าต่าง ๆ สั่งฉากผ่าน context */}
+          <SceneHost>{children}</SceneHost>
+        </LanguageProvider>
       </body>
     </html>
   );

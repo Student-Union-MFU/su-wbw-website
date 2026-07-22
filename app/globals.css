@@ -200,3 +200,34 @@ body {
 .on-dark .wave-group .wg-req {
   color: #ffa7a7;
 }
+
+/* ============================================================
+   .dash-dark — ธีมมืดของแผงผู้ดูแล ให้เข้าชุดกับทั้งเว็บ (ป่า/กระจกเข้ม)
+   แทนที่จะแก้ทุก className ในทุกไฟล์ (นับได้ ~200 จุด) เรานิยาม token สีใหม่
+   ในสโคปนี้ที่เดียว — utility อย่าง bg-card/text-ink/border-line อ้างอิง
+   CSS variable อยู่แล้ว จึงพลิกเป็นธีมมืดทั้งแผงทันทีโดยไม่ต้องแตะ markup
+
+   token ที่ใช้เป็น "พื้นผิว" (card/cream/line) → ทำให้เข้ม
+   token ที่ใช้เป็น "ตัวอักษร" (ink/muted/forestdeep) → ทำให้สว่าง
+   forest ใช้ทั้งพื้นปุ่มและตัวอักษร → เลือกเฉดที่ผ่าน contrast ทั้งสองแบบ
+   ============================================================ */
+.dash-dark {
+  color-scheme: dark;
+  background: linear-gradient(180deg, #12211a 0%, #0e1811 100%);
+  --color-cream: #142019; /* พื้นรอง/แถบหัว → เข้ม */
+  --color-card: #1b2c22; /* การ์ด → เข้ม */
+  --color-ink: #eaf0ea; /* ตัวอักษรหลัก → สว่าง */
+  --color-muted: #9fb3a6; /* ตัวอักษรรอง → เทาอมเขียวสว่าง */
+  --color-line: #2e4335; /* เส้นขอบ → เขียวเข้ม */
+  --color-forestdeep: #eef4ee; /* หัวเรื่อง (text-forestdeep) → สว่าง */
+  --color-forest: #3a8563; /* accent เขียว: ขาวบนปุ่ม 4.45:1 · ตัวอักษรบนพื้นเข้ม 3.3:1 */
+}
+/* ช่องกรอกใน dashboard = .wave-group ซึ่งอ้างอิง token ด้านบนอยู่แล้ว
+   เหลือแค่จุดที่ hardcode สีไว้ ต้องปรับเองในสโคปนี้ */
+.dash-dark .wave-group .wg-input[readonly] {
+  color: rgba(234, 240, 234, 0.65);
+}
+.dash-dark .wave-group option {
+  color: #eaf0ea;
+  background-color: #1b2c22;
+}

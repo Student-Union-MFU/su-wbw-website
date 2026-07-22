@@ -412,10 +412,10 @@ function EditModal({
             onClick={() => setForm((f) => ({ ...f, checked_in: !f.checked_in }))}
             className={[
               "flex w-full items-center gap-3 rounded-[16px] border p-4 text-left transition-all duration-200",
-              form.checked_in ? "border-forest bg-forest/5" : "border-line bg-white hover:border-forest/40",
+              form.checked_in ? "border-forest bg-forest/5" : "border-line bg-card hover:border-forest/40",
             ].join(" ")}
           >
-            <span className={["flex h-5 w-5 flex-none items-center justify-center rounded-md border", form.checked_in ? "border-forest bg-forest" : "border-line bg-white"].join(" ")}>
+            <span className={["flex h-5 w-5 flex-none items-center justify-center rounded-md border", form.checked_in ? "border-forest bg-forest" : "border-line bg-card"].join(" ")}>
               {form.checked_in && (
                 <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="m5 10.5 3.5 3.5L15 6.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -448,7 +448,7 @@ function EditModal({
             type="button"
             onClick={save}
             disabled={busy}
-            className="rounded-full bg-forest px-6 py-2.5 font-medium text-white transition-all duration-200 hover:bg-forestdeep disabled:opacity-60"
+            className="rounded-full bg-forest px-6 py-2.5 font-medium text-white transition-all duration-200 hover:brightness-110 disabled:opacity-60"
           >
             {busy ? t.dash.common.saving : t.dash.common.save}
           </button>
@@ -466,7 +466,7 @@ function EditModal({
                 onChange={(e) => setNewPw(e.target.value)}
                 placeholder={t.dash.participants.newPwPlaceholder}
                 autoComplete="new-password"
-                className="w-full rounded-[14px] border border-line bg-white py-2.5 pl-4 pr-11 text-sm text-ink outline-none focus:border-forest"
+                className="w-full rounded-[14px] border border-line bg-card py-2.5 pl-4 pr-11 text-sm text-ink outline-none focus:border-forest"
               />
               <button
                 type="button"

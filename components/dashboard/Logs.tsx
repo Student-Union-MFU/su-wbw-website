@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getLogs, type LogEntry } from "@/lib/adminApi";
 import { useT } from "@/lib/i18n/LanguageProvider";
+import { formatTs } from "@/lib/datetime";
 
 // สีป้ายตามชนิด action
 const ACTION_TONE: Record<string, string> = {
@@ -15,18 +16,7 @@ const ACTION_TONE: Record<string, string> = {
   แก้ไขผู้เข้าร่วม: "bg-gold/12 text-gold",
 };
 
-function fmtTime(iso: string, locale: string): string {
-  try {
-    return new Date(iso).toLocaleString(locale, {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
+const fmtTime = (iso: string, locale: string) => formatTs(iso, locale);
 
 export function Logs({ token }: { token: string }) {
   const t = useT();

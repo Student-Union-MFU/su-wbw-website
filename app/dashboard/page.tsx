@@ -1,55 +1,41 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   getStats,
   getBasesOverview,
   getParticipants,
-  type AdminSession,
   type Stats,
   type BaseOverview,
   type Participant,
 } from "@/lib/adminApi";
 import { getSchools, type School } from "@/lib/api";
-import { AdminLogin, DashHeader, StatCard } from "@/components/dashboard/ui";
+import { useSession, isStaff } from "@/lib/session";
+import { SignIn, DashHeader, StatCard } from "@/components/dashboard/ui";
 import { DailyChart, SchoolChart, QuotaCard } from "@/components/dashboard/Charts";
 import { Participants } from "@/components/dashboard/Participants";
 import { Users } from "@/components/dashboard/Users";
 import { Bases } from "@/components/dashboard/Bases";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Logs } from "@/components/dashboard/Logs";
-import { useT } from "@/lib/i18n/LanguageProvider";
-
-const TOKEN_KEY = "wbw.admin.token";
-const USER_KEY = "wbw.admin.user";
+import { useLang, useT } from "@/lib/i18n/LanguageProvider";
 
 export default function DashboardPage() {
-  const [token, setToken] = useState<string | null>(null);
-  const [username, setUsername] = useState("");
-  const [ready, setReady] = useState(false);
+  const router = useRouter();
+  const { session, ready, signIn, signOut } = useSession();
 
+  // ผู้เข้าร่วมไม่มีสิทธิ์ใน endpoint ของแผงผู้ดูแล — เด้งไปหน้า /me ของตัวเอง
+  // (ทั้งตอนเพิ่งล็อกอิน และตอนกลับมาเปิด /dashboard ทั้งที่ session เป็นผู้เข้าร่วม)
+  const isParticipant = !!session && !isStaff(session.role);
   useEffect(() => {
-    setToken(localStorage.getItem(TOKEN_KEY));
-    setUsername(localStorage.getItem(USER_KEY) ?? "");
-    setReady(true);
-  }, []);
-
-  function login(s: AdminSession) {
-    localStorage.setItem(TOKEN_KEY, s.token);
-    localStorage.setItem(USER_KEY, s.username);
-    setToken(s.token);
-    setUsername(s.username);
-  }
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    setToken(null);
-    setUsername("");
-  }, []);
+    if (ready && isParticipant) router.replace("/me");
+  }, [ready, isParticipant, router]);
 
   if (!ready) return null; // เลี่ยงการกระพริบตอนอ่าน localStorage
-  if (!token) return <AdminLogin onLogin={login} />;
-  return <DashboardHome token={token} username={username} onLogout={logout} />;
+  if (!session) return <SignIn onLogin={signIn} />;
+  if (isParticipant) return null; // กำลังเด้งไป /me
+  return <DashboardHome token={session.token} username={session.username} onLogout={signOut} />;
 }
 
 const TAB_KEYS = ["overview", "participants", "users", "bases", "announce", "logs"] as const;
@@ -69,7 +55,10 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
     setRefreshing(true);
     setError(null);
     const done = (e: Error) => {
+      // 401 = token ใช้ไม่ได้ → ออกจากระบบ
+      // 403 = บทบาทไม่พอสำหรับ endpoint นั้น (เช่น staff เปิดของ admin) → แค่บอก ไม่เตะออก
       if (e.message === "unauthorized") onLogout();
+      else if (e.message === "forbidden") setError(t.dash.login.forbidden);
       else setError(e.message);
     };
     return Promise.allSettled([
@@ -92,7 +81,7 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="dash-dark min-h-screen">
       <DashHeader username={username} onLogout={onLogout} />
 
       {/* แท็บ */}
@@ -169,7 +158,9 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
 
 /* ---------- การ์ดฐานกิจกรรม ---------- */
 function BaseCard({ base }: { base: BaseOverview }) {
-  const t = useT();
+  const { t, lang } = useLang();
+  const name = lang === "en" && base.name_en ? base.name_en : base.name;
+  const activity = lang === "en" && base.activity_name_en ? base.activity_name_en : base.activity_name;
   return (
     <div className="rounded-2xl border border-line bg-card p-5 shadow-[0_10px_30px_-24px_rgba(27,67,50,0.4)]">
       <div className="flex items-center justify-between">
@@ -178,8 +169,8 @@ function BaseCard({ base }: { base: BaseOverview }) {
           {t.dash.overview.checkins(base.checkin_count)}
         </span>
       </div>
-      <p className="mt-2 font-semibold text-forestdeep">{base.name}</p>
-      {base.activity_name && <p className="mt-0.5 text-xs text-muted">{base.activity_name}</p>}
+      <p className="mt-2 font-semibold text-forestdeep">{name}</p>
+      {activity && <p className="mt-0.5 text-xs text-muted">{activity}</p>}
       <div className="mt-3 border-t border-line pt-3">
         <p className="text-xs text-muted">{t.dash.overview.baseStaff}</p>
         {base.staff.length > 0 ? (

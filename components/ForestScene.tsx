@@ -1,44 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useProgress } from "@react-three/drei";
-import TrailScene, { type Clearing } from "@/components/landing/TrailScene";
-import GrowingPlant from "./register/GrowingPlant";
 import FilmGrain from "@/components/FilmGrain";
-import { curve, lerp, zAt } from "@/components/landing/trail";
-import { useReducedMotion } from "@/lib/useReducedMotion";
+import { lerp } from "@/components/landing/trail";
+import { PARK_P } from "@/components/scene/config";
+import { useScene } from "@/components/scene/SceneHost";
+import { isSceneLoaded, markSceneLoaded } from "@/components/scene/loadState";
 import { useT } from "@/lib/i18n/LanguageProvider";
 
 /**
- * ฉากป่าเป็นพื้นหลังแบบ "ยืนอยู่กับที่" — ใช้ฉาก 3D เดียวกับหน้า landing
- * แต่กล้องไม่เดินไปไหน ใช้เป็นฉากหลังของหน้าที่มีฟอร์มลอยทับ
+ * ฉากป่าแบบ "ยืนอยู่กับที่" สำหรับหน้าที่มีฟอร์มลอยทับ (สมัคร/เข้าสู่ระบบ/โปรไฟล์/
+ * ประกาศ/เกี่ยวกับ/ติดต่อ)
  *
- * ใช้อยู่สองที่:
- *   · หน้าสมัคร — ส่ง plantStep มาด้วย เปลี่ยน step แล้วแสงไล่ไปข้างหน้าหนึ่งช่วง
- *     และต้นไม้โตขึ้นหนึ่งระยะ
- *   · หน้าเข้าสู่ระบบผู้ดูแล — ไม่ส่ง plantStep (ไม่มีต้นไม้) แสงนิ่งอยู่เวลาเดียว
+ * ไม่มี <Canvas> ของตัวเองแล้ว — Canvas จริงอยู่ที่ SceneHost ใน layout ตัวเดียว
+ * ตลอดทั้งเว็บ · คอมโพเนนต์นี้แค่ (1) สั่งให้ฉากยืนอยู่กับที่ + คุมช่วงเวลาของวัน/
+ * ต้นไม้ผ่าน context และ (2) วาด overlay (scrim/เกรน/เครดิต/หน้าโหลด) ทับฉาก
+ * ผลคือเปลี่ยนหน้าไม่ต้องสร้าง WebGL ใหม่ = ไม่มีจอเขียวแวบ
  */
-
-/** จุดที่ยืนบนเส้นทาง */
-const PARK_P = 0.28;
-const CAM_Z = zAt(PARK_P);
-
-/**
- * ต้นไม้ประจำผู้สมัคร — ข้างหน้าเยื้องซ้าย พ้นขอบทางเดินออกไปนิดเดียว
- *
- * ระยะ 6 หน่วยคือระยะที่ใกล้พอให้ต้นระยะแรกยังเห็นชัด:
- * ที่ fov 55° ความสูงที่มองเห็นตรงระยะนี้ ≈ 6.2 หน่วย ต้นระยะแรกสูง 0.7
- * จึงกินราว 11% ของความสูงจอ (ตอนอยู่ที่ 8.5 หน่วยเหลือแค่ ~4% = แทบมองไม่เห็น)
- *
- * เยื้องซ้าย 2.9: ความกว้างทางเดินจริงตรง z นี้คือ 2.10 ไม่ใช่ TRAIL_HALF (3.2)
- * เพราะ TrailPath แกว่งความกว้างตาม z — ต้นไม้เลยขยับเข้ามาทางขวาได้อีกโดยยัง
- * ไม่ไปยืนบนทาง · ตำแหน่งบนจอขยับจาก 16% มาเป็น ~24% จากขอบซ้าย
- */
-const PLANT_Z = CAM_Z - 6.0;
-const PLANT_X = curve(PLANT_Z) - 2.9;
-/** ถางที่รอบต้นไม้ ไม่ให้ต้นไม้ในผังฉากงอกทับ */
-const CLEARING: Clearing = { x: PLANT_X, z: PLANT_Z, r: 3.2 };
-
 export default function ForestScene({
   day,
   plantStep,
@@ -48,23 +27,35 @@ export default function ForestScene({
   day: number;
   /** ระยะการเติบโตของต้นไม้ · ไม่ส่ง = ไม่มีต้นไม้ในฉาก */
   plantStep?: number;
-  /** ฟอร์มที่ลอยทับอยู่ชิดขวา (หน้าสมัคร) หรืออยู่กลางจอ (เข้าสู่ระบบ) — คุมทิศของ scrim */
+  /** ฟอร์มลอยทับชิดขวา (สมัคร) หรือกลางจอ (อื่น ๆ) — คุมทิศ scrim */
   focus?: "right" | "center";
 }) {
   const t = useT();
-  const reduced = useReducedMotion();
-  const progress = useRef(day);
-
+  const { progress, reduced, setConfig } = useScene();
   const { active, progress: loadPct } = useProgress();
-  const [ready, setReady] = useState(false);
+  // โหลดเสร็จแล้ว (จากหน้าก่อน) → ไม่ต้องโชว์หน้าโหลดอีกตอนเปลี่ยนหน้า
+  const [ready, setReady] = useState(isSceneLoaded);
 
+  // เปิดฉากโหมดยืนตอน mount · ปิดตอน unmount (หน้าถัดไปจะเปิดของตัวเอง)
+  useEffect(() => {
+    setConfig({ enabled: true, parkAt: PARK_P });
+    return () => setConfig({ enabled: false });
+  }, [setConfig]);
+
+  // ต้นไม้ตาม step (หน้าสมัคร) — อัปเดตแยก ไม่ให้ปิด/เปิดฉากตอน step เปลี่ยน
+  useEffect(() => {
+    setConfig({ plantStep });
+  }, [plantStep, setConfig]);
+
+  // หน้าโหลด: โชว์จนโมเดลโหลดเสร็จ แล้วจำไว้ว่าโหลดแล้ว (ครั้งเดียวตลอดทั้งเว็บ)
   useEffect(() => {
     if (active) return;
+    markSceneLoaded();
     const id = setTimeout(() => setReady(true), 400);
     return () => clearTimeout(id);
   }, [active]);
 
-  // ไล่แสงไปหาเวลาใหม่แบบนุ่ม ๆ แล้วหยุด rAF เอง (ไม่วนทิ้งไว้เปล่า ๆ)
+  // ไล่แสงไปหาเวลาของวันใหม่แบบนุ่ม ๆ แล้วหยุด rAF เอง · เขียนลง progress ที่แชร์กัน
   useEffect(() => {
     const to = day;
     if (reduced) {
@@ -85,41 +76,29 @@ export default function ForestScene({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [day, reduced]);
+  }, [day, reduced, progress]);
 
   return (
-    <div className="fixed inset-0 z-0 bg-forestdeep" aria-hidden>
-      <TrailScene
-        progress={progress}
-        reduced={reduced}
-        parkAt={PARK_P}
-        /* ถางที่เฉพาะตอนมีต้นไม้จะปลูก — ไม่งั้นเหลือรูโล่งกลางป่าโดยไม่มีอะไรอยู่ */
-        clearing={plantStep === undefined ? undefined : CLEARING}
-      >
-        {plantStep === undefined ? null : (
-          <GrowingPlant step={plantStep} x={PLANT_X} z={PLANT_Z} reduced={reduced} />
-        )}
-      </TrailScene>
-
-      {/* ไล่เฉดเข้มหัว/ท้ายจอ + ฝั่งขวา ให้ฟอร์มที่ลอยทับอ่านออกทุกช่วงเวลา */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.72)_0%,rgba(10,22,16,0.15)_22%,rgba(10,22,16,0.2)_62%,rgba(10,22,16,0.75)_100%)]" />
+    <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
+      {/* ไล่เฉดเข้มหัว/ท้ายจอ ให้ฟอร์มที่ลอยทับอ่านออกทุกช่วงเวลา */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.72)_0%,rgba(10,22,16,0.15)_22%,rgba(10,22,16,0.2)_62%,rgba(10,22,16,0.75)_100%)]" />
       {/* scrim ตรงที่ฟอร์มวางอยู่ · จอเล็กฟอร์มกินเต็มความกว้างอยู่แล้ว เลยเข้มทั้งจอ */}
       {focus === "right" ? (
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.45),rgba(10,22,16,0.45))] lg:bg-[linear-gradient(to_right,rgba(10,22,16,0)_0%,rgba(10,22,16,0)_38%,rgba(10,22,16,0.45)_62%,rgba(10,22,16,0.6)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.45),rgba(10,22,16,0.45))] lg:bg-[linear-gradient(to_right,rgba(10,22,16,0)_0%,rgba(10,22,16,0)_38%,rgba(10,22,16,0.45)_62%,rgba(10,22,16,0.6)_100%)]" />
       ) : (
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.45),rgba(10,22,16,0.45))] lg:bg-[radial-gradient(ellipse_at_center,rgba(10,22,16,0.6)_0%,rgba(10,22,16,0.4)_45%,rgba(10,22,16,0.15)_75%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,22,16,0.45),rgba(10,22,16,0.45))] lg:bg-[radial-gradient(ellipse_at_center,rgba(10,22,16,0.6)_0%,rgba(10,22,16,0.4)_45%,rgba(10,22,16,0.15)_75%)]" />
       )}
 
       <FilmGrain />
 
-      {/* เครดิตโมเดล — CC BY บังคับให้แสดงบนหน้าที่เอาโมเดลไปใช้ (เหมือนหน้า landing) */}
-      <p className="pointer-events-none absolute bottom-3 left-4 max-w-[60vw] text-[9px] leading-tight text-cream/40">
+      {/* เครดิตโมเดล — CC BY บังคับให้แสดงบนหน้าที่เอาโมเดลไปใช้ */}
+      <p className="absolute bottom-3 left-4 max-w-[60vw] text-[9px] leading-tight text-cream/40">
         {t.landing.credit}
       </p>
 
-      {/* หน้า loading — ฉากหนักกว่าหน้าอื่น ไม่ให้เห็นฉากโผล่ทีละชิ้น */}
+      {/* หน้า loading — เห็นเฉพาะตอนโหลดฉากครั้งแรกของทั้งเว็บ */}
       <div
-        className={`pointer-events-none absolute inset-0 flex items-center justify-center bg-forestdeep transition-opacity duration-700 ${
+        className={`absolute inset-0 flex items-center justify-center bg-forestdeep transition-opacity duration-700 ${
           ready ? "opacity-0" : "opacity-100"
         }`}
       >

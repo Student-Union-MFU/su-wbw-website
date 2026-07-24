@@ -9,6 +9,7 @@ import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/co
 import NavBar from "@/components/landing/NavBar";
 import { useLang, useT } from "@/lib/i18n/LanguageProvider";
 import { dayForStep } from "@/lib/dayCycle";
+import { apiUrl } from "@/lib/apiBase";
 
 /**
  * ฉาก 3D โหลดฝั่ง client เท่านั้น — three.js/drei ห้ามหลุดเข้า server bundle
@@ -215,7 +216,7 @@ export default function RegisterPage() {
           waiver_accepted: data.consentWaiver,
         },
       };
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(apiUrl("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

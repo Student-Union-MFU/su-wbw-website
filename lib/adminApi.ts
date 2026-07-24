@@ -1,4 +1,5 @@
 // เรียก backend admin ผ่าน proxy /api
+import { apiUrl } from "@/lib/apiBase";
 
 /** บทบาทที่ backend ส่งกลับมาตอนล็อกอิน (ยืนยันจาก /auth/login จริง) */
 export type Role = "admin" | "staff" | "participant";
@@ -15,7 +16,7 @@ export type Session = { token: string; username: string; role: Role };
  * ผู้เข้าร่วมใช้ "รหัสนักศึกษา" เป็น username (ค่าเดียวกับตอนสมัคร)
  */
 export async function login(username: string, password: string): Promise<Session> {
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch(apiUrl("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -57,7 +58,7 @@ export type MyProfile = {
 
 /** ดึงโปรไฟล์ตัวเอง (ผู้เข้าร่วม) — ต้องมี token */
 export async function getMyProfile(token: string): Promise<MyProfile> {
-  const res = await fetch("/api/me", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/me"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
   return res.json();
@@ -71,7 +72,7 @@ export type Stats = {
 };
 
 export async function getStats(token: string): Promise<Stats> {
-  const res = await fetch("/api/admin/dashboard", {
+  const res = await fetch(apiUrl("/api/admin/dashboard"), {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 401) throw new Error("unauthorized");
@@ -92,7 +93,7 @@ export type BaseOverview = {
 };
 
 export async function getBasesOverview(token: string): Promise<BaseOverview[]> {
-  const res = await fetch("/api/admin/bases-overview", {
+  const res = await fetch(apiUrl("/api/admin/bases-overview"), {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 401) throw new Error("unauthorized");
@@ -120,7 +121,7 @@ export type Participant = {
 };
 
 export async function getParticipants(token: string): Promise<Participant[]> {
-  const res = await fetch("/api/admin/participants", {
+  const res = await fetch(apiUrl("/api/admin/participants"), {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 401) throw new Error("unauthorized");
@@ -148,7 +149,7 @@ export type ParticipantPatch = {
 };
 
 export async function patchParticipant(token: string, id: string, patch: ParticipantPatch): Promise<Participant> {
-  const res = await fetch(`/api/admin/participants/${id}`, {
+  const res = await fetch(apiUrl(`/api/admin/participants/${id}`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(patch),
@@ -174,7 +175,7 @@ export type ParticipantDetail = Participant & {
 };
 
 export async function getParticipantDetail(token: string, id: string): Promise<ParticipantDetail> {
-  const res = await fetch(`/api/admin/participants/${id}/detail`, {
+  const res = await fetch(apiUrl(`/api/admin/participants/${id}/detail`), {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
@@ -182,7 +183,7 @@ export async function getParticipantDetail(token: string, id: string): Promise<P
 }
 
 export async function resetParticipantPassword(token: string, id: string, password: string): Promise<void> {
-  const res = await fetch(`/api/admin/participants/${id}/reset-password`, {
+  const res = await fetch(apiUrl(`/api/admin/participants/${id}/reset-password`), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ password }),
@@ -194,7 +195,7 @@ export async function resetParticipantPassword(token: string, id: string, passwo
 }
 
 export async function deleteParticipant(token: string, id: string): Promise<void> {
-  const res = await fetch(`/api/admin/participants/${id}`, {
+  const res = await fetch(apiUrl(`/api/admin/participants/${id}`), {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -226,7 +227,7 @@ async function handle<T>(res: Response, fallback: string): Promise<T> {
 }
 
 export async function getUsers(token: string): Promise<AdminUser[]> {
-  const res = await fetch("/api/admin/users", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/admin/users"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดรายชื่อไม่สำเร็จ");
@@ -236,7 +237,7 @@ export async function createUser(
   token: string,
   data: { username: string; password: string; role: "staff" | "admin"; display_name?: string },
 ): Promise<AdminUser> {
-  const res = await fetch("/api/admin/users", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
+  const res = await fetch(apiUrl("/api/admin/users"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
   return handle(res, "สร้างบัญชีไม่สำเร็จ");
 }
 
@@ -245,17 +246,17 @@ export async function patchUser(
   id: string,
   patch: { display_name?: string; role?: "staff" | "admin" },
 ): Promise<AdminUser> {
-  const res = await fetch(`/api/admin/users/${id}`, { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(patch) });
+  const res = await fetch(apiUrl(`/api/admin/users/${id}`), { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(patch) });
   return handle(res, "แก้ไขไม่สำเร็จ");
 }
 
 export async function changePassword(token: string, id: string, password: string): Promise<void> {
-  const res = await fetch(`/api/admin/users/${id}/password`, { method: "POST", headers: authHeaders(token), body: JSON.stringify({ password }) });
+  const res = await fetch(apiUrl(`/api/admin/users/${id}/password`), { method: "POST", headers: authHeaders(token), body: JSON.stringify({ password }) });
   await handle(res, "เปลี่ยนรหัสผ่านไม่สำเร็จ");
 }
 
 export async function deleteUser(token: string, id: string): Promise<void> {
-  const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl(`/api/admin/users/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
   await handle(res, "ลบบัญชีไม่สำเร็จ");
 }
 
@@ -271,7 +272,7 @@ export type Checkpoint = {
 };
 
 export async function getCheckpoints(token: string): Promise<Checkpoint[]> {
-  const res = await fetch("/api/admin/checkpoints", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/admin/checkpoints"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดฐานไม่สำเร็จ");
@@ -281,7 +282,7 @@ export async function createCheckpoint(
   token: string,
   data: { name: string; name_en?: string | null; type: string; sequence?: number | null },
 ): Promise<Checkpoint> {
-  const res = await fetch("/api/admin/checkpoints", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
+  const res = await fetch(apiUrl("/api/admin/checkpoints"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
   return handle(res, "เพิ่มฐานไม่สำเร็จ");
 }
 
@@ -290,17 +291,17 @@ export async function patchCheckpoint(
   id: number,
   patch: { name?: string; name_en?: string | null; type?: string; sequence?: number | null },
 ): Promise<Checkpoint> {
-  const res = await fetch(`/api/admin/checkpoints/${id}`, { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(patch) });
+  const res = await fetch(apiUrl(`/api/admin/checkpoints/${id}`), { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(patch) });
   return handle(res, "แก้ไขฐานไม่สำเร็จ");
 }
 
 export async function deleteCheckpoint(token: string, id: number): Promise<void> {
-  const res = await fetch(`/api/admin/checkpoints/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl(`/api/admin/checkpoints/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
   await handle(res, "ลบฐานไม่สำเร็จ");
 }
 
 export async function assignStaff(token: string, checkpointId: number, userId: string): Promise<void> {
-  const res = await fetch(`/api/admin/checkpoints/${checkpointId}/staff`, {
+  const res = await fetch(apiUrl(`/api/admin/checkpoints/${checkpointId}/staff`), {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify({ user_id: userId }),
@@ -309,7 +310,7 @@ export async function assignStaff(token: string, checkpointId: number, userId: s
 }
 
 export async function unassignStaff(token: string, checkpointId: number, userId: string): Promise<void> {
-  const res = await fetch(`/api/admin/checkpoints/${checkpointId}/staff/${userId}`, {
+  const res = await fetch(apiUrl(`/api/admin/checkpoints/${checkpointId}/staff/${userId}`), {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -326,7 +327,7 @@ export type LogEntry = {
 };
 
 export async function getLogs(token: string): Promise<LogEntry[]> {
-  const res = await fetch("/api/admin/logs", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/admin/logs"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดบันทึกไม่สำเร็จ");
@@ -362,7 +363,7 @@ export type NewNotification = {
 };
 
 export async function createNotification(token: string, data: NewNotification): Promise<SentNotification> {
-  const res = await fetch("/api/notifications", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
+  const res = await fetch(apiUrl("/api/notifications"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
   return handle(res, "ส่งประกาศไม่สำเร็จ");
 }
 
@@ -382,21 +383,21 @@ export type Announcement = {
 
 /** ประกาศสาธารณะ (audience=all) — ไม่ต้องล็อกอิน */
 export async function getPublicAnnouncements(): Promise<Announcement[]> {
-  const res = await fetch("/api/notifications/public");
+  const res = await fetch(apiUrl("/api/notifications/public"));
   if (!res.ok) throw new Error("โหลดประกาศไม่สำเร็จ");
   return res.json();
 }
 
 /** ประกาศของผู้เข้าร่วมที่ล็อกอิน (all + เจาะจงกลุ่ม/สำนัก/รายบุคคล) */
 export async function getMyAnnouncements(token: string): Promise<Announcement[]> {
-  const res = await fetch("/api/notifications", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/notifications"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (!res.ok) throw new Error("โหลดประกาศไม่สำเร็จ");
   return res.json();
 }
 
 export async function getSentNotifications(token: string): Promise<SentNotification[]> {
-  const res = await fetch("/api/notifications/sent", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/notifications/sent"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดประกาศไม่สำเร็จ");
@@ -422,27 +423,27 @@ export type ComposerState = {
 };
 
 export async function getDraft(token: string): Promise<NotiPreset | null> {
-  const res = await fetch("/api/notifications/draft", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/notifications/draft"), { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) return null;
   return res.json();
 }
 export async function saveDraft(token: string, data: ComposerState): Promise<void> {
-  await fetch("/api/notifications/draft", { method: "PUT", headers: authHeaders(token), body: JSON.stringify(data) });
+  await fetch(apiUrl("/api/notifications/draft"), { method: "PUT", headers: authHeaders(token), body: JSON.stringify(data) });
 }
 export async function clearDraft(token: string): Promise<void> {
-  await fetch("/api/notifications/draft", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  await fetch(apiUrl("/api/notifications/draft"), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
 }
 export async function getPresets(token: string): Promise<NotiPreset[]> {
-  const res = await fetch("/api/notifications/presets", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/notifications/presets"), { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) return [];
   return res.json();
 }
 export async function savePreset(token: string, data: ComposerState & { name: string }): Promise<NotiPreset> {
-  const res = await fetch("/api/notifications/presets", { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
+  const res = await fetch(apiUrl("/api/notifications/presets"), { method: "POST", headers: authHeaders(token), body: JSON.stringify(data) });
   return handle(res, "บันทึก preset ไม่สำเร็จ");
 }
 export async function deletePreset(token: string, id: number): Promise<void> {
-  await fetch(`/api/notifications/presets/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  await fetch(apiUrl(`/api/notifications/presets/${id}`), { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
 }
 
 /* กลุ่ม + สำนักวิชา (ใช้เป็นตัวเลือกกลุ่มเป้าหมาย) */
@@ -450,13 +451,13 @@ export type NotiGroup = { group_id: number; group_number: number };
 export type School = { school_id: number; name: string };
 
 export async function getGroups(token: string): Promise<NotiGroup[]> {
-  const res = await fetch("/api/groups", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/groups"), { headers: { Authorization: `Bearer ${token}` } });
   if (res.status === 401) throw new Error("unauthorized");
   if (res.status === 403) throw new Error("forbidden");
   return handle(res, "โหลดรายชื่อกลุ่มไม่สำเร็จ");
 }
 
 export async function getSchools(token: string): Promise<School[]> {
-  const res = await fetch("/api/admin/schools", { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(apiUrl("/api/admin/schools"), { headers: { Authorization: `Bearer ${token}` } });
   return handle(res, "โหลดสำนักวิชาไม่สำเร็จ");
 }

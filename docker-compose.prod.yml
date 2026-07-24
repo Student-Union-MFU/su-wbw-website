@@ -1,9 +1,13 @@
-# Production — เว็บไซต์อย่างเดียว บน self-hosted server
-#   docker compose -f docker-compose.prod.yml up -d --build
+# Production — เว็บไซต์ + cloudflared (Cloudflare Tunnel) บน self-hosted server
+#   TUNNEL_TOKEN='eyJ...' docker compose -f docker-compose.prod.yml up -d --build
 #
-# ไม่มี dev code, ไม่ใช้ .env, ไม่ยุ่งกับ secret ของ backend
+# ไม่มี dev code, ไม่ publish host port — เข้าจากภายนอกผ่าน Cloudflare Tunnel เท่านั้น
+# (Cloudflare terminate HTTPS ให้ที่ edge → origin เป็น http ธรรมดา, ไม่ต้องเปิดพอร์ต)
+#
+# tunnel เดียว route ทั้งเว็บ + backend — hostname ตั้งใน Cloudflare dashboard:
+#   wbw.<domain>  → http://web:3001     (เว็บนี้)
+#   api.<domain>  → http://backend:8080 (su-server)
 # backend + Postgres ยกจาก compose ของ ../su-server แยกต่างหาก
-# caddy = reverse proxy หน้าเว็บ (จุดเข้าเดียว) → proxy ไป web:3000
 name: su-web
 
 services:
@@ -15,30 +19,26 @@ services:
         API_UPSTREAM: http://backend:8080/wbw
     image: su-web:latest
     container_name: su-web
-    # ไม่ publish host port — เข้าถึงผ่าน caddy ทาง network เท่านั้น
+    # ไม่ publish host port — cloudflared เข้าถึงผ่าน network ภายในที่ web:3001
     expose:
       - "3001"
     restart: always
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: su-web-caddy
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-web
+    command: tunnel --no-autoupdate run
+    environment:
+      # token จาก Cloudflare dashboard — ส่งผ่าน shell env ตอน up (ไม่ commit, ไม่มี .env)
+      #   TUNNEL_TOKEN='eyJ...' docker compose -f docker-compose.prod.yml up -d
+      # ใช้ :- กันไม่ให้ `down` พังตอน token ไม่ได้ตั้ง (cloudflared จะฟ้องเองอยู่แล้ว)
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    restart: unless-stopped
     depends_on:
       - web
 
 networks:
   default:
+    # network ที่ su-server สร้าง — join เพื่อให้ web + cloudflared คุยกับ backend:8080 ได้
     name: fullstack-network
     external: true
-
-volumes:
-  caddy_data:
-  caddy_config:

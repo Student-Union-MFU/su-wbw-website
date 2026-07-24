@@ -11,5 +11,5 @@
 #   }
 # แล้ว Caddy จะขอ/ต่ออายุ HTTPS ให้อัตโนมัติ
 :80 {
-	reverse_proxy web:3000
+	reverse_proxy web:3001
 }

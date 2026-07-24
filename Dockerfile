@@ -12,10 +12,10 @@ RUN npm run build
 FROM node:20-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 # standalone = server.js + deps ที่จำเป็นเท่านั้น + static/public แยก copy
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "server.js"]

@@ -17,7 +17,7 @@ services:
     container_name: su-web
     # ไม่ publish host port — เข้าถึงผ่าน caddy ทาง network เท่านั้น
     expose:
-      - "3000"
+      - "3001"
     restart: always
 
   caddy:

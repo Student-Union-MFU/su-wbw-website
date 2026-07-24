@@ -35,13 +35,13 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      # ⚠ ชี้ไป ../su-server/.env ไม่ใช่ .env ของ repo นี้
-      #    ค่าพวกนี้เป็นของ Go app (DB creds ฯลฯ) — repo นี้ไม่ได้ใช้เลย
-      #    ตัว web อ่าน env ตัวเดียวคือ API_UPSTREAM ซึ่งมาจาก build arg ข้างบน
-      - ../su-server/.env
+      # ⚠ secret ของ Go app (JWT/Google/DB) อยู่ใน .env ของ repo นี้ (gitignored)
+      #    ไม่มี token ฝังในไฟล์นี้ และไม่พึ่ง ../su-server/.env อีกต่อไป
+      #    web ไม่ใช้ token เลย — อ่าน API_UPSTREAM จาก build arg ข้างบนอย่างเดียว
+      - .env
     environment:
-      # ทับค่าจาก .env เฉพาะตอนรันใน compose
-      # .env ยังเป็น localhost ไว้ให้ `make dev` (go run บนเครื่อง) ใช้ได้เหมือนเดิม
+      # DB_HOST=database เพราะรันใน compose (localhost = container ตัวเอง)
+      # ทับค่าใน .env ที่เป็น localhost ไว้ให้ `make dev` บนเครื่องใช้
       - DB_HOST=database
     depends_on:
       database:

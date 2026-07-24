@@ -1,0 +1,44 @@
+# Production — เว็บไซต์อย่างเดียว บน self-hosted server
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# ไม่มี dev code, ไม่ใช้ .env, ไม่ยุ่งกับ secret ของ backend
+# backend + Postgres ยกจาก compose ของ ../su-server แยกต่างหาก
+# caddy = reverse proxy หน้าเว็บ (จุดเข้าเดียว) → proxy ไป web:3000
+name: su-web
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        # ฝังตอน build — ยิงหา service "backend" บน fullstack-network
+        API_UPSTREAM: http://backend:8080/wbw
+    image: su-web:latest
+    container_name: su-web
+    # ไม่ publish host port — เข้าถึงผ่าน caddy ทาง network เท่านั้น
+    expose:
+      - "3000"
+    restart: always
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: su-web-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+networks:
+  default:
+    name: fullstack-network
+    external: true
+
+volumes:
+  caddy_data:
+  caddy_config:

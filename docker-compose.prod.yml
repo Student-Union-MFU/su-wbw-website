@@ -1,5 +1,6 @@
 # Production — เว็บไซต์ + cloudflared (Cloudflare Tunnel) บน self-hosted server
-#   TUNNEL_TOKEN='eyJ...' docker compose -f docker-compose.prod.yml up -d --build
+#   1) สร้างไฟล์ .env ใส่ TUNNEL_TOKEN=eyJ... (ดู .env.example)
+#   2) docker compose -f docker-compose.prod.yml up -d --build
 #
 # ไม่มี dev code, ไม่ publish host port — เข้าจากภายนอกผ่าน Cloudflare Tunnel เท่านั้น
 # (Cloudflare terminate HTTPS ให้ที่ edge → origin เป็น http ธรรมดา, ไม่ต้องเปิดพอร์ต)
@@ -28,11 +29,10 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared-web
     command: tunnel --no-autoupdate run
-    environment:
-      # token จาก Cloudflare dashboard — ส่งผ่าน shell env ตอน up (ไม่ commit, ไม่มี .env)
-      #   TUNNEL_TOKEN='eyJ...' docker compose -f docker-compose.prod.yml up -d
-      # ใช้ :- กันไม่ให้ `down` พังตอน token ไม่ได้ตั้ง (cloudflared จะฟ้องเองอยู่แล้ว)
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    # token อ่านจากไฟล์ .env (gitignored) — ต้องมีบรรทัด TUNNEL_TOKEN=eyJ...
+    # ดูตัวอย่างใน .env.example ; ถ้าไม่มีไฟล์ .env compose จะ error ให้เห็นชัด
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       - web

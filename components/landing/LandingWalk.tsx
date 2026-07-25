@@ -142,14 +142,16 @@ export default function LandingWalk() {
               {t.hero.university}
             </p>
             <h1
-              className="mt-5 whitespace-nowrap text-[clamp(2rem,8.5vw,7rem)] leading-[0.95] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+              className="mt-5 whitespace-normal text-balance text-[clamp(2rem,8.5vw,7rem)] leading-[0.95] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)] sm:whitespace-nowrap"
               style={{ fontFamily: "var(--font-hand)" }}
             >
               {t.hero.title}
             </h1>
             <p
+              // Itim รองรับทั้งไทย+ละติน → EN/TH ใช้ฟอนต์เดียวกัน ขนาดตรงกัน
+              // (เดิม EN เป็น Patrick Hand ตัวแคบ ดู "บีบ" เล็กกว่าไทยที่เป็น Itim)
               className="mx-auto mt-5 max-w-xl text-base text-cream/85 sm:text-xl"
-              style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+              style={{ fontFamily: "var(--font-hand-th)" }}
             >
               {t.hero.subtitle}
             </p>
@@ -188,8 +190,10 @@ export default function LandingWalk() {
           className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         >
           <h2
+            // Itim รองรับไทย → หัวข้อปิดท้ายภาษาไทยไม่ตกไปฟอนต์ fallback (Patrick Hand
+            // ไม่มี glyph ไทย) · EN/TH จึงเป็นลายมือชุดเดียวกัน ขนาดตรงกัน
             className="text-4xl leading-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-6xl"
-            style={{ fontFamily: "var(--font-hand)" }}
+            style={{ fontFamily: "var(--font-hand-th)" }}
           >
             {t.landing.closingHeading}
           </h2>

@@ -54,8 +54,24 @@ body {
     transform: translateY(200%);
   }
 }
+
+/* เมนูแฮมเบอร์เกอร์บนมือถือ — ดรอปดาวน์เฟด+ไหลลงตอนเปิด */
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-\[cue_1\.8s_ease-in-out_infinite\] {
+    animation: none;
+  }
+  .animate-\[menuIn_0\.16s_ease-out\] {
     animation: none;
   }
 }

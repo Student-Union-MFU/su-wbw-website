@@ -86,14 +86,14 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
 
       {/* แท็บ */}
       <nav className="border-b border-line bg-cream">
-        <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TAB_KEYS.map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
               className={[
-                "relative px-4 py-3 text-sm transition-colors",
+                "relative flex-none whitespace-nowrap px-4 py-3 text-sm transition-colors",
                 tab === key ? "font-medium text-forest" : "text-muted hover:text-ink",
               ].join(" ")}
             >

@@ -14,8 +14,10 @@ export default function ComingSoon({ title }: { title: string }) {
       <main className="flex min-h-screen flex-col items-center justify-center bg-forestdeep px-6 text-center text-cream">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold">{t.nav.soon}</p>
         <h1
+          // title มาจากเมนู (เช่น "แผนที่"/"Map") → Itim รองรับไทย+ละติน
+          // (Patrick Hand ไม่มี glyph ไทย เลยตกไป fallback บนภาษาไทย)
           className="mt-5 text-4xl leading-tight sm:text-6xl"
-          style={{ fontFamily: "var(--font-hand)" }}
+          style={{ fontFamily: "var(--font-hand-th)" }}
         >
           {title}
         </h1>

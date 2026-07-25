@@ -14,9 +14,21 @@ const TOKEN_KEY = "wbw.admin.token";
 const USER_KEY = "wbw.admin.user";
 const ROLE_KEY = "wbw.admin.role";
 
-/** บทบาทที่เข้าแผงผู้ดูแลได้ · นอกจากนี้ (participant) ไปหน้า /me */
+/** บทบาทที่เข้าแผงผู้ดูแลได้ · นอกจากนี้ (participant) ไปหน้าโปรไฟล์ตัวเอง */
 export const STAFF_ROLES: Role[] = ["admin", "staff"];
 export const isStaff = (role: Role) => STAFF_ROLES.includes(role);
+
+/**
+ * ปลายทางหลังล็อกอิน แยกตามบทบาท — ที่เดียวที่ตัดสินว่าแต่ละบทบาทไป "หน้าของตัวเอง" ไหน
+ *   admin       → /dashboard        (แผงผู้ดูแล)
+ *   staff       → /staff/me         (หน้าเจ้าหน้าที่)
+ *   participant → /participant/me   (โปรไฟล์ผู้เข้าร่วม)
+ */
+export function homePathForRole(role: Role): string {
+  if (role === "admin") return "/dashboard";
+  if (role === "staff") return "/staff/me";
+  return "/participant/me";
+}
 
 export type StoredSession = { token: string; username: string; role: Role };
 

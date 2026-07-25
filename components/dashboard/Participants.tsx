@@ -135,7 +135,7 @@ export function Participants({ token }: { token: string }) {
                 <tr>
                   <td colSpan={10} className="px-4 py-10 text-center text-muted">
                     {t.dash.participants.emptyBefore}{" "}
-                    <a href="/register" className="text-forest underline hover:text-forestdeep">
+                    <a href="/auth/participant/register" className="text-forest underline hover:text-forestdeep">
                       {t.dash.participants.emptyLink}
                     </a>
                   </td>

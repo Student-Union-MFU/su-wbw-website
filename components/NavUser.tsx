@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/session";
+import { useSession, homePathForRole } from "@/lib/session";
 import { getMyProfile, type MyProfile } from "@/lib/adminApi";
 import { useT } from "@/lib/i18n/LanguageProvider";
 
@@ -60,7 +60,7 @@ export default function NavUser({ loginClass }: { loginClass: string }) {
   // ยังไม่พร้อม/ยังไม่ล็อกอิน → ปุ่มเข้าสู่ระบบเดิม
   if (!ready || !session) {
     return (
-      <Link href="/dashboard" className={loginClass}>
+      <Link href="/auth/participant/login" className={loginClass}>
         {t.nav.login}
       </Link>
     );
@@ -127,9 +127,10 @@ export default function NavUser({ loginClass }: { loginClass: string }) {
             </div>
           </div>
 
-          {profile && (
+          {/* ผู้เข้าร่วม/เจ้าหน้าที่มีหน้าของตัวเอง (admin ใช้แผงผู้ดูแลอยู่แล้ว) */}
+          {session.role !== "admin" && (
             <Link
-              href="/me"
+              href={homePathForRole(session.role)}
               onClick={() => setOpen(false)}
               role="menuitem"
               className="block rounded-xl px-3 py-2.5 text-sm text-cream/85 transition-colors hover:bg-cream/10 hover:text-cream"

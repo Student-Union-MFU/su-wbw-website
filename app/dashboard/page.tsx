@@ -11,11 +11,12 @@ import {
   type Participant,
 } from "@/lib/adminApi";
 import { getSchools, type School } from "@/lib/api";
-import { useSession, isStaff } from "@/lib/session";
-import { SignIn, DashHeader, StatCard } from "@/components/dashboard/ui";
+import { useSession, homePathForRole } from "@/lib/session";
+import { DashHeader, StatCard } from "@/components/dashboard/ui";
 import { DailyChart, SchoolChart, QuotaCard } from "@/components/dashboard/Charts";
 import { Participants } from "@/components/dashboard/Participants";
 import { Users } from "@/components/dashboard/Users";
+import { StaffRequests } from "@/components/dashboard/StaffRequests";
 import { Bases } from "@/components/dashboard/Bases";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Logs } from "@/components/dashboard/Logs";
@@ -23,22 +24,23 @@ import { useLang, useT } from "@/lib/i18n/LanguageProvider";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { session, ready, signIn, signOut } = useSession();
+  const { session, ready, signOut } = useSession();
 
-  // ผู้เข้าร่วมไม่มีสิทธิ์ใน endpoint ของแผงผู้ดูแล — เด้งไปหน้า /me ของตัวเอง
-  // (ทั้งตอนเพิ่งล็อกอิน และตอนกลับมาเปิด /dashboard ทั้งที่ session เป็นผู้เข้าร่วม)
-  const isParticipant = !!session && !isStaff(session.role);
+  // แผงนี้เป็นของผู้ดูแล (admin) เท่านั้น · ล็อกอินย้ายไปหน้า /auth แล้ว
+  //   ยังไม่ล็อกอิน       → /auth/staff/login (หน้าเข้าสู่ระบบของเจ้าหน้าที่/ผู้ดูแล)
+  //   บทบาทอื่น (ไม่ใช่ admin) → หน้าของตัวเอง (participant → /participant/me · staff → /staff/me)
   useEffect(() => {
-    if (ready && isParticipant) router.replace("/me");
-  }, [ready, isParticipant, router]);
+    if (!ready) return;
+    if (!session) router.replace("/auth/staff/login");
+    else if (session.role !== "admin") router.replace(homePathForRole(session.role));
+  }, [ready, session, router]);
 
   if (!ready) return null; // เลี่ยงการกระพริบตอนอ่าน localStorage
-  if (!session) return <SignIn onLogin={signIn} />;
-  if (isParticipant) return null; // กำลังเด้งไป /me
+  if (!session || session.role !== "admin") return null; // กำลังเด้งไปหน้าที่ถูกต้อง
   return <DashboardHome token={session.token} username={session.username} onLogout={signOut} />;
 }
 
-const TAB_KEYS = ["overview", "participants", "users", "bases", "announce", "logs"] as const;
+const TAB_KEYS = ["overview", "participants", "users", "requests", "bases", "announce", "logs"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 function DashboardHome({ token, username, onLogout }: { token: string; username: string; onLogout: () => void }) {
@@ -148,6 +150,7 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
         )}
         {tab === "participants" && <Participants token={token} />}
         {tab === "users" && <Users token={token} currentUsername={username} />}
+        {tab === "requests" && <StaffRequests token={token} />}
         {tab === "bases" && <Bases token={token} />}
         {tab === "announce" && <Announcements token={token} />}
         {tab === "logs" && <Logs token={token} />}

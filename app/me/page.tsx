@@ -2,34 +2,20 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import ParticipantHome from "@/components/ParticipantHome";
-import { useSession, isStaff } from "@/lib/session";
+import { useSession, homePathForRole } from "@/lib/session";
 
 /**
- * หน้าของผู้เข้าร่วมหลังเข้าสู่ระบบ — แยกเป็น route ของตัวเอง ไม่ปนกับ /dashboard
- *
- * ล็อกอินยังทำที่ /dashboard (ฟอร์มเดียว ใช้ได้ทุกบทบาท) แล้วเด้งผู้เข้าร่วมมาที่นี่
- * · ยังไม่ล็อกอิน หรือเป็นเจ้าหน้าที่/ผู้ดูแล → ส่งกลับไป /dashboard
+ * /me — ย้ายไปเป็นหน้าแยกตามบทบาทแล้ว (participant → /participant/me, staff → /staff/me)
+ * เหลือไว้เป็นตัวเปลี่ยนเส้นทาง เพื่อไม่ให้ลิงก์/บุ๊กมาร์กเก่าที่ชี้มา /me พัง
  */
-export default function MePage() {
+export default function MeRedirect() {
   const router = useRouter();
-  const { session, ready, signOut } = useSession();
+  const { session, ready } = useSession();
 
-  const redirect = ready && (!session || isStaff(session.role));
   useEffect(() => {
-    if (redirect) router.replace("/dashboard");
-  }, [redirect, router]);
+    if (!ready) return;
+    router.replace(session ? homePathForRole(session.role) : "/auth/participant/login");
+  }, [ready, session, router]);
 
-  if (!ready || redirect) return null;
-
-  return (
-    <ParticipantHome
-      token={session!.token}
-      studentId={session!.username}
-      onLogout={() => {
-        signOut();
-        router.replace("/landing");
-      }}
-    />
-  );
+  return null;
 }

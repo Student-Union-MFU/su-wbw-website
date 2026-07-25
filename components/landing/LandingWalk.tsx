@@ -201,7 +201,7 @@ export default function LandingWalk() {
             {t.landing.closingBody}
           </p>
           <Link
-            href="/register"
+            href="/auth/participant/register"
             className="group relative mt-9 inline-flex items-center gap-3 overflow-hidden rounded-full bg-cream px-9 py-4 text-sm font-semibold text-forestdeep transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cream"
           >
             <span className="absolute inset-0 -translate-x-full bg-gold/45 transition-transform duration-500 group-hover:translate-x-0" />

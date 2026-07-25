@@ -45,7 +45,7 @@ export default function AboutPage() {
 
           <div className="mt-8 text-center">
             <Link
-              href="/register"
+              href="/auth/participant/register"
               className="inline-flex items-center gap-2 rounded-full bg-cream px-8 py-3 text-sm font-semibold text-forestdeep transition-all duration-200 hover:-translate-y-0.5 hover:bg-white"
             >
               {t.about.cta}

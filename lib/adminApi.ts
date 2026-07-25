@@ -260,6 +260,44 @@ export async function deleteUser(token: string, id: string): Promise<void> {
   await handle(res, "ลบบัญชีไม่สำเร็จ");
 }
 
+/* ===== คำขอเป็นเจ้าหน้าที่ (สมัครเอง รออนุมัติ) ===== */
+
+/** เจ้าหน้าที่สมัครเอง — สร้างบัญชี pending (ไม่ล็อกอินให้ · รอแอดมินอนุมัติ) */
+export async function registerStaff(data: { username: string; password: string; display_name?: string }): Promise<void> {
+  const res = await fetch(apiUrl("/api/auth/staff-register"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  await handle(res, "สมัครไม่สำเร็จ");
+}
+
+export type StaffRequest = {
+  id: string;
+  username: string;
+  role: string;
+  display_name: string | null;
+  status: string;
+  created: string | null;
+};
+
+export async function getStaffRequests(token: string): Promise<StaffRequest[]> {
+  const res = await fetch(apiUrl("/api/admin/staff-requests"), { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
+  return handle(res, "โหลดคำขอไม่สำเร็จ");
+}
+
+export async function approveStaffRequest(token: string, id: string): Promise<void> {
+  const res = await fetch(apiUrl(`/api/admin/staff-requests/${id}/approve`), { method: "POST", headers: authHeaders(token) });
+  await handle(res, "อนุมัติไม่สำเร็จ");
+}
+
+export async function rejectStaffRequest(token: string, id: string): Promise<void> {
+  const res = await fetch(apiUrl(`/api/admin/staff-requests/${id}/reject`), { method: "POST", headers: authHeaders(token) });
+  await handle(res, "ปฏิเสธไม่สำเร็จ");
+}
+
 /* ===== ฐาน (checkpoint) + เจ้าหน้าที่ประจำ ===== */
 export type CheckpointStaff = { id: string; username: string; display_name: string | null };
 export type Checkpoint = {

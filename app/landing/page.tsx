@@ -18,8 +18,12 @@ export default function LandingPage() {
     <div className="bg-forestdeep">
       <NavBar />
       <LandingWalk />
-      {/* footer อยู่ท้ายสุด หลังเดินจบแล้ว — ข้อมูลติดต่อ/ลิขสิทธิ์ */}
-      <SiteFooter />
+      {/* footer อยู่ท้ายสุด หลังเดินจบแล้ว — ข้อมูลติดต่อ/ลิขสิทธิ์
+          ครอบด้วยพื้นเขียวทึบ z-10 (เหนือฉาก 3D fixed z-0) — ไม่งั้นฉาก/พื้นเขียว
+          โผล่ทะลุ footer ที่โปร่งใส กลายเป็นช่องเขียวแปลก ๆ ท้ายหน้า */}
+      <div className="relative z-10 bg-forestdeep">
+        <SiteFooter />
+      </div>
     </div>
   );
 }

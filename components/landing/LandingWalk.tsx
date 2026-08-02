@@ -141,18 +141,15 @@ export default function LandingWalk() {
           className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         >
           <div className="animate-[heroIn_1.2s_cubic-bezier(0.16,1,0.3,1)_both]">
-            <p className="text-[10px] font-medium tracking-[0.42em] text-cream/70 sm:text-xs">
-              {t.hero.university}
-            </p>
-            <h1
-              className="mt-5 whitespace-normal text-balance text-[clamp(2rem,8.5vw,7rem)] leading-[0.95] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)] sm:whitespace-nowrap"
-              style={headingFont("en")}
-            >
-              {t.hero.title}
+            {/* โลโก้งานแทนข้อความเดิม — ไฟล์เป็นลายดำพื้นโปร่งใส ใช้ invert ให้เป็นขาว */}
+            <h1 className="m-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/schools/wbw-logo.png"
+                alt={`${t.hero.university} · ${t.hero.title} · ${t.hero.subtitle}`}
+                className="mx-auto w-[min(88vw,600px)] invert drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+              />
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-base text-cream/85 sm:text-xl">
-              {t.hero.subtitle}
-            </p>
           </div>
         </div>
 

@@ -23,6 +23,9 @@ import { BEATS, beatOpacity, clamp01 } from "./trail";
 /** ความสูงของหน้า = ระยะ scroll ทั้งหมด (ยิ่งมาก เดินยิ่งช้า/นุ่ม) */
 const SCROLL_VH = 900;
 
+/** ระยะทางรวมของเส้นทาง (กม.) — ใช้กับมาตรวัดข้างจอ ให้ตรงกับข้อความใน dictionaries */
+const ROUTE_KM = 6;
+
 export default function LandingWalk() {
   const { t, lang } = useLang();
   const { progress, setConfig } = useScene();
@@ -92,7 +95,7 @@ export default function LandingWalk() {
 
       if (cueRef.current) cueRef.current.style.opacity = String(1 - clamp01(p / 0.05));
       if (barRef.current) barRef.current.style.transform = `scaleY(${p})`;
-      if (kmRef.current) kmRef.current.textContent = (p * 12).toFixed(1);
+      if (kmRef.current) kmRef.current.textContent = (p * ROUTE_KM).toFixed(1);
     }
     function onScroll() {
       if (!raf) raf = requestAnimationFrame(update);
@@ -223,7 +226,7 @@ export default function LandingWalk() {
           </span>
           <span className="text-[11px] tabular-nums text-cream/70">
             <span ref={kmRef}>0.0</span>
-            <span className="text-cream/35"> / 12</span>
+            <span className="text-cream/35"> / {ROUTE_KM}</span>
           </span>
         </div>
 

@@ -86,7 +86,7 @@ const th = {
     sections: [
       {
         eyebrow: "เส้นทาง",
-        title: "12 กิโลเมตร รอบดอย",
+        title: "6 กิโลเมตร รอบดอย",
         body: "ออกเดินจากลานเฉลิมพระเกียรติตั้งแต่ฟ้ายังไม่สาง วนรอบดอยแม่ฟ้าหลวงแล้วกลับเข้าสู่มหาวิทยาลัย",
       },
       {
@@ -128,7 +128,7 @@ const th = {
     heading: "เดินรอบดอย",
     lead: "กิจกรรมเดินการกุศลรอบดอยแม่ฟ้าหลวง สานต่อรอยปณิธานของมหาวิทยาลัย",
     paragraphs: [
-      "เดินรอบดอยคือกิจกรรมเดินระยะทาง 12 กิโลเมตร รอบดอยแม่ฟ้าหลวง จัดโดยองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง เปิดให้นักศึกษาและบุคลากรร่วมเดินไปด้วยกัน",
+      "เดินรอบดอยคือกิจกรรมเดินระยะทาง 6 กิโลเมตร รอบดอยแม่ฟ้าหลวง จัดโดยองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง เปิดให้นักศึกษาและบุคลากรร่วมเดินไปด้วยกัน",
       "ไม่ใช่การแข่งขัน ไม่วัดเวลา ทุกคนเดินไปพร้อมกันผ่านป่าต้นน้ำและสันเขา แวะพักตามฐานกิจกรรมที่มีน้ำดื่ม อาหารว่าง และทีมปฐมพยาบาลประจำอยู่ตลอดเส้นทาง",
       "รายได้หลังหักค่าใช้จ่ายสมทบทุนกิจกรรมสาธารณประโยชน์ของมหาวิทยาลัย",
     ],
@@ -684,7 +684,7 @@ const en: Dict = {
     sections: [
       {
         eyebrow: "The route",
-        title: "12 kilometres around the mountain",
+        title: "6 kilometres around the mountain",
         body: "Setting off from the Royal Commemoration Ground before first light, looping around Doi Mae Fah Luang and back into the university.",
       },
       {
@@ -725,7 +725,7 @@ const en: Dict = {
     heading: "Walk Beyond the Wild",
     lead: "A charity walk around Doi Mae Fah Luang, carrying on the university's spirit.",
     paragraphs: [
-      "Walk Beyond the Wild is a 12-kilometre walk around Doi Mae Fah Luang, organised by the Mae Fah Luang University Student Union and open to students and staff to walk together.",
+      "Walk Beyond the Wild is a 6-kilometre walk around Doi Mae Fah Luang, organised by the Mae Fah Luang University Student Union and open to students and staff to walk together.",
       "It isn't a race and isn't timed. Everyone walks together through headwater forest and ridgelines, resting at activity bases stocked with water, snacks and first-aid teams along the route.",
       "Proceeds after costs support the university's public-benefit activities.",
     ],

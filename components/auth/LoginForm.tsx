@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { TextField } from "@/components/register/ui";
 import { login } from "@/lib/adminApi";
 import { useSession, homePathForRole } from "@/lib/session";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 
 /**
  * ฟอร์มเข้าสู่ระบบที่ใช้ร่วมกันทั้งหน้า participant และ staff — endpoint /auth/login
@@ -65,7 +65,7 @@ export default function LoginForm({
         <p className="text-[10px] uppercase tracking-[0.42em] text-goldsoft sm:text-xs">{copy.eyebrow}</p>
         <h1
           className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-          style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+          style={headingFont(lang, 1.25)}
         >
           {copy.heading}
         </h1>

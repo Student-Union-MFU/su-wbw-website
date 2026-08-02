@@ -7,7 +7,7 @@ import SiteFooter from "@/components/register/SiteFooter";
 import { ApologyPopup, DiseaseCheck, useChronic } from "@/components/register/disease";
 import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/components/register/mfu-data";
 import NavBar from "@/components/landing/NavBar";
-import { useLang, useT } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang, useT } from "@/lib/i18n/LanguageProvider";
 import { dayForStep } from "@/lib/dayCycle";
 import { apiUrl } from "@/lib/apiBase";
 
@@ -346,7 +346,7 @@ function PageHeader() {
       </p>
       <h1
         className="mt-4 text-[clamp(1.9rem,4.2vw,3rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-        style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+        style={headingFont(lang, 1.25)}
       >
         {t.page.heading}
       </h1>
@@ -410,7 +410,6 @@ function Step1({
           options={[
             { value: "male", label: t.step1.male },
             { value: "female", label: t.step1.female },
-            { value: "unspecified", label: t.step1.unspecified },
           ]}
           required
           error={errors.sex}

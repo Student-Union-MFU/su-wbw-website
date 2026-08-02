@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useSyncExternalStore,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { dictionaries, type Dict, type Lang } from "./dictionaries";
@@ -106,4 +107,13 @@ export function useLang() {
 /** ทางลัดเมื่อต้องการแค่คำแปล */
 export function useT() {
   return useLang().t;
+}
+
+/* ฟอนต์หัวเรื่องตามภาษา — TH: Kanit / EN: Bebas Neue (ตัวพิมพ์ใหญ่ล้วน ไม่มี glyph ไทย)
+   thLineHeight: override leading-* ที่แน่นเกินไปสำหรับสระบน/วรรณยุกต์ไทยของ Kanit
+   (inline style ชนะ class · undefined = ไม่ override ใช้ leading เดิม) */
+export function headingFont(lang: Lang, thLineHeight?: number): CSSProperties {
+  return lang === "th"
+    ? { fontFamily: "var(--font-kanit)", lineHeight: thLineHeight }
+    : { fontFamily: "var(--font-bebas)", letterSpacing: "0.02em" };
 }

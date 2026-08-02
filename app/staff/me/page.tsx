@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import ForestScene from "@/components/ForestScene";
 import NavBar from "@/components/landing/NavBar";
 import { useSession, homePathForRole } from "@/lib/session";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 
 /**
@@ -44,7 +44,7 @@ export default function StaffMePage() {
             </p>
             <h1
               className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-              style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+              style={headingFont(lang, 1.25)}
             >
               {t.dash.me.heading}
             </h1>

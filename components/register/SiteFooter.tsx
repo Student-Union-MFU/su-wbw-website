@@ -1,6 +1,6 @@
 "use client";
 
-import { useT } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useT } from "@/lib/i18n/LanguageProvider";
 
 /**
  * Section 3 — footer (ใช้ร่วมกันทั้ง /landing และ /register)
@@ -21,14 +21,13 @@ export default function SiteFooter() {
   return (
     <footer
       className="relative z-10 text-cream [text-shadow:0_1px_2px_rgba(0,0,0,0.55),0_2px_14px_rgba(0,0,0,0.7)]"
-      style={{ fontFamily: "var(--font-kanit)" }}
     >
       <div className="relative z-10 mx-auto max-w-5xl px-6 py-16 sm:py-20">
         {/* brand */}
         <div className="text-center">
           <h2
             className="text-4xl leading-none text-cream sm:text-6xl"
-            style={{ fontFamily: "var(--font-hand)" }}
+            style={headingFont("en")}
           >
             {t.hero.title}
           </h2>
@@ -78,6 +77,14 @@ export default function SiteFooter() {
                   <path d="M16.5 3c.3 1.9 1.4 3.3 3 4 .5.3 1 .4 1.5.4v2.9c-1.6 0-3-.5-4.3-1.4v6.6a5.6 5.6 0 1 1-5.6-5.6c.3 0 .6 0 .9.1v3a2.6 2.6 0 1 0 1.8 2.5V3h2.7z" />
                 </svg>
               </a>
+            </div>
+            <div className="mt-6 flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/schools/LOGO-02.png"
+                alt={t.footer.org}
+                className="h-20 w-20 object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)]"
+              />
             </div>
           </div>
         </div>

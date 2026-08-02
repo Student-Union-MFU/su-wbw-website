@@ -20,7 +20,7 @@
   --radius-field: 14px;
   --radius-card: 26px;
 
-  --font-sans: var(--font-sarabun);
+  --font-sans: var(--font-kanit);
 }
 
 /* ===== Base ===== */
@@ -105,6 +105,14 @@ body {
 }
 .wave-group .wg-input[readonly] {
   color: #4a4f45;
+}
+/* placeholder โปร่งใสไว้ก่อนจนกว่าจะ focus — ไม่งั้นจะทับกับ label ที่ยังไม่ลอยขึ้น */
+.wave-group .wg-input::placeholder {
+  color: transparent;
+  transition: color 0.2s ease;
+}
+.wave-group .wg-input:focus::placeholder {
+  color: var(--color-muted);
 }
 .wave-group .wg-label {
   color: var(--color-muted);
@@ -202,6 +210,9 @@ body {
 }
 .on-dark .wave-group.is-filled .wg-label {
   color: var(--color-goldsoft);
+}
+.on-dark .wave-group .wg-input:focus::placeholder {
+  color: rgba(250, 247, 240, 0.55);
 }
 /* คำใบ้ใต้ช่อง (TextField เขียน text-muted ไว้ ซึ่งจมหายบนพื้นเข้ม) */
 .on-dark .wave-group p {

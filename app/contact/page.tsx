@@ -2,7 +2,7 @@
 
 import ForestScene from "@/components/ForestScene";
 import NavBar from "@/components/landing/NavBar";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 
 
@@ -47,7 +47,7 @@ export default function ContactPage() {
           </p>
           <h1
             className="mt-4 text-[clamp(2rem,5vw,3.2rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-            style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+            style={headingFont(lang, 1.25)}
           >
             {t.contact.heading}
           </h1>

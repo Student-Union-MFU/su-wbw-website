@@ -9,7 +9,7 @@ import {
   type Announcement,
 } from "@/lib/adminApi";
 import { useSession } from "@/lib/session";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 import { formatTs } from "@/lib/datetime";
 
@@ -73,7 +73,7 @@ export default function AnnouncementsPage() {
           </p>
           <h1
             className="mt-4 text-[clamp(2rem,5vw,3.2rem)] leading-[1.05] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-            style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+            style={headingFont(lang, 1.25)}
           >
             {t.announcements.heading}
           </h1>

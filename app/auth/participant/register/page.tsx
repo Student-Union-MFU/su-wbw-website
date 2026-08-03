@@ -6,7 +6,6 @@ import { GhostButton, PhotoPicker, PrimaryButton, SelectField, Stepper, TextFiel
 import SiteFooter from "@/components/register/SiteFooter";
 import { ApologyPopup, DiseaseCheck, useChronic } from "@/components/register/disease";
 import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/components/register/mfu-data";
-import NavBar from "@/components/landing/NavBar";
 import { headingFont, useLang, useT } from "@/lib/i18n/LanguageProvider";
 import { dayForStep } from "@/lib/dayCycle";
 import { apiUrl } from "@/lib/apiBase";
@@ -257,8 +256,6 @@ export default function RegisterPage() {
     <>
       {/* ฉากป่าเดียวกับหน้า landing — ยืนอยู่กับที่ · แสงและต้นไม้เดินตาม step */}
       <ForestScene day={dayForStep(step, STEPS.length)} plantStep={step} />
-
-      <NavBar />
 
       {/* ฟอร์มชิดขวา เว้นครึ่งซ้ายไว้ให้เห็นต้นไม้ที่กำลังโต */}
       <div className="relative z-10 flex min-h-screen flex-col">
@@ -702,7 +699,6 @@ function SuccessScreen({ name, studentId }: { name: string; studentId: string })
   return (
     <>
       <ForestScene day={dayForStep(last, t.page.steps.length)} plantStep={last} />
-      <NavBar />
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-28 lg:justify-end lg:px-[5vw]">
         <div className="w-full max-w-md rounded-[26px] border border-cream/15 bg-ink/82 p-8 text-center shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold/15">

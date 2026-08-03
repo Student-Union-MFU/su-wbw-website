@@ -109,11 +109,17 @@ export function useT() {
   return useLang().t;
 }
 
-/* ฟอนต์หัวเรื่องตามภาษา — TH: Kanit / EN: Bebas Neue (ตัวพิมพ์ใหญ่ล้วน ไม่มี glyph ไทย)
-   thLineHeight: override leading-* ที่แน่นเกินไปสำหรับสระบน/วรรณยุกต์ไทยของ Kanit
+/* สไตล์หัวเรื่อง — จงใจ "ไม่" กำหนด fontFamily เพื่อให้สืบทอดจากที่ที่มันไปวางอยู่
+   หน้าทั่วไปจึงได้ฟอนต์พื้น (Anuphan) ส่วนหน้า landing ที่ครอบด้วย `font-display`
+   ได้ตัวกลม ๆ ไปเองโดยไม่ต้องมีฟังก์ชันแยกหรือเช็คว่าอยู่หน้าไหน
+   fontWeight 600: preflight ของ Tailwind รีเซ็ต h1..h6 เป็น inherit (=400 จาก body)
+   ซึ่งบางจนหัวเรื่องขนาดใหญ่ดูจืด · บน landing ตัวละติน Darumadrop มีน้ำหนักเดียว
+   แต่หน้านั้นปิด font-synthesis ไว้ เลยได้ 400 ตามจริงแทนตัวหนาปลอม
+   thLineHeight: override leading-* ที่แน่นเกินไปสำหรับสระบน/วรรณยุกต์ไทย
    (inline style ชนะ class · undefined = ไม่ override ใช้ leading เดิม) */
 export function headingFont(lang: Lang, thLineHeight?: number): CSSProperties {
-  return lang === "th"
-    ? { fontFamily: "var(--font-kanit)", lineHeight: thLineHeight }
-    : { fontFamily: "var(--font-bebas)", letterSpacing: "0.02em" };
+  return {
+    fontWeight: 600,
+    lineHeight: lang === "th" ? thLineHeight : undefined,
+  };
 }

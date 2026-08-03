@@ -1,7 +1,6 @@
 "use client";
 
 import ForestScene from "@/components/ForestScene";
-import NavBar from "@/components/landing/NavBar";
 import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 
@@ -38,8 +37,6 @@ export default function ContactPage() {
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
-
       <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-28">
         <header className="text-center">
           <p className="text-[10px] uppercase tracking-[0.42em] text-goldsoft sm:text-xs">

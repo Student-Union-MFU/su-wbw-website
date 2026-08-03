@@ -1,7 +1,6 @@
 "use client";
 
 import LandingWalk from "@/components/landing/LandingWalk";
-import NavBar from "@/components/landing/NavBar";
 import SiteFooter from "@/components/register/SiteFooter";
 
 /**
@@ -15,13 +14,18 @@ export default function LandingPage() {
   return (
     // bg-forestdeep = สีพื้นรองระหว่างที่ฉาก 3D (dynamic import, ssr:false)
     // ยังโหลดไม่เสร็จ · โหลดเสร็จแล้วฉากเป็น fixed ทึบเต็มจอทับไปเอง
-    <div className="bg-forestdeep">
-      <NavBar />
+    //
+    // font-display = ตัวกลม ๆ (Darumadrop One + Mitr) ใช้เฉพาะหน้านี้ · หน้าอื่นเป็น
+    // ฟอนต์พื้นที่อ่านง่ายกว่า · แถบเมนูอยู่ใน layout ไม่ได้อยู่ในกล่องนี้ จึงไม่โดนด้วย
+    // font-synthesis-weight:none = ห้ามเบราว์เซอร์ปลอมตัวหนา เพราะ Darumadrop มี
+    // น้ำหนักเดียว (400) พอโดน font-semibold/font-bold แล้วเส้นจะบวมเบลอ
+    // (ฝั่งไทยเป็น Mitr ซึ่งมีไฟล์ตัวหนาจริง จึงยังหนาได้ตามปกติ)
+    <div className="bg-forestdeep font-display [font-synthesis-weight:none]">
       <LandingWalk />
       {/* footer อยู่ท้ายสุด หลังเดินจบแล้ว — ข้อมูลติดต่อ/ลิขสิทธิ์
-          ครอบด้วยพื้นเขียวทึบ z-10 (เหนือฉาก 3D fixed z-0) — ไม่งั้นฉาก/พื้นเขียว
-          โผล่ทะลุ footer ที่โปร่งใส กลายเป็นช่องเขียวแปลก ๆ ท้ายหน้า */}
-      <div className="relative z-10 bg-forestdeep">
+          พื้นโปร่งใส ปล่อยให้เห็นฉากป่า 3D (fixed z-0) ทะลุขึ้นมา · ต้อง relative z-10
+          เพื่อให้ตัวหนังสืออยู่เหนือฉาก ส่วนความอ่านออกมาจาก text-shadow ใน SiteFooter */}
+      <div className="relative z-10">
         <SiteFooter />
       </div>
     </div>

@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ForestScene from "@/components/ForestScene";
-import NavBar from "@/components/landing/NavBar";
 import LoginForm from "@/components/auth/LoginForm";
 import { useSession, homePathForRole } from "@/lib/session";
 import { useT } from "@/lib/i18n/LanguageProvider";
@@ -27,7 +26,6 @@ export default function StaffLoginPage() {
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
         <LoginForm
           copy={{

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ForestScene from "@/components/ForestScene";
-import NavBar from "@/components/landing/NavBar";
 import { useSession, homePathForRole } from "@/lib/session";
 import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
@@ -34,8 +33,6 @@ export default function StaffMePage() {
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
-
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
         <div className="w-full max-w-md">
           <header className="text-center">

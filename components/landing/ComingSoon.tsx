@@ -1,16 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import NavBar from "./NavBar";
 import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 
-/** หน้าเปล่าสำหรับเมนูที่ยังไม่ได้ทำ (แผนที่ / ประกาศ) — มี NavBar ให้กลับไปหน้าอื่นได้ */
+/** หน้าเปล่าสำหรับเมนูที่ยังไม่ได้ทำ (แผนที่ / ประกาศ) — แถบเมนูมาจาก layout แล้ว */
 export default function ComingSoon({ title }: { title: string }) {
   const { t, lang } = useLang();
 
   return (
     <>
-      <NavBar />
       <main className="flex min-h-screen flex-col items-center justify-center bg-forestdeep px-6 text-center text-cream">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold">{t.nav.soon}</p>
         <h1

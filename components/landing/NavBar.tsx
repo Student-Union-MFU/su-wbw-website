@@ -47,7 +47,9 @@ export default function NavBar() {
   }, [open]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40">
+    /* font-ui = ฟอนต์เรียบ ไม่ใช่ตัวกลม ๆ ของทั้งเว็บ — ตัวหนังสือในแถบนี้เล็กและ
+       ต้องอ่านฉับไว · ลูกทุกตัว (เมนู ปุ่มเข้าสู่ระบบ ดรอปดาวน์) สืบทอดไปเอง */
+    <header className="fixed inset-x-0 top-0 z-40 font-ui">
       <nav className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4">
         {/* จอเล็ก (<sm): ปุ่มแฮมเบอร์เกอร์ + เมนูดรอปดาวน์ */}
         <div ref={menuRef} className="relative sm:hidden">

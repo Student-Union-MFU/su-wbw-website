@@ -3,7 +3,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import ForestScene from "@/components/ForestScene";
 import Link from "next/link";
-import NavBar from "@/components/landing/NavBar";
 import { getMyProfile, type MyProfile } from "@/lib/adminApi";
 import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
@@ -52,8 +51,6 @@ export default function ParticipantHome({
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
-
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
         <div className="w-full max-w-md">
           <header className="text-center">

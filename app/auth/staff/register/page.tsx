@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import ForestScene from "@/components/ForestScene";
-import NavBar from "@/components/landing/NavBar";
 import { SelectField, TextField } from "@/components/register/ui";
 import { MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME, STAFF_ROLES } from "@/components/register/mfu-data";
 import { registerStaff } from "@/lib/adminApi";
@@ -90,7 +89,6 @@ export default function StaffRegisterPage() {
     return (
       <>
         <ForestScene day={DAY_STILL} focus="center" />
-        <NavBar />
         <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
           <div className="on-dark w-full max-w-md rounded-[26px] border border-cream/15 bg-ink/82 p-8 text-center shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold/15">
@@ -116,7 +114,6 @@ export default function StaffRegisterPage() {
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-24">
         <div className="on-dark w-full max-w-md">
           <header className="mb-7 text-center">

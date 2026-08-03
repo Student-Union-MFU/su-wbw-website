@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import ForestScene from "@/components/ForestScene";
-import NavBar from "@/components/landing/NavBar";
 import {
   getPublicAnnouncements,
   getMyAnnouncements,
@@ -64,8 +63,6 @@ export default function AnnouncementsPage() {
   return (
     <>
       <ForestScene day={DAY_STILL} focus="center" />
-      <NavBar />
-
       <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 pb-24 pt-28 sm:pt-32">
         <header className="text-center">
           <p className="text-[10px] uppercase tracking-[0.42em] text-goldsoft sm:text-xs">

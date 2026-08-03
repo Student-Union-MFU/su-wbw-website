@@ -20,7 +20,15 @@
   --radius-field: 14px;
   --radius-card: 26px;
 
-  --font-sans: var(--font-kanit);
+  /* ฟอนต์พื้นของทั้งเว็บ — เรียบ อ่านง่าย ใช้ได้ทั้งย่อหน้ายาวและตัวเล็กในฟอร์ม/ตาราง */
+  --font-sans: var(--font-anuphan);
+  /* ฟอนต์ของแถบบน (เมนู/แถบหัวแผงผู้ดูแล) — แยก token ไว้ให้เปลี่ยนแยกจากเนื้อความได้
+     Tailwind สร้าง utility `font-ui` ให้จาก token นี้ตามชื่อ namespace --font-* */
+  --font-ui: var(--font-anuphan);
+  /* ฟอนต์ตัวกลม ๆ ของหน้า landing เท่านั้น (utility `font-display`)
+     ละติน/ตัวเลขจาก Darumadrop One · ไทยจาก Mitr (Darumadrop ไม่มี glyph ไทย)
+     เบราว์เซอร์ไล่สแต็กทีละตัวอักษร ตัวไหนไม่มีในฟอนต์แรกก็ตกมาตัวถัดไปเอง */
+  --font-display: var(--font-daruma), var(--font-mitr);
 }
 
 /* ===== Base ===== */

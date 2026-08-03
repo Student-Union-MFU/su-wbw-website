@@ -166,11 +166,15 @@ export default function LandingWalk() {
             className={`absolute inset-0 flex flex-col justify-center px-7 ${sideClass(i)}`}
           >
             <div className="max-w-md">
-              <p className="text-[10px] uppercase tracking-[0.34em] text-gold">{s.eyebrow}</p>
+              {/* ตัวกลม ๆ ของหน้านี้อ่านยากกว่าฟอนต์ปกติเมื่อตัวเล็ก — คำอธิบายจึงตัวโต
+                  กว่าหน้าอื่น และ eyebrow ขยับจาก 10px ขึ้นมาให้พออ่านออก */}
+              <p className="text-xs uppercase tracking-[0.34em] text-gold sm:text-sm">{s.eyebrow}</p>
               <h2 className="mt-4 text-3xl leading-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.6)] sm:text-5xl">
                 {s.title}
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-cream/85 sm:text-base">{s.body}</p>
+              <p className="mt-4 text-lg leading-relaxed text-cream/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] sm:text-2xl">
+                {s.body}
+              </p>
             </div>
           </div>
         ))}
@@ -187,7 +191,7 @@ export default function LandingWalk() {
           >
             {t.landing.closingHeading}
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-cream/80 sm:text-base">
+          <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-cream/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] sm:text-2xl">
             {t.landing.closingBody}
           </p>
           <Link
@@ -208,7 +212,7 @@ export default function LandingWalk() {
               <path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
-          <span className="mt-4 text-[11px] tracking-wide text-cream/55">{t.landing.ctaNote}</span>
+          <span className="mt-4 text-sm tracking-wide text-cream/70">{t.landing.ctaNote}</span>
         </div>
 
         {/* ---- มาตรวัดระยะข้างจอ ---- */}

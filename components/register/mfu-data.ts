@@ -115,8 +115,10 @@ export const MAJORS_BY_SCHOOL: Record<string, string[]> = {
 /* ============================================================
    หน้าที่ของเจ้าหน้าที่ (ฟอร์ม /auth/staff/register)
 
-   ⚠ ต้องตรงกับ enum staff_role ใน backend (migration 000009_staff_profile)
+   ⚠ ต้องตรงกับ enum staff_role ใน backend (migration 000013_wbw_staff)
    และ validStaffRoles ใน internal/service/wbw_auth_service.go
+   (ชื่อตารางเปลี่ยนจาก staff_profile เป็น wbw_staff แล้ว — ตัว enum staff_role
+    กับ field staff_role ที่ส่งขึ้น API ยังชื่อเดิม ฝั่งเว็บจึงไม่ต้องแก้อย่างอื่น)
    เพิ่มหน้าที่ใหม่ = แก้ทั้ง 3 ที่ + เพิ่มคำแปลใน staffAuth.register.roles
    ============================================================ */
 export const STAFF_ROLES = [

@@ -144,6 +144,17 @@ const th = {
     levelEmergency: "ด่วน",
   },
 
+  /** หน้าแผนที่ /map — โมเดล 3D ของพื้นที่รอบมหาวิทยาลัย */
+  map: {
+    eyebrow: "พื้นที่จัดกิจกรรม",
+    heading: "แผนที่",
+    hint: "ลากเพื่อหมุน · เลื่อนเพื่อซูม · คลิกขวาลากเพื่อเลื่อน",
+    loading: "กำลังโหลดแผนที่",
+    /** เงื่อนไขการใช้งานของ maps3d.io บังคับให้แสดงเครดิตสองบรรทัดนี้ ห้ามตัดออก */
+    imagery: "ภาพถ่ายดาวเทียม",
+    topo: "ข้อมูลอาคารและถนน",
+  },
+
   about: {
     eyebrow: "เกี่ยวกับกิจกรรม",
     heading: "เดินรอบดอย",
@@ -760,6 +771,15 @@ const en: Dict = {
     levelInfo: "Info",
     levelWarning: "Important",
     levelEmergency: "Urgent",
+  },
+
+  map: {
+    eyebrow: "Where it happens",
+    heading: "Map",
+    hint: "Drag to rotate · scroll to zoom · right-drag to pan",
+    loading: "Loading map",
+    imagery: "Satellite imagery",
+    topo: "Buildings and roads",
   },
 
   about: {

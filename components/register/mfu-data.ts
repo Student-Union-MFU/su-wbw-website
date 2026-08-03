@@ -104,3 +104,25 @@ export const MAJORS_BY_SCHOOL: Record<string, string[]> = {
   ],
   "School of Social Innovation": ["International Development"],
 };
+
+/* ============================================================
+   หน้าที่ของเจ้าหน้าที่ (ฟอร์ม /auth/staff/register)
+
+   ⚠ ต้องตรงกับ enum staff_role ใน backend (migration 000009_staff_profile)
+   และ validStaffRoles ใน internal/service/wbw_auth_service.go
+   เพิ่มหน้าที่ใหม่ = แก้ทั้ง 3 ที่ + เพิ่มคำแปลใน staffAuth.register.roles
+   ============================================================ */
+export const STAFF_ROLES = [
+  "registration",
+  "checkpoint",
+  "backstage",
+  "security",
+  "medical",
+  "welfare",
+  "logistics",
+  "media",
+  "guide",
+  "other",
+] as const;
+
+export type StaffRole = (typeof STAFF_ROLES)[number];

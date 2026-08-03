@@ -17,6 +17,7 @@ import { useT } from "@/lib/i18n/LanguageProvider";
 export function StaffRequests({ token }: { token: string }) {
   const t = useT();
   const r = t.dash.requests;
+  const roles = t.staffAuth.register.roles; // ป้ายหน้าที่ในงาน — ใช้ชุดเดียวกับฟอร์มสมัคร
 
   const [rows, setRows] = useState<StaffRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,11 +79,13 @@ export function StaffRequests({ token }: { token: string }) {
         <div className="rounded-[20px] border border-line bg-card p-10 text-center text-sm text-muted">{r.empty}</div>
       ) : (
         <div className="overflow-x-auto rounded-[20px] border border-line bg-card">
-          <table className="w-full min-w-[560px] text-sm">
+          <table className="w-full min-w-[820px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th className="px-4 py-3 font-medium">{r.colName}</th>
                 <th className="px-4 py-3 font-medium">{r.colUsername}</th>
+                <th className="px-4 py-3 font-medium">{r.colSchool}</th>
+                <th className="px-4 py-3 font-medium">{r.colMajor}</th>
+                <th className="px-4 py-3 font-medium">{r.colRole}</th>
                 <th className="px-4 py-3 font-medium">{r.colRequested}</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -90,8 +93,12 @@ export function StaffRequests({ token }: { token: string }) {
             <tbody>
               {rows.map((req) => (
                 <tr key={req.id} className="border-b border-line/60 last:border-0">
-                  <td className="px-4 py-3 font-medium text-ink">{req.display_name || r.noName}</td>
-                  <td className="px-4 py-3 text-muted">{req.username}</td>
+                  <td className="px-4 py-3 font-medium text-ink">{req.username}</td>
+                  <td className="px-4 py-3 text-muted">{req.school_name ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">{req.major ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {req.staff_role ? (roles[req.staff_role] ?? req.staff_role) : "—"}
+                  </td>
                   <td className="px-4 py-3 text-muted">{req.created ?? "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2 whitespace-nowrap">

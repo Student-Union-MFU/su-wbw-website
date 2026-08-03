@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import ForestScene from "@/components/ForestScene";
 import NavBar from "@/components/landing/NavBar";
-import { TextField } from "@/components/register/ui";
+import { SelectField, TextField } from "@/components/register/ui";
+import { MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME, STAFF_ROLES } from "@/components/register/mfu-data";
 import { registerStaff } from "@/lib/adminApi";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 
 /**
- * /staff/register — เจ้าหน้าที่สมัครเอง (username + ชื่อที่แสดง + รหัสผ่าน)
+ * /staff/register — เจ้าหน้าที่สมัครเอง
+ * (username + รหัสผ่าน + สำนักวิชา/สาขา + หน้าที่ในงาน)
  * ส่งคำขอแล้วขึ้นหน้า "รออนุมัติ" · ผู้ดูแลอนุมัติในแผงก่อนถึงจะล็อกอินได้
  * สไตล์เดียวกับหน้าเข้าสู่ระบบ (ฉากป่านิ่ง + การ์ดกระจกเข้ม)
  */
@@ -19,19 +21,47 @@ export default function StaffRegisterPage() {
   const s = t.staffAuth.register;
 
   const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [schoolId, setSchoolId] = useState("");
+  const [major, setMajor] = useState("");
+  const [staffRole, setStaffRole] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  const schoolOptions = useMemo(
+    () => SCHOOLS_BY_NAME.map((sc) => ({ value: String(sc.school_id), label: sc.name })),
+    [],
+  );
+  const schoolName = useMemo(
+    () => SCHOOLS.find((sc) => String(sc.school_id) === schoolId)?.name ?? "",
+    [schoolId],
+  );
+  const majorOptions = useMemo(
+    () => (MAJORS_BY_SCHOOL[schoolName] ?? []).map((m) => ({ value: m, label: m })),
+    [schoolName],
+  );
+  const roleOptions = useMemo(
+    () => STAFF_ROLES.map((r) => ({ value: r, label: s.roles[r] ?? r })),
+    [s],
+  );
+
+  // เปลี่ยนสำนัก → รีเซ็ตสาขา (รายการสาขาผูกกับสำนัก)
+  function onSchool(v: string) {
+    setSchoolId(v);
+    setMajor("");
+  }
 
   function validate() {
     const e: Record<string, string> = {};
     if (!username.trim()) e.username = s.errUsername;
     if (password.length < 8) e.password = s.errPassword;
     if (confirm !== password) e.confirm = s.errConfirm;
+    if (!schoolId) e.schoolId = s.errSchool;
+    if (schoolId && majorOptions.length > 0 && !major) e.major = s.errMajor;
+    if (!staffRole) e.staffRole = s.errStaffRole;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -44,7 +74,9 @@ export default function StaffRegisterPage() {
       await registerStaff({
         username: username.trim(),
         password,
-        display_name: displayName.trim() || undefined,
+        school_id: Number(schoolId),
+        major: major || undefined,
+        staff_role: staffRole,
       });
       setDone(true);
     } catch (err) {
@@ -67,7 +99,7 @@ export default function StaffRegisterPage() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-cream">{s.pendingHeading}</h1>
-            <p className="mt-2 text-cream/78">{s.pendingBody(displayName.trim() || username.trim())}</p>
+            <p className="mt-2 text-cream/78">{s.pendingBody(username.trim())}</p>
             <p className="mt-4 text-sm leading-relaxed text-cream/72">{s.pendingNote}</p>
             <Link
               href="/auth/staff/login"
@@ -109,13 +141,6 @@ export default function StaffRegisterPage() {
               error={errors.username}
             />
             <TextField
-              label={s.displayName}
-              value={displayName}
-              onChange={setDisplayName}
-              autoComplete="name"
-              hint={s.displayNameHint}
-            />
-            <TextField
               label={s.password}
               type="password"
               value={password}
@@ -133,6 +158,39 @@ export default function StaffRegisterPage() {
               autoComplete="new-password"
               required
               error={errors.confirm}
+            />
+
+            <SelectField
+              label={s.school}
+              value={schoolId}
+              onChange={onSchool}
+              placeholder={s.schoolPlaceholder}
+              options={schoolOptions}
+              required
+              error={errors.schoolId}
+            />
+
+            {schoolId && majorOptions.length > 0 && (
+              <SelectField
+                label={s.major}
+                value={major}
+                onChange={setMajor}
+                placeholder={s.majorPlaceholder}
+                options={majorOptions}
+                required
+                error={errors.major}
+              />
+            )}
+
+            <SelectField
+              label={s.staffRole}
+              value={staffRole}
+              onChange={setStaffRole}
+              placeholder={s.staffRolePlaceholder}
+              options={roleOptions}
+              hint={s.staffRoleHint}
+              required
+              error={errors.staffRole}
             />
 
             {submitError && (

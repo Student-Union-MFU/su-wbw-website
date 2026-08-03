@@ -263,7 +263,13 @@ export async function deleteUser(token: string, id: string): Promise<void> {
 /* ===== คำขอเป็นเจ้าหน้าที่ (สมัครเอง รออนุมัติ) ===== */
 
 /** เจ้าหน้าที่สมัครเอง — สร้างบัญชี pending (ไม่ล็อกอินให้ · รอแอดมินอนุมัติ) */
-export async function registerStaff(data: { username: string; password: string; display_name?: string }): Promise<void> {
+export async function registerStaff(data: {
+  username: string;
+  password: string;
+  school_id: number;
+  major?: string;
+  staff_role: string;
+}): Promise<void> {
   const res = await fetch(apiUrl("/api/auth/staff-register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -275,8 +281,13 @@ export async function registerStaff(data: { username: string; password: string; 
 export type StaffRequest = {
   id: string;
   username: string;
+  /** role ของบัญชี (staff/admin) — คนละอันกับ staff_role ที่เป็นหน้าที่ในงาน */
   role: string;
   display_name: string | null;
+  school_id: number | null;
+  school_name: string | null;
+  major: string | null;
+  staff_role: string | null;
   status: string;
   created: string | null;
 };

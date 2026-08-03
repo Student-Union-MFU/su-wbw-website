@@ -14,7 +14,6 @@ export const CHRONIC_VALUES = [
   "rash",
   "dust_allergy",
   "respiratory",
-  "other",
 ] as const satisfies readonly (keyof Dict["chronic"])[];
 
 /** รายการโรคพร้อม label/desc ตามภาษาปัจจุบัน */

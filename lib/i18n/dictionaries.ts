@@ -69,7 +69,7 @@ const th = {
       errStaffRole: "กรุณาเลือกหน้าที่",
       failed: "สมัครไม่สำเร็จ",
       pendingHeading: "ส่งคำขอแล้ว",
-      pendingBody: (name: string) => `ขอบคุณ ${name} — คำขอเป็นเจ้าหน้าที่ถูกส่งให้ผู้ดูแลแล้ว`,
+      pendingBody: (name: string) => `ขอบคุณ ${name} คำขอเป็นเจ้าหน้าที่ถูกส่งให้ผู้ดูแลแล้ว`,
       pendingNote: "เมื่อได้รับอนุมัติ จะเข้าสู่ระบบด้วยชื่อผู้ใช้และรหัสผ่านนี้ได้เลย",
       backToLogin: "ไปหน้าเข้าสู่ระบบ",
     },
@@ -107,7 +107,7 @@ const th = {
     sections: [
       {
         eyebrow: "เส้นทาง",
-        title: "12 กิโลเมตร รอบดอย",
+        title: "6 กิโลเมตร รอบดอย",
         body: "ออกเดินจากลานเฉลิมพระเกียรติตั้งแต่ฟ้ายังไม่สาง วนรอบดอยแม่ฟ้าหลวงแล้วกลับเข้าสู่มหาวิทยาลัย",
       },
       {
@@ -128,7 +128,7 @@ const th = {
     ],
     closingHeading: "พร้อมออกเดินหรือยัง",
     closingBody: "ลงทะเบียนล่วงหน้าออนไลน์ ใช้เวลาไม่ถึง 5 นาที",
-    credit: "โมเดล 3D: Quaternius, Kenney, Poly by Google และอื่น ๆ — ดู /models/CREDITS.md",
+    credit: "โมเดล 3D: Quaternius, Kenney, Poly by Google และอื่น ๆ (ดู /models/CREDITS.md)",
   },
 
   /** หน้าประกาศสาธารณะ /announcements */
@@ -149,7 +149,7 @@ const th = {
     heading: "เดินรอบดอย",
     lead: "กิจกรรมเดินการกุศลรอบดอยแม่ฟ้าหลวง สานต่อรอยปณิธานของมหาวิทยาลัย",
     paragraphs: [
-      "เดินรอบดอยคือกิจกรรมเดินระยะทาง 12 กิโลเมตร รอบดอยแม่ฟ้าหลวง จัดโดยองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง เปิดให้นักศึกษาและบุคลากรร่วมเดินไปด้วยกัน",
+      "เดินรอบดอยคือกิจกรรมเดินระยะทาง 6 กิโลเมตร รอบดอยแม่ฟ้าหลวง จัดโดยองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง เปิดให้นักศึกษาและบุคลากรร่วมเดินไปด้วยกัน",
       "ไม่ใช่การแข่งขัน ไม่วัดเวลา ทุกคนเดินไปพร้อมกันผ่านป่าต้นน้ำและสันเขา แวะพักตามฐานกิจกรรมที่มีน้ำดื่ม อาหารว่าง และทีมปฐมพยาบาลประจำอยู่ตลอดเส้นทาง",
       "รายได้หลังหักค่าใช้จ่ายสมทบทุนกิจกรรมสาธารณประโยชน์ของมหาวิทยาลัย",
     ],
@@ -190,8 +190,8 @@ const th = {
     password: "รหัสผ่าน",
     passwordHint: "อย่างน้อย 8 ตัว",
     confirmPassword: "ยืนยันรหัสผ่าน",
-    sex: "เพศ",
-    sexPlaceholder: "เลือกเพศ",
+    sex: "เพศสภาพ (Gender)",
+    sexPlaceholder: "เลือกเพศสภาพ",
     male: "ชาย",
     female: "หญิง",
     unspecified: "ไม่ระบุ",
@@ -243,7 +243,6 @@ const th = {
     rash: { label: "ผื่นคัน", desc: "" },
     dust_allergy: { label: "แพ้ฝุ่น", desc: "" },
     respiratory: { label: "โรคทางเดินหายใจ", desc: "" },
-    other: { label: "โรคประจำตัวอื่นๆ", desc: "" },
   },
 
   apology: {
@@ -469,7 +468,7 @@ const th = {
       colPhone: "เบอร์",
       colBlood: "กรุ๊ปเลือด",
       colCheckin: "เช็คอิน",
-      emptyBefore: "ยังไม่มีผู้สมัคร — ลองสมัครที่",
+      emptyBefore: "ยังไม่มีผู้สมัคร ลองสมัครที่",
       emptyLink: "หน้าลงทะเบียน",
       noMatch: "ไม่พบรายการที่ค้นหา",
       isCheckedIn: "เช็คอินแล้ว",
@@ -654,7 +653,7 @@ const en: Dict = {
     eyebrow: "For staff · Walk Beyond the Wild",
     register: {
       heading: "Staff registration",
-      sub: "Request a staff account — an admin reviews and approves it before you can use it.",
+      sub: "Request a staff account. An admin reviews and approves it before you can use it.",
       username: "Username",
       usernameHint: "Used to sign in (letters/numbers)",
       password: "Password",
@@ -691,7 +690,7 @@ const en: Dict = {
       errStaffRole: "Please select your role",
       failed: "Registration failed",
       pendingHeading: "Request sent",
-      pendingBody: (name: string) => `Thanks ${name} — your staff request has been sent to the admins.`,
+      pendingBody: (name: string) => `Thanks ${name}, your staff request has been sent to the admins.`,
       pendingNote: "Once approved, you can sign in with this username and password.",
       backToLogin: "Go to sign in",
     },
@@ -716,7 +715,7 @@ const en: Dict = {
     about: "About",
     contact: "Contact",
     soon: "Coming soon",
-    soonBody: "This page is still being built — check back soon.",
+    soonBody: "This page is still being built. Check back soon.",
     back: "Back to home",
   },
 
@@ -727,7 +726,7 @@ const en: Dict = {
     sections: [
       {
         eyebrow: "The route",
-        title: "12 kilometres around the mountain",
+        title: "6 kilometres around the mountain",
         body: "Setting off from the Royal Commemoration Ground before first light, looping around Doi Mae Fah Luang and back into the university.",
       },
       {
@@ -743,12 +742,12 @@ const en: Dict = {
       {
         eyebrow: "The finish",
         title: "Nobody walks alone",
-        body: "Not a race, no losers — fast or slow, everyone arrives together as first light touches the summit.",
+        body: "Not a race, no losers. Fast or slow, everyone arrives together as first light touches the summit.",
       },
     ],
     closingHeading: "Ready to set off?",
-    closingBody: "Register online in advance — it takes under five minutes.",
-    credit: "3D models: Quaternius, Kenney, Poly by Google and others — see /models/CREDITS.md",
+    closingBody: "Register online in advance. It takes under five minutes.",
+    credit: "3D models: Quaternius, Kenney, Poly by Google and others (see /models/CREDITS.md)",
   },
 
   announcements: {
@@ -756,7 +755,7 @@ const en: Dict = {
     heading: "Announcements",
     sub: "The latest updates from the Walk Beyond the Wild team",
     empty: "No announcements yet",
-    error: "Couldn't load announcements — please try again",
+    error: "Couldn't load announcements. Please try again",
     by: "by",
     levelInfo: "Info",
     levelWarning: "Important",
@@ -768,8 +767,8 @@ const en: Dict = {
     heading: "Walk Beyond the Wild",
     lead: "A charity walk around Doi Mae Fah Luang, carrying on the university's spirit.",
     paragraphs: [
-      "Walk Beyond the Wild is a 12-kilometre walk around Doi Mae Fah Luang, organised by the Mae Fah Luang University Student Union and open to students and staff to walk together.",
-      "It isn't a race and isn't timed — everyone walks together through headwater forest and ridgelines, resting at activity bases stocked with water, snacks and first-aid teams along the route.",
+      "Walk Beyond the Wild is a 6-kilometre walk around Doi Mae Fah Luang, organised by the Mae Fah Luang University Student Union and open to students and staff to walk together.",
+      "It isn't a race and isn't timed. Everyone walks together through headwater forest and ridgelines, resting at activity bases stocked with water, snacks and first-aid teams along the route.",
       "Proceeds after costs support the university's public-benefit activities.",
     ],
     cta: "Register",
@@ -807,8 +806,8 @@ const en: Dict = {
     password: "Password",
     passwordHint: "At least 8 characters",
     confirmPassword: "Confirm password",
-    sex: "Sex",
-    sexPlaceholder: "Select sex",
+    sex: "Gender",
+    sexPlaceholder: "Select gender",
     male: "Male",
     female: "Female",
     unspecified: "Prefer not to say",
@@ -859,15 +858,14 @@ const en: Dict = {
     rash: { label: "Skin rash", desc: "" },
     dust_allergy: { label: "Dust allergy", desc: "" },
     respiratory: { label: "Respiratory conditions", desc: "" },
-    other: { label: "Other conditions", desc: "" },
   },
 
   apology: {
-    heading: "We're sorry — you can't join this event",
+    heading: "We're sorry, you can't join this event",
     dear: (who: string) => `Dear ${who},`,
-    bodyBefore: "The organisers sincerely apologise. Because you have a pre-existing condition —",
+    bodyBefore: "The organisers sincerely apologise. Because you have a pre-existing condition,",
     bodyAfter:
-      "— we are unable to allow you to take part this time. This is for your own safety during the walk.",
+      "we are unable to allow you to take part this time. This is for your own safety during the walk.",
     contact:
       "If you have any questions, please contact the organisers. We apologise for the inconvenience.",
     signOff: "Sincerely,",
@@ -920,7 +918,7 @@ const en: Dict = {
 
   success: {
     heading: "You're registered",
-    welcome: (name: string) => `Welcome, ${name} — see you at Walk Beyond the Wild 2026`,
+    welcome: (name: string) => `Welcome, ${name}. See you at Walk Beyond the Wild 2026`,
     usernameLabel: "Username (student ID)",
     nextStepLabel: "Next step:",
     nextStepBefore: "Download the",
@@ -991,7 +989,7 @@ const en: Dict = {
       bloodLabel: "Blood type",
       noConditions: "No conditions reported",
       notProvided: "Not provided",
-      localNote: "Saved on this device when you registered — shown only on the device you registered with.",
+      localNote: "Saved on this device when you registered. Shown only on the device you registered with.",
       soonTitle: "The participant area is still being built",
       soonBody:
         "The route map, announcements and your check-in progress will appear here before event day.",
@@ -1082,7 +1080,7 @@ const en: Dict = {
       colPhone: "Phone",
       colBlood: "Blood type",
       colCheckin: "Check-in",
-      emptyBefore: "No registrations yet — try the",
+      emptyBefore: "No registrations yet. Try the",
       emptyLink: "registration page",
       noMatch: "No matching results",
       isCheckedIn: "Checked in",

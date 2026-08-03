@@ -3,7 +3,7 @@
 import ForestScene from "@/components/ForestScene";
 import Link from "next/link";
 import NavBar from "@/components/landing/NavBar";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
 
 
@@ -20,18 +20,12 @@ export default function AboutPage() {
             {t.about.eyebrow}
           </p>
           <h1
-            // EN = แบรนด์ "Walk Beyond the Wild" → Patrick Hand · TH = "เดินรอบดอย"
-            // → Itim (Patrick Hand ไม่มี glyph ไทย เลยตกไป fallback ถ้าไม่สลับ)
             className="mt-4 text-[clamp(2.2rem,6vw,4rem)] leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
-            style={{ fontFamily: lang === "th" ? "var(--font-hand-th)" : "var(--font-hand)" }}
+            style={headingFont(lang, 1.25)}
           >
             {t.about.heading}
           </h1>
-          <p
-            // ข้อความรอง = Itim ทั้ง EN/TH → ขนาดตรงกัน ไม่ดู "บีบ" แบบ Patrick Hand
-            className="mx-auto mt-4 max-w-lg text-base text-cream/85"
-            style={{ fontFamily: "var(--font-hand-th)" }}
-          >
+          <p className="mx-auto mt-4 max-w-lg text-base text-cream/85">
             {t.about.lead}
           </p>
         </header>

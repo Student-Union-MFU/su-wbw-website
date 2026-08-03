@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import NavBar from "./NavBar";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 
 /** หน้าเปล่าสำหรับเมนูที่ยังไม่ได้ทำ (แผนที่ / ประกาศ) — มี NavBar ให้กลับไปหน้าอื่นได้ */
 export default function ComingSoon({ title }: { title: string }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   return (
     <>
@@ -14,10 +14,9 @@ export default function ComingSoon({ title }: { title: string }) {
       <main className="flex min-h-screen flex-col items-center justify-center bg-forestdeep px-6 text-center text-cream">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold">{t.nav.soon}</p>
         <h1
-          // title มาจากเมนู (เช่น "แผนที่"/"Map") → Itim รองรับไทย+ละติน
-          // (Patrick Hand ไม่มี glyph ไทย เลยตกไป fallback บนภาษาไทย)
+          // title มาจากเมนู (เช่น "แผนที่"/"Map") → สลับฟอนต์ตามภาษา
           className="mt-5 text-4xl leading-tight sm:text-6xl"
-          style={{ fontFamily: "var(--font-hand-th)" }}
+          style={headingFont(lang)}
         >
           {title}
         </h1>

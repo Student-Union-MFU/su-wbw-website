@@ -62,24 +62,23 @@ export const SCHOOL_BY_CODE: Record<string, string> = {
 // สาขา (major) ต่อสำนักวิชา — แสดงบนแอป
 export const MAJORS_BY_SCHOOL: Record<string, string[]> = {
   "School of Agro-Industry": [
-    "Innovation Food Science and Technology",
-    "Postharvest Technology and Logistics",
+    "Innovative Food Science and Technology",
+    "Agri-Food Logistics",
   ],
-  "School of Cosmetic Science": ["Beauty Technology", "Cosmetic Science"],
-  "School of Dentistry": ["Dental Assistant", "Dental Surgery"],
+  "School of Cosmetic Science": ["Cosmetic Science", "Beauty Technology"],
+  "School of Dentistry": ["Doctor of Dental Surgery"],
   "School of Health Science": [
-    "Environmental Health",
-    "Occupational Health and Safety",
     "Public Health",
     "Sports and Health Science",
+    "Environmental Health",
+    "Occupational Health and Safety",
   ],
   "School of Applied Digital Technology": [
-    "Computer Engineering",
     "Digital and Communication Engineering",
+    "Computer Engineering",
     "Digital Technology for Business Innovation",
-    "Multimedia Technology and Animation",
     "Software Engineering",
-    "Computer Science and Innovation",
+    "Multimedia Technology and Animation",
   ],
   "School of Integrative Medicine": [
     "Applied Thai Traditional Medicine",
@@ -88,12 +87,20 @@ export const MAJORS_BY_SCHOOL: Record<string, string[]> = {
   ],
   "School of Law": ["Laws", "Business Law and Chinese Communication"],
   "School of Liberal Arts": ["English", "Thai Language and Culture for Foreigners"],
-  "School of Management": ["Accounting", "Business Management", "Economics"],
+  "School of Management": [
+    "Accounting",
+    "Business Administration",
+    "Tourism Business and Events",
+    "Hospitality Business Management",
+    "Logistics and Supply Chain Management",
+    "Aviation Business Management",
+    "Economics",
+  ],
   "School of Medicine": ["Medicine"],
   "School of Nursing": ["Practical Nursing", "Nursing Science"],
   "School of Science": [
     "Applied Chemistry",
-    "Biotechnology (Biological Science)",
+    "Biosciences / Biological Science",
     "Materials Engineering",
   ],
   "School of Sinology": [

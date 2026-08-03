@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useProgress } from "@react-three/drei";
-import { useLang } from "@/lib/i18n/LanguageProvider";
+import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import FilmGrain from "@/components/FilmGrain";
 import { useScene } from "@/components/scene/SceneHost";
 import { isSceneLoaded, markSceneLoaded } from "@/components/scene/loadState";
@@ -22,6 +22,9 @@ import { BEATS, beatOpacity, clamp01 } from "./trail";
 
 /** ความสูงของหน้า = ระยะ scroll ทั้งหมด (ยิ่งมาก เดินยิ่งช้า/นุ่ม) */
 const SCROLL_VH = 900;
+
+/** ระยะทางรวมของเส้นทาง (กม.) — ใช้กับมาตรวัดข้างจอ ให้ตรงกับข้อความใน dictionaries */
+const ROUTE_KM = 6;
 
 export default function LandingWalk() {
   const { t, lang } = useLang();
@@ -92,7 +95,7 @@ export default function LandingWalk() {
 
       if (cueRef.current) cueRef.current.style.opacity = String(1 - clamp01(p / 0.05));
       if (barRef.current) barRef.current.style.transform = `scaleY(${p})`;
-      if (kmRef.current) kmRef.current.textContent = (p * 12).toFixed(1);
+      if (kmRef.current) kmRef.current.textContent = (p * ROUTE_KM).toFixed(1);
     }
     function onScroll() {
       if (!raf) raf = requestAnimationFrame(update);
@@ -138,23 +141,15 @@ export default function LandingWalk() {
           className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         >
           <div className="animate-[heroIn_1.2s_cubic-bezier(0.16,1,0.3,1)_both]">
-            <p className="text-[10px] font-medium tracking-[0.42em] text-cream/70 sm:text-xs">
-              {t.hero.university}
-            </p>
-            <h1
-              className="mt-5 whitespace-normal text-balance text-[clamp(2rem,8.5vw,7rem)] leading-[0.95] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)] sm:whitespace-nowrap"
-              style={{ fontFamily: "var(--font-hand)" }}
-            >
-              {t.hero.title}
+            {/* โลโก้งานแทนข้อความเดิม — ไฟล์เป็นลายดำพื้นโปร่งใส ใช้ invert ให้เป็นขาว */}
+            <h1 className="m-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/schools/wbw-logo.png"
+                alt={`${t.hero.university} · ${t.hero.title} · ${t.hero.subtitle}`}
+                className="mx-auto w-[min(88vw,600px)] invert drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+              />
             </h1>
-            <p
-              // Itim รองรับทั้งไทย+ละติน → EN/TH ใช้ฟอนต์เดียวกัน ขนาดตรงกัน
-              // (เดิม EN เป็น Patrick Hand ตัวแคบ ดู "บีบ" เล็กกว่าไทยที่เป็น Itim)
-              className="mx-auto mt-5 max-w-xl text-base text-cream/85 sm:text-xl"
-              style={{ fontFamily: "var(--font-hand-th)" }}
-            >
-              {t.hero.subtitle}
-            </p>
           </div>
         </div>
 
@@ -172,10 +167,7 @@ export default function LandingWalk() {
           >
             <div className="max-w-md">
               <p className="text-[10px] uppercase tracking-[0.34em] text-gold">{s.eyebrow}</p>
-              <h2
-                className="mt-4 text-3xl leading-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.6)] sm:text-5xl"
-                style={{ fontFamily: "var(--font-kanit)" }}
-              >
+              <h2 className="mt-4 text-3xl leading-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.6)] sm:text-5xl">
                 {s.title}
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-cream/85 sm:text-base">{s.body}</p>
@@ -190,10 +182,8 @@ export default function LandingWalk() {
           className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         >
           <h2
-            // Itim รองรับไทย → หัวข้อปิดท้ายภาษาไทยไม่ตกไปฟอนต์ fallback (Patrick Hand
-            // ไม่มี glyph ไทย) · EN/TH จึงเป็นลายมือชุดเดียวกัน ขนาดตรงกัน
             className="text-4xl leading-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-6xl"
-            style={{ fontFamily: "var(--font-hand-th)" }}
+            style={headingFont(lang)}
           >
             {t.landing.closingHeading}
           </h2>
@@ -233,7 +223,7 @@ export default function LandingWalk() {
           </span>
           <span className="text-[11px] tabular-nums text-cream/70">
             <span ref={kmRef}>0.0</span>
-            <span className="text-cream/35"> / 12</span>
+            <span className="text-cream/35"> / {ROUTE_KM}</span>
           </span>
         </div>
 

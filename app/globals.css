@@ -88,9 +88,11 @@ body {
    wave-group — floating label + underline animate
    (ยกมาจาก web/assets/theme.css เดิม ให้หน้าตาเหมือนของเดิม)
    ============================================================ */
+/* padding-top ต้องกว้างพอรับ label ที่ลอยขึ้น 24px ไม่งั้นป้ายจะโผล่พ้นกรอบ
+   ไปทับสิ่งที่อยู่ด้านบน (เช่น การ์ดชื่อในหน้า Medical ID) */
 .wave-group {
   position: relative;
-  padding-top: 10px;
+  padding-top: 24px;
 }
 .wave-group .wg-input {
   font-size: 16px;
@@ -129,7 +131,7 @@ body {
   position: absolute;
   pointer-events: none;
   left: 4px;
-  top: 20px;
+  top: 34px; /* = padding-top ของ .wave-group + padding-top ของ input */
   display: flex;
   margin: 0;
 }

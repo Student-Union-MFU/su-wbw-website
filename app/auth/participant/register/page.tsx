@@ -169,8 +169,11 @@ export default function RegisterPage() {
   function validateStep4() {
     const e: Record<string, string> = {};
     // ผู้ติดต่อฉุกเฉินไม่บังคับ (ตามฟอร์มเดิม) — กรอกแล้วค่อยเช็ครูปแบบ
+    // เบอร์ตัวเองใช้ไม่ได้ — ต้องมีคนอื่นที่ติดต่อได้จริงตอนฉุกเฉิน
     if (data.emergencyPhone && !/^\d{9,10}$/.test(data.emergencyPhone))
       e.emergencyPhone = t.step4.errors.phone;
+    else if (data.emergencyPhone && data.emergencyPhone === data.phone)
+      e.emergencyPhone = t.step4.errors.samePhone;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -530,6 +533,7 @@ function Step3({
         value={data.birthdate}
         onChange={set("birthdate")}
         max={TODAY || undefined}
+        hint={t.step3.birthdateHint}
         required
         error={errors.birthdate}
       />

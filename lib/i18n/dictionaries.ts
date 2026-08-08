@@ -273,7 +273,8 @@ const th = {
     heading: "Medical ID",
     sub: "ข้อมูลสุขภาพเบื้องต้น สำหรับดูแลความปลอดภัยในวันงาน",
     name: "ชื่อ",
-    birthdate: "วันเกิด",
+    birthdate: "วันเกิด (ค.ศ.)",
+    birthdateHint: "ปี ค.ศ. เช่น 2005 (ไม่ใช่ พ.ศ. 2548)",
     weight: "น้ำหนัก (กก.)",
     height: "ส่วนสูง (ซม.)",
     bloodType: "กรุ๊ปเลือด",
@@ -296,7 +297,10 @@ const th = {
     phone: "เบอร์โทรฉุกเฉิน",
     name: "ชื่อผู้ติดต่อ (ถ้ามี)",
     namePlaceholder: "เช่น ผู้ปกครอง",
-    errors: { phone: "เบอร์โทรฉุกเฉิน 9 ถึง 10 หลัก" },
+    errors: {
+      phone: "เบอร์โทรฉุกเฉิน 9 ถึง 10 หลัก",
+      samePhone: "ต้องเป็นเบอร์ของบุคคลอื่น ไม่ใช่เบอร์ของคุณเอง เพราะต้องติดต่อได้ในกรณีฉุกเฉิน",
+    },
   },
 
   step5: {
@@ -897,7 +901,8 @@ const en: Dict = {
     heading: "Medical ID",
     sub: "Basic health information so we can keep you safe on event day.",
     name: "Name",
-    birthdate: "Date of birth",
+    birthdate: "Date of birth (C.E.)",
+    birthdateHint: "Year in C.E., e.g. 2005",
     weight: "Weight (kg)",
     height: "Height (cm)",
     bloodType: "Blood type",
@@ -920,7 +925,11 @@ const en: Dict = {
     phone: "Emergency phone number",
     name: "Contact name (optional)",
     namePlaceholder: "e.g. parent or guardian",
-    errors: { phone: "Emergency phone number must be 9 to 10 digits" },
+    errors: {
+      phone: "Emergency phone number must be 9 to 10 digits",
+      samePhone:
+        "Must be a different person's number — we need to reach someone else in an emergency.",
+    },
   },
 
   step5: {

@@ -118,6 +118,7 @@ export type Participant = {
   group_number: number | null;
   checked_in: boolean;
   blood_type: string | null;
+  leave_quota: number;
 };
 
 export async function getParticipants(token: string): Promise<Participant[]> {
@@ -146,6 +147,7 @@ export type ParticipantPatch = {
   height_cm?: number;
   blood_type?: string;
   checked_in?: boolean;
+  leave_quota?: number;
 };
 
 export async function patchParticipant(token: string, id: string, patch: ParticipantPatch): Promise<Participant> {
@@ -161,6 +163,16 @@ export async function patchParticipant(token: string, id: string, patch: Partici
   return res.json();
 }
 
+/** หนึ่งบรรทัดของประวัติเข้า/ออก/ปรับสิทธิ์ · actor_name เป็น null แปลว่าผู้ใช้ทำเอง ไม่ใช่ admin */
+export type MembershipLogEntry = {
+  action: "join" | "leave" | "quota_adjust";
+  group_id: number | null;
+  group_number: number | null;
+  quota_after: number;
+  actor_name: string | null;
+  created_at: string;
+};
+
 // ข้อมูลเต็มที่เก็บตอนสมัคร (สำหรับหน้าแก้ไข)
 export type ParticipantDetail = Participant & {
   date_of_birth: string | null;
@@ -172,6 +184,8 @@ export type ParticipantDetail = Participant & {
   consent_health_data: boolean | null;
   consent_emergency_treatment: boolean | null;
   waiver_accepted: boolean | null;
+  leave_quota: number;
+  membership_log: MembershipLogEntry[];
 };
 
 export async function getParticipantDetail(token: string, id: string): Promise<ParticipantDetail> {

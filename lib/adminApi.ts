@@ -184,7 +184,6 @@ export type ParticipantDetail = Participant & {
   consent_health_data: boolean | null;
   consent_emergency_treatment: boolean | null;
   waiver_accepted: boolean | null;
-  leave_quota: number;
   membership_log: MembershipLogEntry[];
 };
 

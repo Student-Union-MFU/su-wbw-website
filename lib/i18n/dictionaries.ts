@@ -479,7 +479,7 @@ const th = {
       colPhone: "เบอร์",
       colBlood: "กรุ๊ปเลือด",
       colCheckin: "เช็คอิน",
-      colQuota: "สิทธิ์ออกกลุ่ม",
+      colQuota: "สิทธิ์ออกจากกลุ่ม",
       quotaLabel: "สิทธิ์ออกจากกลุ่ม (0–10)",
       quotaZeroOnly: "เฉพาะคนที่สิทธิ์หมด",
       quotaRange: "สิทธิ์ต้องอยู่ระหว่าง 0 ถึง 10",

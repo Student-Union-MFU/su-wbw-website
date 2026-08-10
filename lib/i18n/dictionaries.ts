@@ -1285,6 +1285,7 @@ const en: Dict = {
           "มอบหมายเจ้าหน้าที่": "Staff assigned",
           "ถอดเจ้าหน้าที่": "Staff removed",
           "แก้ไขผู้เข้าร่วม": "Participant edited",
+          "ปรับสิทธิ์ออกกลุ่ม": "Leave quota adjusted",
           "รีเซ็ตรหัสผ่านผู้เข้าร่วม": "Participant password reset",
           "ลบผู้เข้าร่วม": "Participant deleted",
           "เพิ่มฐาน": "Base added",

@@ -119,6 +119,7 @@ export function Participants({ token }: { token: string }) {
           <button
             type="button"
             onClick={() => setQuotaZeroOnly((v) => !v)}
+            aria-pressed={quotaZeroOnly}
             className={`rounded-full border px-4 py-2.5 text-sm transition-colors ${
               quotaZeroOnly
                 ? "border-danger bg-danger/12 text-danger"
@@ -274,6 +275,9 @@ function EditModal({
     checked_in: participant.checked_in,
     leave_quota: String(participant.leave_quota ?? 0),
   });
+  // ค่าที่ backend มีจริง (ไม่ใช่ค่าที่ผู้ใช้กำลังพิมพ์) — ใช้เทียบตอน save()
+  // ว่า admin แก้โควตาจริงไหม ก่อนตัดสินใจว่าจะส่ง leave_quota ไปด้วยหรือไม่
+  const [loadedQuota, setLoadedQuota] = useState(participant.leave_quota ?? 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -300,6 +304,7 @@ function EditModal({
           emergency_contact_phone: d.emergency_contact_phone ?? "",
           leave_quota: String(d.leave_quota),
         }));
+        setLoadedQuota(d.leave_quota);
       })
       .catch(() => {});
   }, [token, participant.id]);
@@ -341,7 +346,15 @@ function EditModal({
         emergency_contact_name: form.emergency_contact_name || undefined,
         emergency_contact_phone: form.emergency_contact_phone || undefined,
         checked_in: form.checked_in,
-        leave_quota: quota,
+        // ส่ง leave_quota เฉพาะตอนค่าเปลี่ยนจริงเท่านั้น — backend มองว่า "มีคีย์นี้ในคำขอ"
+        // แปลว่า admin ตั้งใจปรับสิทธิ์ แล้วจะเขียนแถว admin_log + group_membership_log
+        // (quota_adjust) ทุกครั้ง ต่อให้ค่าที่ส่งเท่ากับของเดิม ถ้าส่งไปเฉย ๆ ทุกครั้งที่ save:
+        // 1) โควตาที่เพิ่งถูกใช้ไป (ลดลงฝั่ง backend ระหว่างที่ modal เปิดค้างอยู่ หรือตอนที่
+        //    detail fetch ล้มเหลวเงียบ ๆ แล้ว form ยังถือค่าเก่าจาก list) จะถูก COALESCE ทับคืน
+        //    กลายเป็นสิทธิ์ฟรีที่ไม่ควรได้ และ audit log จะโทษ admin ทั้งที่ไม่ได้ตั้งใจแก้
+        // 2) membership_log เก็บแค่ 10 แถวล่าสุด การแก้ช่องอื่น (เบอร์โทร, เช็คอิน ฯลฯ) ซ้ำ ๆ
+        //    จะไล่ประวัติเข้า/ออกกลุ่มจริงตกขอบ ทั้งที่เป็นสิ่งที่ admin เปิดจอนี้มาดูโดยตรง
+        ...(quota !== loadedQuota ? { leave_quota: quota } : {}),
       });
       onSaved(updated);
     } catch (e) {
@@ -436,7 +449,52 @@ function EditModal({
             value={form.leave_quota}
             onChange={set("leave_quota")}
             type="number"
+            min={0}
+            max={10}
+            step={1}
           />
+
+          {/* ประวัติเข้า/ออกกลุ่ม — อยู่ติดกับช่องโควตา ไม่ใช่ฝังอยู่ใต้การ์ดยินยอมอีกต่อไป
+              เพราะคำถามจริงของ admin ที่เปิด modal นี้คือ "ทำไมคนนี้ออกกลุ่มไม่ได้" */}
+          {detail && (
+            <div className="rounded-[16px] bg-cream/60 p-4 text-xs text-muted">
+              <h4 className="text-sm font-semibold text-forestdeep">
+                {t.dash.participants.historyHeading}
+              </h4>
+              {detail.membership_log.length === 0 ? (
+                <p className="mt-2 text-sm text-muted">{t.dash.participants.historyEmpty}</p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {detail.membership_log.map((l, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span
+                        className={`mt-0.5 flex-none rounded-full px-2.5 py-1 text-xs ${
+                          l.action === "leave" ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                        }`}
+                      >
+                        {ACTION_LABEL(t)[l.action] ?? l.action}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-ink">
+                          {l.group_number != null ? `${t.dash.participants.colGroup} ${l.group_number}` : "—"}
+                          {" · "}
+                          {t.dash.participants.colQuota} {l.quota_after}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {l.actor_name
+                            ? t.dash.participants.historyBy(l.actor_name)
+                            : t.dash.participants.historySelf}
+                        </p>
+                      </div>
+                      <span className="flex-none text-xs text-muted">
+                        {formatTs(l.created_at, t.dash.locale)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* ติดต่อ / สุขภาพ */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -481,44 +539,6 @@ function EditModal({
                 <ConsentTag ok={detail.consent_health_data} label={t.dash.participants.consentHealth} />
                 <ConsentTag ok={detail.consent_emergency_treatment} label={t.dash.participants.consentEmergency} />
                 <ConsentTag ok={detail.waiver_accepted} label={t.dash.participants.consentWaiver} />
-              </div>
-
-              <div className="mt-6">
-                <h4 className="text-sm font-semibold text-forestdeep">
-                  {t.dash.participants.historyHeading}
-                </h4>
-                {detail.membership_log.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted">{t.dash.participants.historyEmpty}</p>
-                ) : (
-                  <ul className="mt-2 space-y-2">
-                    {detail.membership_log.map((l, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
-                        <span
-                          className={`mt-0.5 flex-none rounded-full px-2.5 py-1 text-xs ${
-                            l.action === "leave" ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
-                          }`}
-                        >
-                          {ACTION_LABEL(t)[l.action]}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-ink">
-                            {l.group_number != null ? `${t.dash.participants.colGroup} ${l.group_number}` : "—"}
-                            {" · "}
-                            {t.dash.participants.colQuota} {l.quota_after}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted">
-                            {l.actor_name
-                              ? t.dash.participants.historyBy(l.actor_name)
-                              : t.dash.participants.historySelf}
-                          </p>
-                        </div>
-                        <span className="flex-none text-xs text-muted">
-                          {formatTs(l.created_at, t.dash.locale)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
             </div>
           )}

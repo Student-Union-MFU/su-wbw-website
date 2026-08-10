@@ -45,6 +45,7 @@ export function Participants({ token }: { token: string }) {
   const [groups, setGroups] = useState<NotiGroup[]>([]);
   const [q, setQ] = useState("");
   const [schoolFilter, setSchoolFilter] = useState(""); // "" = ทุกสำนักวิชา
+  const [quotaZeroOnly, setQuotaZeroOnly] = useState(false); // คำถามจริงของ admin คือ "ใครติดล็อกบ้าง"
   const [editing, setEditing] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,10 +62,11 @@ export function Participants({ token }: { token: string }) {
     const s = q.trim().toLowerCase();
     return rows.filter((r) => {
       if (schoolFilter && String(r.school_id) !== schoolFilter) return false;
+      if (quotaZeroOnly && r.leave_quota !== 0) return false;
       if (!s) return true;
       return `${r.first_name ?? ""} ${r.last_name ?? ""} ${r.student_id}`.toLowerCase().includes(s);
     });
-  }, [rows, q, schoolFilter]);
+  }, [rows, q, schoolFilter, quotaZeroOnly]);
 
   function onSaved(updated: Participant) {
     setRows((rs) => rs.map((r) => (r.id === updated.id ? updated : r)));
@@ -106,6 +108,17 @@ export function Participants({ token }: { token: string }) {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={() => setQuotaZeroOnly((v) => !v)}
+            className={`rounded-full border px-4 py-2.5 text-sm transition-colors ${
+              quotaZeroOnly
+                ? "border-danger bg-danger/12 text-danger"
+                : "border-line bg-card text-muted hover:text-ink"
+            }`}
+          >
+            {t.dash.participants.quotaZeroOnly}
+          </button>
         </div>
       </div>
 
@@ -123,17 +136,18 @@ export function Participants({ token }: { token: string }) {
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colPhone}</th>
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colBlood}</th>
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colCheckin}</th>
+                <th className="px-4 py-3 font-medium">{t.dash.participants.colQuota}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">
                     {t.dash.participants.emptyBefore}{" "}
                     <a href="/auth/participant/register" className="text-forest underline hover:text-forestdeep">
                       {t.dash.participants.emptyLink}
@@ -142,7 +156,7 @@ export function Participants({ token }: { token: string }) {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
                 </tr>
               ) : (
                 filtered.map((r) => (
@@ -157,6 +171,15 @@ export function Participants({ token }: { token: string }) {
                     <td className="px-4 py-3 text-muted">{bloodLabel(r.blood_type, t)}</td>
                     <td className="px-4 py-3">
                       <CheckinBadge on={r.checked_in} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs ${
+                          r.leave_quota === 0 ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                        }`}
+                      >
+                        {r.leave_quota}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button

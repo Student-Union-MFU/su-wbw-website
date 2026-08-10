@@ -264,6 +264,7 @@ function EditModal({
     emergency_contact_name: "",
     emergency_contact_phone: "",
     checked_in: participant.checked_in,
+    leave_quota: String(participant.leave_quota ?? 0),
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -289,6 +290,7 @@ function EditModal({
           height_cm: d.height_cm != null ? String(d.height_cm) : "",
           emergency_contact_name: d.emergency_contact_name ?? "",
           emergency_contact_phone: d.emergency_contact_phone ?? "",
+          leave_quota: String(d.leave_quota),
         }));
       })
       .catch(() => {});
@@ -303,6 +305,14 @@ function EditModal({
     setError(null);
     if (!/^693\d{7}$/.test(form.student_id)) {
       setError(t.dash.participants.badStudentId);
+      return;
+    }
+    const quota = Number(form.leave_quota);
+    // เช็คฝั่งนี้ด้วยแม้ backend จะเช็คอยู่แล้ว — ผู้ใช้ควรเห็นข้อความทันทีที่พิมพ์ผิด
+    // ไม่ต้องรอ round trip แล้วได้ error กลับมาแบบไม่ผูกกับช่องไหน
+    // Number("") === 0 ไม่ใช่ NaN — ถ้าช่องว่างต้องนับเป็นค่าไม่ถูกต้อง ไม่ใช่ "ตั้งสิทธิ์เป็น 0"
+    if (form.leave_quota.trim() === "" || !Number.isInteger(quota) || quota < 0 || quota > 10) {
+      setError(t.dash.participants.quotaRange);
       return;
     }
     setBusy(true);
@@ -323,6 +333,7 @@ function EditModal({
         emergency_contact_name: form.emergency_contact_name || undefined,
         emergency_contact_phone: form.emergency_contact_phone || undefined,
         checked_in: form.checked_in,
+        leave_quota: quota,
       });
       onSaved(updated);
     } catch (e) {
@@ -411,6 +422,12 @@ function EditModal({
             onChange={set("group_id")}
             placeholder={t.dash.participants.noGroup}
             options={groupOptions}
+          />
+          <TextField
+            label={t.dash.participants.quotaLabel}
+            value={form.leave_quota}
+            onChange={set("leave_quota")}
+            type="number"
           />
 
           {/* ติดต่อ / สุขภาพ */}

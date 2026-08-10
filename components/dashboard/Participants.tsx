@@ -17,6 +17,7 @@ import { MAJORS_BY_SCHOOL } from "@/components/register/mfu-data";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
 import type { Dict } from "@/lib/i18n/dictionaries";
+import { formatTs } from "@/lib/datetime";
 
 // มีแค่ "ไม่ทราบ" ที่ต้องแปล — ที่เหลือเป็นสัญลักษณ์
 const bloodOptions = (t: Dict) => [
@@ -37,6 +38,13 @@ const sexOptions = (t: Dict) => [
   { value: "female", label: t.dash.participants.female },
   { value: "unspecified", label: t.dash.participants.unspecified },
 ];
+// ป้ายชื่อของแต่ละ action · ค่าที่ backend ส่งมาเป็นภาษาอังกฤษคงที่ (join/leave/quota_adjust)
+// ตั้งใจ — ถ้าส่งเป็นข้อความไทยมา หน้าเว็บจะแปลเป็นภาษาอังกฤษไม่ได้เลย
+const ACTION_LABEL = (t: Dict) => ({
+  join: t.dash.participants.actionJoin,
+  leave: t.dash.participants.actionLeave,
+  quota_adjust: t.dash.participants.actionAdjust,
+});
 
 export function Participants({ token }: { token: string }) {
   const t = useT();
@@ -45,6 +53,7 @@ export function Participants({ token }: { token: string }) {
   const [groups, setGroups] = useState<NotiGroup[]>([]);
   const [q, setQ] = useState("");
   const [schoolFilter, setSchoolFilter] = useState(""); // "" = ทุกสำนักวิชา
+  const [quotaZeroOnly, setQuotaZeroOnly] = useState(false); // คำถามจริงของ admin คือ "ใครติดล็อกบ้าง"
   const [editing, setEditing] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,10 +70,11 @@ export function Participants({ token }: { token: string }) {
     const s = q.trim().toLowerCase();
     return rows.filter((r) => {
       if (schoolFilter && String(r.school_id) !== schoolFilter) return false;
+      if (quotaZeroOnly && r.leave_quota !== 0) return false;
       if (!s) return true;
       return `${r.first_name ?? ""} ${r.last_name ?? ""} ${r.student_id}`.toLowerCase().includes(s);
     });
-  }, [rows, q, schoolFilter]);
+  }, [rows, q, schoolFilter, quotaZeroOnly]);
 
   function onSaved(updated: Participant) {
     setRows((rs) => rs.map((r) => (r.id === updated.id ? updated : r)));
@@ -106,6 +116,18 @@ export function Participants({ token }: { token: string }) {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={() => setQuotaZeroOnly((v) => !v)}
+            aria-pressed={quotaZeroOnly}
+            className={`rounded-full border px-4 py-2.5 text-sm transition-colors ${
+              quotaZeroOnly
+                ? "border-danger bg-danger/12 text-danger"
+                : "border-line bg-card text-muted hover:text-ink"
+            }`}
+          >
+            {t.dash.participants.quotaZeroOnly}
+          </button>
         </div>
       </div>
 
@@ -123,17 +145,18 @@ export function Participants({ token }: { token: string }) {
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colPhone}</th>
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colBlood}</th>
                 <th className="px-4 py-3 font-medium">{t.dash.participants.colCheckin}</th>
+                <th className="px-4 py-3 font-medium">{t.dash.participants.colQuota}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">
                     {t.dash.participants.emptyBefore}{" "}
                     <a href="/auth/participant/register" className="text-forest underline hover:text-forestdeep">
                       {t.dash.participants.emptyLink}
@@ -142,7 +165,7 @@ export function Participants({ token }: { token: string }) {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
+                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
                 </tr>
               ) : (
                 filtered.map((r) => (
@@ -157,6 +180,15 @@ export function Participants({ token }: { token: string }) {
                     <td className="px-4 py-3 text-muted">{bloodLabel(r.blood_type, t)}</td>
                     <td className="px-4 py-3">
                       <CheckinBadge on={r.checked_in} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs ${
+                          r.leave_quota === 0 ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                        }`}
+                      >
+                        {r.leave_quota}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
@@ -241,7 +273,11 @@ function EditModal({
     emergency_contact_name: "",
     emergency_contact_phone: "",
     checked_in: participant.checked_in,
+    leave_quota: String(participant.leave_quota ?? 0),
   });
+  // ค่าที่ backend มีจริง (ไม่ใช่ค่าที่ผู้ใช้กำลังพิมพ์) — ใช้เทียบตอน save()
+  // ว่า admin แก้โควตาจริงไหม ก่อนตัดสินใจว่าจะส่ง leave_quota ไปด้วยหรือไม่
+  const [loadedQuota, setLoadedQuota] = useState(participant.leave_quota ?? 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -266,7 +302,9 @@ function EditModal({
           height_cm: d.height_cm != null ? String(d.height_cm) : "",
           emergency_contact_name: d.emergency_contact_name ?? "",
           emergency_contact_phone: d.emergency_contact_phone ?? "",
+          leave_quota: String(d.leave_quota),
         }));
+        setLoadedQuota(d.leave_quota);
       })
       .catch(() => {});
   }, [token, participant.id]);
@@ -280,6 +318,14 @@ function EditModal({
     setError(null);
     if (!/^693\d{7}$/.test(form.student_id)) {
       setError(t.dash.participants.badStudentId);
+      return;
+    }
+    const quota = Number(form.leave_quota);
+    // เช็คฝั่งนี้ด้วยแม้ backend จะเช็คอยู่แล้ว — ผู้ใช้ควรเห็นข้อความทันทีที่พิมพ์ผิด
+    // ไม่ต้องรอ round trip แล้วได้ error กลับมาแบบไม่ผูกกับช่องไหน
+    // Number("") === 0 ไม่ใช่ NaN — ถ้าช่องว่างต้องนับเป็นค่าไม่ถูกต้อง ไม่ใช่ "ตั้งสิทธิ์เป็น 0"
+    if (form.leave_quota.trim() === "" || !Number.isInteger(quota) || quota < 0 || quota > 10) {
+      setError(t.dash.participants.quotaRange);
       return;
     }
     setBusy(true);
@@ -300,6 +346,15 @@ function EditModal({
         emergency_contact_name: form.emergency_contact_name || undefined,
         emergency_contact_phone: form.emergency_contact_phone || undefined,
         checked_in: form.checked_in,
+        // ส่ง leave_quota เฉพาะตอนค่าเปลี่ยนจริงเท่านั้น — backend มองว่า "มีคีย์นี้ในคำขอ"
+        // แปลว่า admin ตั้งใจปรับสิทธิ์ แล้วจะเขียนแถว admin_log + group_membership_log
+        // (quota_adjust) ทุกครั้ง ต่อให้ค่าที่ส่งเท่ากับของเดิม ถ้าส่งไปเฉย ๆ ทุกครั้งที่ save:
+        // 1) โควตาที่เพิ่งถูกใช้ไป (ลดลงฝั่ง backend ระหว่างที่ modal เปิดค้างอยู่ หรือตอนที่
+        //    detail fetch ล้มเหลวเงียบ ๆ แล้ว form ยังถือค่าเก่าจาก list) จะถูก COALESCE ทับคืน
+        //    กลายเป็นสิทธิ์ฟรีที่ไม่ควรได้ และ audit log จะโทษ admin ทั้งที่ไม่ได้ตั้งใจแก้
+        // 2) membership_log เก็บแค่ 10 แถวล่าสุด การแก้ช่องอื่น (เบอร์โทร, เช็คอิน ฯลฯ) ซ้ำ ๆ
+        //    จะไล่ประวัติเข้า/ออกกลุ่มจริงตกขอบ ทั้งที่เป็นสิ่งที่ admin เปิดจอนี้มาดูโดยตรง
+        ...(quota !== loadedQuota ? { leave_quota: quota } : {}),
       });
       onSaved(updated);
     } catch (e) {
@@ -389,6 +444,57 @@ function EditModal({
             placeholder={t.dash.participants.noGroup}
             options={groupOptions}
           />
+          <TextField
+            label={t.dash.participants.quotaLabel}
+            value={form.leave_quota}
+            onChange={set("leave_quota")}
+            type="number"
+            min={0}
+            max={10}
+            step={1}
+          />
+
+          {/* ประวัติเข้า/ออกกลุ่ม — อยู่ติดกับช่องโควตา ไม่ใช่ฝังอยู่ใต้การ์ดยินยอมอีกต่อไป
+              เพราะคำถามจริงของ admin ที่เปิด modal นี้คือ "ทำไมคนนี้ออกกลุ่มไม่ได้" */}
+          {detail && (
+            <div className="rounded-[16px] bg-cream/60 p-4 text-xs text-muted">
+              <h4 className="text-sm font-semibold text-forestdeep">
+                {t.dash.participants.historyHeading}
+              </h4>
+              {detail.membership_log.length === 0 ? (
+                <p className="mt-2 text-sm text-muted">{t.dash.participants.historyEmpty}</p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {detail.membership_log.map((l, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span
+                        className={`mt-0.5 flex-none rounded-full px-2.5 py-1 text-xs ${
+                          l.action === "leave" ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                        }`}
+                      >
+                        {ACTION_LABEL(t)[l.action] ?? l.action}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-ink">
+                          {l.group_number != null ? `${t.dash.participants.colGroup} ${l.group_number}` : "—"}
+                          {" · "}
+                          {t.dash.participants.colQuota} {l.quota_after}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {l.actor_name
+                            ? t.dash.participants.historyBy(l.actor_name)
+                            : t.dash.participants.historySelf}
+                        </p>
+                      </div>
+                      <span className="flex-none text-xs text-muted">
+                        {formatTs(l.created_at, t.dash.locale)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* ติดต่อ / สุขภาพ */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -14,6 +14,7 @@ const ACTION_TONE: Record<string, string> = {
   มอบหมายเจ้าหน้าที่: "bg-forest/10 text-forest",
   ถอดเจ้าหน้าที่: "bg-danger/12 text-danger",
   แก้ไขผู้เข้าร่วม: "bg-gold/12 text-gold",
+  ปรับสิทธิ์ออกกลุ่ม: "bg-gold/12 text-gold",
 };
 
 const fmtTime = (iso: string, locale: string) => formatTs(iso, locale);

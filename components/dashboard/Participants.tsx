@@ -17,6 +17,7 @@ import { MAJORS_BY_SCHOOL } from "@/components/register/mfu-data";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
 import type { Dict } from "@/lib/i18n/dictionaries";
+import { formatTs } from "@/lib/datetime";
 
 // มีแค่ "ไม่ทราบ" ที่ต้องแปล — ที่เหลือเป็นสัญลักษณ์
 const bloodOptions = (t: Dict) => [
@@ -37,6 +38,13 @@ const sexOptions = (t: Dict) => [
   { value: "female", label: t.dash.participants.female },
   { value: "unspecified", label: t.dash.participants.unspecified },
 ];
+// ป้ายชื่อของแต่ละ action · ค่าที่ backend ส่งมาเป็นภาษาอังกฤษคงที่ (join/leave/quota_adjust)
+// ตั้งใจ — ถ้าส่งเป็นข้อความไทยมา หน้าเว็บจะแปลเป็นภาษาอังกฤษไม่ได้เลย
+const ACTION_LABEL = (t: Dict) => ({
+  join: t.dash.participants.actionJoin,
+  leave: t.dash.participants.actionLeave,
+  quota_adjust: t.dash.participants.actionAdjust,
+});
 
 export function Participants({ token }: { token: string }) {
   const t = useT();
@@ -473,6 +481,44 @@ function EditModal({
                 <ConsentTag ok={detail.consent_health_data} label={t.dash.participants.consentHealth} />
                 <ConsentTag ok={detail.consent_emergency_treatment} label={t.dash.participants.consentEmergency} />
                 <ConsentTag ok={detail.waiver_accepted} label={t.dash.participants.consentWaiver} />
+              </div>
+
+              <div className="mt-6">
+                <h4 className="text-sm font-semibold text-forestdeep">
+                  {t.dash.participants.historyHeading}
+                </h4>
+                {detail.membership_log.length === 0 ? (
+                  <p className="mt-2 text-sm text-muted">{t.dash.participants.historyEmpty}</p>
+                ) : (
+                  <ul className="mt-2 space-y-2">
+                    {detail.membership_log.map((l, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm">
+                        <span
+                          className={`mt-0.5 flex-none rounded-full px-2.5 py-1 text-xs ${
+                            l.action === "leave" ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                          }`}
+                        >
+                          {ACTION_LABEL(t)[l.action]}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-ink">
+                            {l.group_number != null ? `${t.dash.participants.colGroup} ${l.group_number}` : "—"}
+                            {" · "}
+                            {t.dash.participants.colQuota} {l.quota_after}
+                          </p>
+                          <p className="mt-0.5 text-xs text-muted">
+                            {l.actor_name
+                              ? t.dash.participants.historyBy(l.actor_name)
+                              : t.dash.participants.historySelf}
+                          </p>
+                        </div>
+                        <span className="flex-none text-xs text-muted">
+                          {formatTs(l.created_at, t.dash.locale)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           )}

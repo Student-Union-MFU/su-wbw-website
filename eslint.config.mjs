@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // สคริปต์ k6 (โหลดเทส) — รันใน k6 runtime ไม่ใช่โค้ดของแอป
+    "loadtest/**",
   ]),
 ]);
 

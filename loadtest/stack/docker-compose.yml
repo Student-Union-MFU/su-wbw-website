@@ -1,0 +1,90 @@
+# Stack ทดสอบโหลด — แยกขาดจาก stack จริงที่รันอยู่บนเครื่องเดียวกัน
+#
+# ⚠ เครื่องนี้รัน production อยู่ (su-server + postgres-db + su-web + cloudflared)
+#   ห้ามยิง load test ใส่ตัวจริง: DB จริงมีผู้สมัครจริง และ capacity 2000 ที่นั่ง
+#   จะถูกข้อมูลปลอมกินจนคนจริงสมัครไม่ได้ — stack นี้จึงแยก DB/volume/network
+#   ทั้งชุด แล้ว reuse "image" เดิม (su-web:latest, student-union-server-backend)
+#   เพื่อให้ได้ binary เดียวกับ production เป๊ะ โดยไม่แตะ container จริง
+#
+# ใช้งาน:
+#   docker compose -f loadtest/stack/docker-compose.yml up -d
+#   docker compose -f loadtest/stack/docker-compose.yml down -v   # ล้างทิ้งทั้ง DB
+#
+# เข้าจาก host: web = http://localhost:13001 · backend = http://localhost:18080
+# k6 (ใน docker) ยิงผ่าน network ภายใน: web:3001 · backend:8080
+name: su-loadtest
+
+services:
+  ltdb:
+    image: postgres:15-alpine
+    container_name: lt-postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=loadtest
+      - POSTGRES_DB=sudb
+    # ตั้งใจไม่ publish port — กันสับสนกับ postgres-db จริงที่ 127.0.0.1:5432
+    volumes:
+      - lt-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sudb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate:latest
+    container_name: lt-migrate
+    restart: "no"
+    volumes:
+      # ใช้ migration ชุดเดียวกับของจริงจาก repo su-server ข้างๆ
+      - ../../../su-server/db/migrations:/migrations:ro
+    command:
+      - -path=/migrations
+      - -database
+      - postgres://admin:loadtest@ltdb:5432/sudb?sslmode=disable
+      - up
+    depends_on:
+      ltdb:
+        condition: service_healthy
+
+  # ชื่อ service ต้องเป็น "backend" — image su-web ฝัง API_UPSTREAM=http://backend:8080/wbw
+  # ไว้ตอน build แล้ว ชื่อนี้ resolve ใน network ของ compose project นี้เอง (ไม่ชนของจริง
+  # เพราะของจริง alias อยู่บน fullstack-network คนละวงกัน)
+  backend:
+    image: student-union-server-backend:latest
+    container_name: lt-backend
+    ports:
+      - "127.0.0.1:18080:8080"
+    environment:
+      - ENV=development
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - JWT_SECRET=loadtest-only-not-a-real-secret
+      - JWT_EXPIRY=24h
+      - DB_USER=admin
+      - DB_PASS=loadtest
+      - DB_NAME=sudb
+      - DB_HOST=ltdb
+      - DB_PORT=5432
+      # ให้ตรงกับ default ของ production (config/database.go) — ถ้าเทสแล้วคอขวดอยู่ตรงนี้
+      # ค่อยปรับเพิ่มเพื่อวัดซ้ำ แล้วเสนอเปลี่ยนของจริง
+      - DB_MAX_CONNS=20
+      - DB_MIN_CONNS=2
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: su-web:latest
+    container_name: lt-web
+    ports:
+      - "127.0.0.1:13001:3001"
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: su-loadtest-net
+
+volumes:
+  lt-pgdata:

@@ -9,6 +9,7 @@ import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/co
 import { headingFont, useLang, useT } from "@/lib/i18n/LanguageProvider";
 import { dayForStep } from "@/lib/dayCycle";
 import { apiUrl } from "@/lib/apiBase";
+import { PHONE_RE, STUDENT_ID_RE, digitsOnly } from "@/lib/validation";
 
 /**
  * ฉาก 3D โหลดฝั่ง client เท่านั้น — three.js/drei ห้ามหลุดเข้า server bundle
@@ -81,7 +82,7 @@ export default function RegisterPage() {
 
   // รหัสนักศึกษา → auto เลือกสำนักวิชา (หลัก 4-5 = รหัสสำนัก) · เปลี่ยนเองได้
   function onStudentId(v: string) {
-    const sid = v.replace(/\D/g, "").slice(0, 10);
+    const sid = digitsOnly(v);
     setData((d) => {
       const next: FormData = { ...d, studentId: sid };
       if (sid.length >= 5) {
@@ -135,12 +136,12 @@ export default function RegisterPage() {
     const e: Record<string, string> = {};
     if (!data.firstName.trim()) e.firstName = t.step1.errors.firstName;
     if (!data.lastName.trim()) e.lastName = t.step1.errors.lastName;
-    if (!/^693\d{7}$/.test(data.studentId)) e.studentId = t.step1.errors.studentId;
+    if (!STUDENT_ID_RE.test(data.studentId)) e.studentId = t.step1.errors.studentId;
     if (data.password.length < 8) e.password = t.step1.errors.password;
     if (data.confirmPassword !== data.password) e.confirmPassword = t.step1.errors.confirmPassword;
     if (!data.sex) e.sex = t.step1.errors.sex;
     // เบอร์โทรไม่บังคับ (ตามฟอร์มเดิม) — กรอกแล้วค่อยเช็ครูปแบบ
-    if (data.phone && !/^\d{9,10}$/.test(data.phone)) e.phone = t.step1.errors.phone;
+    if (data.phone && !PHONE_RE.test(data.phone)) e.phone = t.step1.errors.phone;
     if (!data.schoolId) e.schoolId = t.step1.errors.school;
     if (data.schoolId && majorOptions.length > 0 && !data.major) e.major = t.step1.errors.major;
     setErrors(e);
@@ -168,11 +169,13 @@ export default function RegisterPage() {
 
   function validateStep4() {
     const e: Record<string, string> = {};
-    // ผู้ติดต่อฉุกเฉินไม่บังคับ (ตามฟอร์มเดิม) — กรอกแล้วค่อยเช็ครูปแบบ
-    // เบอร์ตัวเองใช้ไม่ได้ — ต้องมีคนอื่นที่ติดต่อได้จริงตอนฉุกเฉิน
-    if (data.emergencyPhone && !/^\d{9,10}$/.test(data.emergencyPhone))
+    // ผู้ติดต่อฉุกเฉินบังคับทั้งชื่อและเบอร์ — ต้องมีคนที่ติดต่อได้จริงตอนฉุกเฉิน
+    // เบอร์ตัวเองใช้ไม่ได้ — ต้องเป็นเบอร์ของบุคคลอื่น
+    if (!data.emergencyName.trim()) e.emergencyName = t.step4.errors.nameRequired;
+    if (!data.emergencyPhone) e.emergencyPhone = t.step4.errors.phoneRequired;
+    else if (!PHONE_RE.test(data.emergencyPhone))
       e.emergencyPhone = t.step4.errors.phone;
-    else if (data.emergencyPhone && data.emergencyPhone === data.phone)
+    else if (data.emergencyPhone === data.phone)
       e.emergencyPhone = t.step4.errors.samePhone;
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -417,7 +420,7 @@ function Step1({
         <TextField
           label={t.step1.phone}
           value={data.phone}
-          onChange={(v) => set("phone")(v.replace(/\D/g, "").slice(0, 10))}
+          onChange={(v) => set("phone")(digitsOnly(v))}
           inputMode="tel"
           autoComplete="tel"
           maxLength={10}
@@ -596,9 +599,12 @@ function Step4({
       <TextField
         label={t.step4.phone}
         value={data.emergencyPhone}
-        onChange={(v) => set("emergencyPhone")(v.replace(/\D/g, "").slice(0, 10))}
+        onChange={(v) => set("emergencyPhone")(digitsOnly(v))}
         inputMode="tel"
+        autoComplete="tel"
+        maxLength={10}
         placeholder="08xxxxxxxx"
+        required
         error={errors.emergencyPhone}
       />
       <TextField
@@ -606,6 +612,8 @@ function Step4({
         value={data.emergencyName}
         onChange={set("emergencyName")}
         placeholder={t.step4.namePlaceholder}
+        required
+        error={errors.emergencyName}
       />
     </div>
   );

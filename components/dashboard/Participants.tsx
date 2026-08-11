@@ -17,6 +17,7 @@ import { MAJORS_BY_SCHOOL } from "@/components/register/mfu-data";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
 import type { Dict } from "@/lib/i18n/dictionaries";
+import { PHONE_RE, STUDENT_ID_RE, digitsOnly } from "@/lib/validation";
 
 // มีแค่ "ไม่ทราบ" ที่ต้องแปล — ที่เหลือเป็นสัญลักษณ์
 const bloodOptions = (t: Dict) => [
@@ -278,8 +279,17 @@ function EditModal({
 
   async function save() {
     setError(null);
-    if (!/^693\d{7}$/.test(form.student_id)) {
+    if (!STUDENT_ID_RE.test(form.student_id)) {
       setError(t.dash.participants.badStudentId);
+      return;
+    }
+    // เช็คเฉพาะรูปแบบ ไม่บังคับกรอก — ข้อมูลเก่าอาจว่าง ต้องไม่บล็อกการแก้ field อื่น
+    if (form.contact_phone && !PHONE_RE.test(form.contact_phone)) {
+      setError(t.dash.participants.badPhone);
+      return;
+    }
+    if (form.emergency_contact_phone && !PHONE_RE.test(form.emergency_contact_phone)) {
+      setError(t.dash.participants.badEmergencyPhone);
       return;
     }
     setBusy(true);
@@ -362,7 +372,7 @@ function EditModal({
           <TextField
             label={t.dash.participants.studentId}
             value={form.student_id}
-            onChange={(v) => set("student_id")(v.replace(/\D/g, "").slice(0, 10))}
+            onChange={(v) => set("student_id")(digitsOnly(v))}
             inputMode="numeric"
             maxLength={10}
           />
@@ -392,7 +402,7 @@ function EditModal({
 
           {/* ติดต่อ / สุขภาพ */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TextField label={t.dash.participants.phone} value={form.contact_phone} onChange={(v) => set("contact_phone")(v.replace(/\D/g, "").slice(0, 10))} inputMode="tel" />
+            <TextField label={t.dash.participants.phone} value={form.contact_phone} onChange={(v) => set("contact_phone")(digitsOnly(v))} inputMode="tel" />
             <SelectField label={t.dash.participants.blood} value={form.blood_type} onChange={set("blood_type")} placeholder={t.dash.participants.bloodPlaceholder} options={bloodOptions(t)} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -403,7 +413,7 @@ function EditModal({
           {/* ฉุกเฉิน */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextField label={t.dash.participants.emergencyName} value={form.emergency_contact_name} onChange={set("emergency_contact_name")} />
-            <TextField label={t.dash.participants.emergencyPhone} value={form.emergency_contact_phone} onChange={(v) => set("emergency_contact_phone")(v.replace(/\D/g, "").slice(0, 10))} inputMode="tel" />
+            <TextField label={t.dash.participants.emergencyPhone} value={form.emergency_contact_phone} onChange={(v) => set("emergency_contact_phone")(digitsOnly(v))} inputMode="tel" />
           </div>
 
           {/* เช็คอิน */}

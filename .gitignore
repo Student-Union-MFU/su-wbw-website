@@ -24,6 +24,12 @@
 .DS_Store
 *.pem
 
+# ไฟล์ต้นทางแผนที่ 3D ที่ส่งออกจาก maps3d.io (.obj ~272 MB) — ไม่ต้องเข้า git
+# ของที่เว็บใช้จริงคือ public/models/mfu-map.glb ที่แปลงแล้ว (ดู public/models/CREDITS.md)
+# หมายเหตุ: /map/ คือโฟลเดอร์ต้นทางที่ราก ไม่ใช่หน้าเว็บ /map ซึ่งอยู่ที่ app/map/
+/maps3d-obj-*/
+/map/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

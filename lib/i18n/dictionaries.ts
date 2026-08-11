@@ -150,6 +150,7 @@ const th = {
     heading: "แผนที่",
     hint: "ลากเพื่อหมุน · เลื่อนเพื่อซูม · คลิกขวาลากเพื่อเลื่อน",
     loading: "กำลังโหลดแผนที่",
+    route: "ถนนวงในรอบมหาวิทยาลัย",
     /** เงื่อนไขการใช้งานของ maps3d.io บังคับให้แสดงเครดิตสองบรรทัดนี้ ห้ามตัดออก */
     imagery: "ภาพถ่ายดาวเทียม",
     topo: "ข้อมูลอาคารและถนน",
@@ -793,6 +794,7 @@ const en: Dict = {
     heading: "Map",
     hint: "Drag to rotate · scroll to zoom · right-drag to pan",
     loading: "Loading map",
+    route: "Campus inner ring road",
     imagery: "Satellite imagery",
     topo: "Buildings and roads",
   },

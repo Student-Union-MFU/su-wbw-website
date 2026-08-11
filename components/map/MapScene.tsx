@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Bounds, OrbitControls, useGLTF } from "@react-three/drei";
+import { Bounds, Line, OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { CAMPUS_ROUTE } from "./campusRoute";
 
 /**
  * แผนที่ 3D ของพื้นที่รอบมหาวิทยาลัย — โมเดลส่งออกจาก maps3d.io
@@ -19,6 +20,26 @@ import * as THREE from "three";
  */
 
 const MODEL = "/models/mfu-map.glb";
+
+/** ยกเส้นทางลอยเหนือผิวถนนเล็กน้อย — วางระดับเดียวกับพื้นเมื่อไหร่เป็น z-fighting ทันที */
+const ROUTE_LIFT = 6;
+
+function CampusRoute() {
+  // ปิดวงด้วยการต่อจุดแรกไว้ท้ายสุด (ข้อมูลเก็บเป็นวงเปิดไว้ไม่ให้จุดซ้ำ)
+  const points = useMemo(
+    () => [...CAMPUS_ROUTE, CAMPUS_ROUTE[0]].map(([x, y, z]) => new THREE.Vector3(x, y + ROUTE_LIFT, z)),
+    [],
+  );
+  return (
+    <>
+      {/* เส้นขอบเข้มข้างล่าง + เส้นสว่างข้างบน = อ่านออกทั้งบนพื้นสว่างและในเงา
+          เลิกใช้สีเขียว: พื้นแผนที่เป็นป่าเขียวเกือบทั้งจอ เส้นเขียวเลยจมหาย
+          ส้มอำพันตัดกับเขียวแรงที่สุด และยังอยู่ในโทนทอง (gold) ของเว็บ */}
+      <Line points={points} color="#2b1400" lineWidth={9} transparent opacity={0.6} />
+      <Line points={points} color="#ffb02e" lineWidth={4} />
+    </>
+  );
+}
 
 function MapModel() {
   // useDraco=false — ไฟล์บีบด้วย meshopt ไม่ใช่ draco และตัว decoder ของ draco
@@ -49,6 +70,8 @@ export default function MapScene() {
         <Bounds fit clip observe margin={1.15}>
           <MapModel />
         </Bounds>
+        {/* อยู่นอก <Bounds> — ไม่งั้นกล้องจะเล็งพอดีกับ "เส้นทาง" แทนที่จะเป็นทั้งแผนที่ */}
+        <CampusRoute />
       </Suspense>
 
       <OrbitControls

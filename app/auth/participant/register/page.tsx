@@ -9,6 +9,7 @@ import { SCHOOL_BY_CODE, MAJORS_BY_SCHOOL, SCHOOLS, SCHOOLS_BY_NAME } from "@/co
 import { headingFont, useLang, useT } from "@/lib/i18n/LanguageProvider";
 import { dayForStep } from "@/lib/dayCycle";
 import { apiUrl } from "@/lib/apiBase";
+import { getCapacity, type Capacity } from "@/lib/api";
 
 /**
  * ฉาก 3D โหลดฝั่ง client เท่านั้น — three.js/drei ห้ามหลุดเข้า server bundle
@@ -66,7 +67,7 @@ const EMPTY: FormData = {
 };
 
 export default function RegisterPage() {
-  const t = useT();
+  const { t, lang } = useLang();
   const STEPS = t.page.steps;
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>(EMPTY);
@@ -75,6 +76,19 @@ export default function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  // ที่นั่งคงเหลือ · null = ยังไม่รู้ (กำลังโหลด หรือโหลดไม่ได้) → แสดงฟอร์มตามปกติ
+  // ห้ามบล็อกฟอร์มเพราะอ่านตัวเลขไม่ได้ ปลายทางกันเกินโควตาให้อยู่แล้ว (ตอบ 409)
+  const [capacity, setCapacity] = useState<Capacity | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getCapacity()
+      .then((c) => alive && setCapacity(c))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const set = (k: keyof FormData) => (v: string | null) =>
     setData((d) => ({ ...d, [k]: v }));
@@ -271,6 +285,22 @@ export default function RegisterPage() {
 
           {/* การ์ดฟอร์ม — กระจกเข้มทับฉาก */}
           <div className="rounded-[26px] border border-cream/15 bg-ink/82 p-6 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl sm:p-8">
+            {capacity?.full ? (
+              /* เต็มแล้ว — ไม่ต้องให้กรอกฟอร์มทิ้งเปล่า ๆ ปลายทางก็ตอบ 409 อยู่ดี */
+              <div className="py-6 text-center">
+                <p className="text-lg text-cream" style={headingFont(lang, 1.1)}>
+                  {t.page.fullHeading}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-cream/70">{t.page.fullBody}</p>
+              </div>
+            ) : (
+              <>
+            {/* ที่นั่งคงเหลือ — ตัวเลขจากฐานข้อมูล ไม่ใช่ค่าคงที่ในโค้ด */}
+            {capacity && (
+              <p className="mb-3 text-center text-[11px] tracking-[0.18em] text-goldsoft">
+                {t.page.seatsLeft(capacity.seats_left, capacity.max)}
+              </p>
+            )}
             <div className="mb-3">
             <Stepper current={step} steps={STEPS} />
           </div>
@@ -318,6 +348,8 @@ export default function RegisterPage() {
               {t.page.deadline}
             </p>
           )}
+              </>
+            )}
           </div>
         </div>
 

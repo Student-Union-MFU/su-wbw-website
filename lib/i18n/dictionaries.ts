@@ -10,6 +10,18 @@ const th = {
     title: "สมัครเข้าร่วม · เดินรอบดอย 2569",
     // ชื่อแอปในสโตร์ — ไม่แปล ผู้ใช้ต้องค้นด้วยชื่อนี้
     appName: "เดินรอบดอย",
+    /** ชื่อเว็บที่ต่อท้าย title ของทุกหน้า — ให้ตรงกับ template ใน app/layout.tsx */
+    site: "เดินรอบดอย 2569",
+    /** ชื่อหน้าตามพาธ · ฝั่ง server ใส่ไว้ใน layout.tsx ของแต่ละโฟลเดอร์แล้ว (สองภาษา)
+        ชุดนี้ใช้ตอน client เปลี่ยนภาษา/เปลี่ยนหน้า จะได้เป็นภาษาที่ผู้ใช้เลือกจริง ๆ */
+    titles: {
+      "/landing": "เส้นทางเดินรอบดอย",
+      "/register": "สมัครเข้าร่วม",
+      "/about": "เกี่ยวกับกิจกรรม",
+      "/announcements": "ประกาศ",
+      "/map": "แผนที่ 3D",
+      "/contact": "ติดต่อเรา",
+    } as Record<string, string>,
   },
 
   toggle: {
@@ -150,6 +162,7 @@ const th = {
     heading: "แผนที่",
     hint: "ลากเพื่อหมุน · เลื่อนเพื่อซูม · คลิกขวาลากเพื่อเลื่อน",
     loading: "กำลังโหลดแผนที่",
+    route: "ถนนวงในรอบมหาวิทยาลัย",
     /** เงื่อนไขการใช้งานของ maps3d.io บังคับให้แสดงเครดิตสองบรรทัดนี้ ห้ามตัดออก */
     imagery: "ภาพถ่ายดาวเทียม",
     topo: "ข้อมูลอาคารและถนน",
@@ -176,6 +189,22 @@ const th = {
     followLabel: "ช่องทางติดตาม",
   },
 
+  /** หน้า 404 (app/not-found.tsx) และหน้าเมื่อเกิดข้อผิดพลาด (app/error.tsx)
+      หมายเหตุ: app/global-error.tsx ใช้ชุดนี้ไม่ได้ — มันแทนที่ layout ทั้งอัน
+      รวมถึง LanguageProvider ด้วย ข้อความในไฟล์นั้นจึงเขียนสองภาษาไว้ตรง ๆ */
+  errorPage: {
+    notFoundEyebrow: "404",
+    notFoundHeading: "ไม่พบหน้านี้",
+    notFoundBody:
+      "หน้าที่เปิดอาจถูกย้าย เปลี่ยนชื่อ หรือพิมพ์ที่อยู่ไม่ครบ ลองกลับไปเริ่มที่หน้าแรก",
+    errorEyebrow: "ขัดข้อง",
+    errorHeading: "เกิดข้อผิดพลาด",
+    errorBody:
+      "ระบบทำงานผิดพลาดชั่วคราว ลองใหม่อีกครั้งได้เลย ถ้ายังไม่ได้ให้แจ้งทีมงานพร้อมรหัสอ้างอิงด้านล่าง",
+    retry: "ลองใหม่",
+    refCode: (digest: string) => `รหัสอ้างอิง: ${digest}`,
+  },
+
   page: {
     eyebrow: "เดินรอบดอย 2569",
     heading: "สมัครเข้าร่วมกิจกรรม",
@@ -190,6 +219,12 @@ const th = {
     submitFailed: "สมัครไม่สำเร็จ",
     /** ใช้แทนชื่อเมื่อยังไม่ได้กรอก */
     fallbackName: "ผู้เข้าร่วม",
+    /** ที่นั่งคงเหลือ — ตัวเลขมาจาก GET /wbw/capacity ไม่ใช่ค่าคงที่ในโค้ด */
+    seatsLeft: (left: number, max: number) =>
+      `เหลือ ${left.toLocaleString("th-TH")} ที่นั่ง จาก ${max.toLocaleString("th-TH")}`,
+    fullHeading: "ที่นั่งเต็มแล้ว",
+    fullBody:
+      "กิจกรรมนี้รับผู้เข้าร่วมได้ 2,000 คน และตอนนี้เต็มแล้ว ขอบคุณทุกคนที่สนใจ · ติดตามประกาศจากองค์การนักศึกษาสำหรับกิจกรรมครั้งต่อไป",
   },
 
   step1: {
@@ -659,6 +694,15 @@ const en: Dict = {
     title: "Register · Walk Beyond the Wild 2026",
     // เก็บชื่อไทยไว้ — เป็นชื่อที่ใช้ค้นในสโตร์จริง
     appName: "เดินรอบดอย",
+    site: "Walk Beyond the Wild 2026",
+    titles: {
+      "/landing": "The route",
+      "/register": "Register",
+      "/about": "About",
+      "/announcements": "Announcements",
+      "/map": "3D map",
+      "/contact": "Contact",
+    } as Record<string, string>,
   },
 
   toggle: {
@@ -793,6 +837,7 @@ const en: Dict = {
     heading: "Map",
     hint: "Drag to rotate · scroll to zoom · right-drag to pan",
     loading: "Loading map",
+    route: "Campus inner ring road",
     imagery: "Satellite imagery",
     topo: "Buildings and roads",
   },
@@ -818,6 +863,19 @@ const en: Dict = {
     followLabel: "Follow us",
   },
 
+  errorPage: {
+    notFoundEyebrow: "404",
+    notFoundHeading: "Page not found",
+    notFoundBody:
+      "This page may have moved, been renamed, or the address was mistyped. Head back to the start.",
+    errorEyebrow: "Error",
+    errorHeading: "Something went wrong",
+    errorBody:
+      "A temporary problem stopped this page from loading. Try again — if it keeps happening, send the team the reference code below.",
+    retry: "Try again",
+    refCode: (digest: string) => `Reference: ${digest}`,
+  },
+
   page: {
     eyebrow: "Walk Beyond the Wild 2026",
     heading: "Join the event",
@@ -830,6 +888,11 @@ const en: Dict = {
     submitting: "Submitting",
     submitFailed: "Registration failed",
     fallbackName: "participant",
+    seatsLeft: (left: number, max: number) =>
+      `${left.toLocaleString("en-US")} of ${max.toLocaleString("en-US")} places left`,
+    fullHeading: "Registration is full",
+    fullBody:
+      "This event takes 2,000 participants and every place is now taken. Thank you for your interest — watch the Student Union announcements for the next one.",
   },
 
   step1: {

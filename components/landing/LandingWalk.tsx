@@ -166,10 +166,8 @@ export default function LandingWalk() {
             className={`absolute inset-0 flex flex-col justify-center px-7 ${sideClass(i)}`}
           >
             <div className="max-w-md">
-              {/* ตัวกลม ๆ ของหน้านี้อ่านยากกว่าฟอนต์ปกติเมื่อตัวเล็ก — คำอธิบายจึงตัวโต
-                  กว่าหน้าอื่น และ eyebrow ขยับจาก 10px ขึ้นมาให้พออ่านออก */}
-              <p className="text-xs uppercase tracking-[0.34em] text-gold sm:text-sm">{s.eyebrow}</p>
-              <h2 className="mt-4 text-3xl leading-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.6)] sm:text-5xl">
+              {/* ตัวกลม ๆ ของหน้านี้อ่านยากกว่าฟอนต์ปกติเมื่อตัวเล็ก — คำอธิบายจึงตัวโตกว่าหน้าอื่น */}
+              <h2 className="text-3xl leading-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.6)] sm:text-5xl">
                 {s.title}
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-cream/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] sm:text-2xl">

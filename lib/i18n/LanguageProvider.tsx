@@ -10,6 +10,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { dictionaries, type Dict, type Lang } from "./dictionaries";
 
 const STORAGE_KEY = "wbw-lang";
@@ -79,11 +80,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLang = useCallback((l: Lang) => writeLang(l), []);
 
+  const pathname = usePathname();
+
   // ไม่มี /en ใน URL → ต้องอัปเดต lang กับ title ของเอกสารเอง
+  //
+  // title ของแต่ละหน้ามาจาก metadata ฝั่ง server (layout.tsx ในโฟลเดอร์ของหน้านั้น)
+  // ซึ่งเป็นสองภาษาเพราะ server ไม่รู้ว่าผู้ใช้เลือกภาษาอะไร · ตรงนี้เขียนทับด้วย
+  // ชื่อหน้าภาษาเดียวหลัง mount — ห้ามใส่ title รวมของทั้งเว็บ ไม่งั้นทุกแท็บชื่อเดียวกัน
   useEffect(() => {
+    const d = dictionaries[lang];
+    const page = d.meta.titles[`/${pathname.split("/")[1] ?? ""}`];
     document.documentElement.lang = lang;
-    document.title = dictionaries[lang].meta.title;
-  }, [lang]);
+    document.title = page ? `${page} · ${d.meta.site}` : d.meta.title;
+  }, [lang, pathname]);
 
   const value = useMemo<LanguageContextValue>(
     () => ({

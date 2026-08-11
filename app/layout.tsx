@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import { Anuphan, Darumadrop_One, Mitr } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
+import {
+  jsonLd,
+  KEYWORDS,
+  OG_IMAGE,
+  ORGANIZER,
+  SITE_DESCRIPTION,
+  SITE_NAME_EN,
+  SITE_NAME_TH,
+  SITE_URL,
+} from "@/lib/seo";
 import SceneHost from "@/components/scene/SceneHost";
 import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
@@ -38,11 +48,46 @@ const anuphan = Anuphan({
 });
 
 /* metadata ออกจาก server — สลับตามภาษาที่ client เลือกไม่ได้ (ไม่มี /en ใน URL)
-   จึงใส่ทั้งสองภาษาไว้ ส่วน title ของแท็บ LanguageProvider จะอัปเดตให้หลัง mount */
+   จึงใส่ทั้งสองภาษาไว้ ส่วน title ของแท็บ LanguageProvider จะอัปเดตให้หลัง mount
+
+   ไอคอน/ภาพแชร์ไม่ได้ประกาศตรงนี้ — Next อ่านจากชื่อไฟล์ใน app/ ให้เอง:
+   favicon.ico · icon.png · apple-icon.png · opengraph-image.png
+   (สร้างจากโลโก้ด้วย scripts/brand-images.py) */
 export const metadata: Metadata = {
-  title: "สมัครเข้าร่วม · เดินรอบดอย 2569 · Walk Beyond the Wild",
-  description:
-    "ลงทะเบียนกิจกรรมเดินรอบดอย มหาวิทยาลัยแม่ฟ้าหลวง · Register for Walk Beyond the Wild, Mae Fah Luang University",
+  // ต้องมี ไม่งั้นฟิลด์ที่ใช้พาธสัมพัทธ์ (canonical, og:image) พังตอน build
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME_TH} · ${SITE_NAME_EN}`,
+    // หน้าลูกใส่แค่ชื่อหน้า ส่วนท้ายเติมให้อัตโนมัติ
+    template: `%s · ${SITE_NAME_TH}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: KEYWORDS,
+  applicationName: SITE_NAME_TH,
+  authors: [{ name: ORGANIZER.nameTh, url: ORGANIZER.url }],
+  creator: ORGANIZER.nameTh,
+  publisher: ORGANIZER.nameTh,
+  category: "events",
+  alternates: { canonical: "/" },
+  // เบอร์โทร/ที่อยู่ในหน้า contact ไม่ต้องให้ iOS ทำเป็นลิงก์สีฟ้าเอง
+  formatDetection: { telephone: false, address: false, email: false },
+  openGraph: {
+    ...OG_IMAGE,
+    type: "website",
+    siteName: `${SITE_NAME_TH} · ${SITE_NAME_EN}`,
+    title: `${SITE_NAME_TH} · ${SITE_NAME_EN}`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    locale: "th_TH",
+    alternateLocale: "en_US",
+  },
+  // ไม่ต้องชี้ภาพเอง — X ใช้ og:image เมื่อไม่มี twitter:image
+  twitter: { card: "summary_large_image" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export default function RootLayout({
@@ -56,6 +101,15 @@ export default function RootLayout({
       className={`${daruma.variable} ${mitr.variable} ${anuphan.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* ข้อมูลผู้จัด/งาน/เว็บ แบบ schema.org — ให้ search engine กับ AI อ่านได้ตรง ๆ
+            แทนที่จะต้องเดาจากเนื้อหาในหน้า · แก้ข้อมูลได้ที่ lib/seo.ts ที่เดียว
+            .replace('<') ตามคำแนะนำในคู่มือ Next (กัน string หลุดออกจาก <script>) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd()).replace(/</g, "\\u003c"),
+          }}
+        />
         <LanguageProvider>
           {/* Canvas 3D ตัวเดียวของทั้งเว็บ อยู่ที่นี่ ไม่ unmount ตอนเปลี่ยนหน้า
               (กันจอเขียวแวบ + ประหยัดหน่วยความจำ) · หน้าต่าง ๆ สั่งฉากผ่าน context */}

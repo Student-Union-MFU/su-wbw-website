@@ -203,6 +203,12 @@ const th = {
     submitFailed: "สมัครไม่สำเร็จ",
     /** ใช้แทนชื่อเมื่อยังไม่ได้กรอก */
     fallbackName: "ผู้เข้าร่วม",
+    /** ที่นั่งคงเหลือ — ตัวเลขมาจาก GET /wbw/capacity ไม่ใช่ค่าคงที่ในโค้ด */
+    seatsLeft: (left: number, max: number) =>
+      `เหลือ ${left.toLocaleString("th-TH")} ที่นั่ง จาก ${max.toLocaleString("th-TH")}`,
+    fullHeading: "ที่นั่งเต็มแล้ว",
+    fullBody:
+      "กิจกรรมนี้รับผู้เข้าร่วมได้ 2,000 คน และตอนนี้เต็มแล้ว ขอบคุณทุกคนที่สนใจ · ติดตามประกาศจากองค์การนักศึกษาสำหรับกิจกรรมครั้งต่อไป",
   },
 
   step1: {
@@ -853,6 +859,11 @@ const en: Dict = {
     submitting: "Submitting",
     submitFailed: "Registration failed",
     fallbackName: "participant",
+    seatsLeft: (left: number, max: number) =>
+      `${left.toLocaleString("en-US")} of ${max.toLocaleString("en-US")} places left`,
+    fullHeading: "Registration is full",
+    fullBody:
+      "This event takes 2,000 participants and every place is now taken. Thank you for your interest — watch the Student Union announcements for the next one.",
   },
 
   step1: {

@@ -10,6 +10,18 @@ const th = {
     title: "สมัครเข้าร่วม · เดินรอบดอย 2569",
     // ชื่อแอปในสโตร์ — ไม่แปล ผู้ใช้ต้องค้นด้วยชื่อนี้
     appName: "เดินรอบดอย",
+    /** ชื่อเว็บที่ต่อท้าย title ของทุกหน้า — ให้ตรงกับ template ใน app/layout.tsx */
+    site: "เดินรอบดอย 2569",
+    /** ชื่อหน้าตามพาธ · ฝั่ง server ใส่ไว้ใน layout.tsx ของแต่ละโฟลเดอร์แล้ว (สองภาษา)
+        ชุดนี้ใช้ตอน client เปลี่ยนภาษา/เปลี่ยนหน้า จะได้เป็นภาษาที่ผู้ใช้เลือกจริง ๆ */
+    titles: {
+      "/landing": "เส้นทางเดินรอบดอย",
+      "/register": "สมัครเข้าร่วม",
+      "/about": "เกี่ยวกับกิจกรรม",
+      "/announcements": "ประกาศ",
+      "/map": "แผนที่ 3D",
+      "/contact": "ติดต่อเรา",
+    } as Record<string, string>,
   },
 
   toggle: {
@@ -660,6 +672,15 @@ const en: Dict = {
     title: "Register · Walk Beyond the Wild 2026",
     // เก็บชื่อไทยไว้ — เป็นชื่อที่ใช้ค้นในสโตร์จริง
     appName: "เดินรอบดอย",
+    site: "Walk Beyond the Wild 2026",
+    titles: {
+      "/landing": "The route",
+      "/register": "Register",
+      "/about": "About",
+      "/announcements": "Announcements",
+      "/map": "3D map",
+      "/contact": "Contact",
+    } as Record<string, string>,
   },
 
   toggle: {

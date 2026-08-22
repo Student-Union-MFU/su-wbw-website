@@ -1,48 +1,9 @@
 "use client";
 
 import ForestScene from "@/components/ForestScene";
+import Rich from "@/components/RichText";
 import { headingFont, useLang } from "@/lib/i18n/LanguageProvider";
 import { DAY_STILL } from "@/lib/dayCycle";
-
-/** อีเมลเดียวของนโยบาย — ข้อ 6 สัญญาว่าลบบัญชีให้ภายใน 7 วันผ่านช่องทางนี้
-    เขียนไว้ที่เดียว หน้าเว็บจะได้ทำเป็นลิงก์ mailto ให้ทุกที่ที่ข้อความเอ่ยถึงมัน */
-const EMAIL = "student-union@lamduan.mfu.ac.th";
-
-/** ทำอีเมลในข้อความให้กดได้ — คนอ่านนโยบายบนมือถือจะได้ไม่ต้องพิมพ์เอง */
-function withEmailLink(text: string): React.ReactNode[] {
-  return text.split(EMAIL).flatMap((chunk, i) =>
-    i === 0
-      ? [chunk]
-      : [
-          <a
-            key={`m${i}`}
-            href={`mailto:${EMAIL}`}
-            className="underline decoration-goldsoft/60 underline-offset-2 hover:text-goldsoft"
-          >
-            {EMAIL}
-          </a>,
-          chunk,
-        ],
-  );
-}
-
-/** ตัวหนาแบบ **...** ในข้อความนโยบาย — เขียนเองแทนลาก markdown ทั้งก้อนเข้ามา
-    เพราะเนื้อหาชุดนี้ใช้แค่ตัวหนากับอีเมลสองอย่างเท่านั้น */
-function Rich({ text }: { text: string }) {
-  return (
-    <>
-      {text.split("**").map((part, i) =>
-        i % 2 === 1 ? (
-          <strong key={i} className="font-semibold text-cream">
-            {withEmailLink(part)}
-          </strong>
-        ) : (
-          <span key={i}>{withEmailLink(part)}</span>
-        ),
-      )}
-    </>
-  );
-}
 
 export default function PrivacyPage() {
   const { t, lang } = useLang();

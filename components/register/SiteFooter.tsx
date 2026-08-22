@@ -137,12 +137,18 @@ export default function SiteFooter() {
           {t.footer.bottom}
           {/* ลิงก์นโยบายความเป็นส่วนตัว — URL เดียวกับที่กรอกใน App Store Connect
               Apple ต้องเปิดจากหน้าเว็บเจอด้วย ไม่ใช่รู้ URL ตรง ๆ อย่างเดียว */}
-          <div className="mt-2">
+          <div className="mt-2 flex justify-center gap-4">
             <Link
               href="/privacy"
               className="underline decoration-cream/40 underline-offset-2 transition-colors hover:text-goldsoft"
             >
               {t.footer.privacy}
+            </Link>
+            <Link
+              href="/support"
+              className="underline decoration-cream/40 underline-offset-2 transition-colors hover:text-goldsoft"
+            >
+              {t.footer.support}
             </Link>
           </div>
         </div>

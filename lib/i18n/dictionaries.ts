@@ -16,6 +16,12 @@ export type PrivacySection = {
   after: string[];
 };
 
+/** คำถาม-คำตอบในหน้าช่วยเหลือ (/support) — ประกาศชนิดตรง ๆ ด้วยเหตุผลเดียวกับ
+    PrivacySection: ปล่อยให้ TypeScript เดาจาก th แล้วชุด en จะถูกมองว่าชนิดไม่ตรง
+    · ข้อความใน a รองรับ **ตัวหนา** กับอีเมล ซึ่ง components/RichText.tsx เป็นคนแปลง */
+export type SupportFaq = { q: string; a: string[] };
+export type SupportGroup = { title: string; items: SupportFaq[] };
+
 const th = {
   meta: {
     title: "สมัครเข้าร่วม · เดินรอบดอย 2569",
@@ -194,6 +200,7 @@ const th = {
     orgLabel: "หน่วยงาน",
     org: "องค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง",
     followLabel: "ช่องทางติดตาม",
+    supportLink: "คำถามที่พบบ่อยและช่องทางอีเมล →",
   },
 
   /** หน้านโยบายความเป็นส่วนตัว (/privacy) — URL ของหน้านี้คือค่าที่กรอกใน App Store Connect
@@ -374,6 +381,110 @@ const th = {
         after: [],
       },
     ] as PrivacySection[],
+  },
+
+  /** หน้าช่วยเหลือ (/support) — URL ของหน้านี้คือค่าที่กรอกใน App Store Connect
+      ช่อง Support URL · ผู้ตรวจของ Apple เปิดหน้านี้แล้วต้องเจอช่องทางติดต่อจริง
+      กับคำตอบของปัญหาที่ผู้ใช้เจอ ไม่ใช่แค่ชื่อหน่วยงาน */
+  support: {
+    eyebrow: "ช่วยเหลือ",
+    heading: "ช่วยเหลือ",
+    lead: "คำถามที่พบบ่อยเรื่องกิจกรรมและแอป ถ้าไม่มีคำตอบที่ต้องการ เขียนมาหาเราได้เลย",
+    emailLabel: "ติดต่อทางอีเมล",
+    emailNote: "เขียนมาได้ทุกเรื่องเกี่ยวกับกิจกรรมและแอป เราตอบกลับทุกฉบับ",
+    emergencyTitle: "เหตุฉุกเฉินระหว่างงาน",
+    emergencyBody:
+      "แจ้งเจ้าหน้าที่เสื้อกั๊กสีส้มที่ฐานใกล้ที่สุด หรือกดปุ่ม SOS ในแอป · **เหตุฉุกเฉินทางการแพทย์โทร 1669**",
+    followLabel: "ช่องทางติดตาม",
+    privacyLink: "อ่านนโยบายความเป็นส่วนตัว →",
+    groups: [
+      {
+        title: "ใช้แอปและเข้าสู่ระบบ",
+        items: [
+          {
+            q: "เข้าสู่ระบบอย่างไร",
+            a: [
+              "ใช้**รหัสนักศึกษา**กับรหัสผ่านที่ลงทะเบียนไว้บนเว็บของกิจกรรม · แอปบน iOS ไม่มีการสมัครสมาชิก การลงทะเบียนทำบนเว็บเท่านั้นและปิดรับสมัครไปแล้ว",
+            ],
+          },
+          {
+            q: "ลืมรหัสผ่าน หรือเข้าไม่ได้",
+            a: [
+              "ติดต่อองค์การนักศึกษา มฟล. ที่ student-union@lamduan.mfu.ac.th หรือทางช่องทางติดตามด้านล่าง แจ้งรหัสนักศึกษาของคุณมาด้วยจะได้ตรวจให้ถูกคน",
+            ],
+          },
+          {
+            q: "เช็กอินที่ฐานอย่างไร",
+            a: ["ยื่น QR บนบัตรผู้เข้าร่วมให้เจ้าหน้าที่สแกน หรือแจ้งหมายเลขบิบของคุณ"],
+          },
+          {
+            q: "มีปัญหาระหว่างงาน",
+            a: ["แจ้ง**เจ้าหน้าที่เสื้อกั๊กสีส้ม**ได้ทันที ทุกฐานมีชุดปฐมพยาบาล"],
+          },
+        ],
+      },
+      {
+        title: "แอปบน iOS",
+        items: [
+          {
+            q: "ปุ่ม SOS ทำอะไร",
+            a: [
+              "กดค้างครบสามวินาที แอปจะส่งเคสขอความช่วยเหลือไปหาทีมงานของกิจกรรมพร้อมตำแหน่งของคุณ ณ จังหวะที่กด และแจ้งเพื่อนในกลุ่มของคุณว่ามีเหตุเกิดขึ้น",
+              "**ปุ่มนี้แจ้งทีมงานของกิจกรรม ไม่ใช่การเรียกหน่วยกู้ชีพ ในกรณีฉุกเฉินจริงโปรดโทร 1669**",
+            ],
+          },
+          {
+            q: "ทำไมแอปขอสิทธิ์ตำแหน่ง ไม่อนุญาตได้ไหม",
+            a: [
+              "ใช้สองที่เท่านั้น: วางจุดของคุณบนแผนที่พื้นที่งาน ซึ่งคำนวณอยู่บนเครื่องคุณและไม่ถูกส่งขึ้นเซิร์ฟเวอร์ · กับตอนกดปุ่ม SOS ซึ่งเป็นกรณีเดียวที่พิกัดถูกส่งออกจากเครื่อง",
+              "**ไม่อนุญาตก็ใช้แอปได้ครบรวมทั้งปุ่ม SOS** เพียงแต่เจ้าหน้าที่จะเห็นฐานล่าสุดที่คุณเช็คอินแทนพิกัดจริง · แอปไม่อ่านตำแหน่งขณะปิดแอป ไม่ติดตามเป็นระยะ และไม่เก็บประวัติเส้นทางที่คุณเดิน",
+            ],
+          },
+          {
+            q: "แอปมีปัญหา หรืออยากแจ้งบั๊ก",
+            a: [
+              "ส่งอีเมลมาที่ student-union@lamduan.mfu.ac.th บอก**รุ่นของ iOS** กับสิ่งที่กดก่อนเกิดปัญหา ถ้าแนบภาพหน้าจอมาด้วยจะช่วยได้มาก",
+            ],
+          },
+        ],
+      },
+      {
+        title: "บัญชีและข้อมูลส่วนตัว",
+        items: [
+          {
+            q: "ขอลบบัญชีอย่างไร",
+            a: [
+              "ส่งอีเมลมาที่ student-union@lamduan.mfu.ac.th · **เราลบให้ภายใน 7 วัน** นับจากวันที่ได้รับคำขอ และจะแจ้งกลับเมื่อลบเสร็จ",
+              "การลบบัญชีจะลบข้อมูลผู้เข้าร่วม ข้อมูลสุขภาพ ผู้ติดต่อฉุกเฉิน การเช็คอิน ความเห็นต่อฐาน และข้อความในแชทกลุ่มของคุณ",
+            ],
+          },
+          {
+            q: "ข้อมูลสุขภาพที่กรอกไว้ใครเห็นบ้าง",
+            a: [
+              "ทีมพยาบาลและทีมความปลอดภัยของงานเห็นเมื่อจำเป็นต่อการดูแลคุณ · เจ้าหน้าที่ประจำฐานเห็นแค่**สัญลักษณ์ว่ามีข้อควรระวังด้านสุขภาพหรือไม่** ตอนสแกนเช็คอิน ไม่เห็นรายละเอียดโรค",
+              "ข้อมูลสุขภาพและผู้ติดต่อฉุกเฉิน**ถูกลบภายใน 30 วัน** นับจากวันที่กิจกรรมสิ้นสุด · รายละเอียดทั้งหมดอยู่ในนโยบายความเป็นส่วนตัว ข้อ 4 และข้อ 5",
+            ],
+          },
+        ],
+      },
+      {
+        title: "งานและเส้นทาง",
+        items: [
+          {
+            q: "เส้นทางเป็นอย่างไร",
+            a: [
+              "เดิน **6 กิโลเมตร** รอบดอยแม่ฟ้าหลวง ผ่านป่าต้นน้ำและสันเขา มี 5 ฐานกิจกรรม พร้อมน้ำดื่มและทีมปฐมพยาบาลตลอดเส้นทาง · ดูเส้นทางแบบสามมิติได้ที่หน้าแผนที่ของเว็บ",
+            ],
+          },
+          {
+            q: "เวลารวมพล และของที่ต้องเตรียม",
+            a: [
+              "**ยึดตามประกาศล่าสุด**ที่หน้าประกาศของเว็บและในแอป — เวลาและรายละเอียดหน้างานอาจเปลี่ยนได้จนถึงวันงาน หน้านี้จึงไม่เขียนตัวเลขตายตัวไว้",
+            ],
+          },
+        ],
+      },
+    ] as SupportGroup[],
   },
 
   /** หน้า 404 (app/not-found.tsx) และหน้าเมื่อเกิดข้อผิดพลาด (app/error.tsx)
@@ -566,6 +677,7 @@ const th = {
     partners: "ร่วมกับ",
     bottom: "องค์การบริหารองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง",
     privacy: "นโยบายความเป็นส่วนตัว",
+    support: "ช่วยเหลือ",
   },
 
   /* ============ แผงผู้ดูแล ============ */
@@ -1049,6 +1161,7 @@ const en: Dict = {
     orgLabel: "Organiser",
     org: "Student Union, Mae Fah Luang University",
     followLabel: "Follow us",
+    supportLink: "FAQ and email support →",
   },
 
   privacy: {
@@ -1226,6 +1339,107 @@ const en: Dict = {
         after: [],
       },
     ] as PrivacySection[],
+  },
+
+  support: {
+    eyebrow: "Support",
+    heading: "Support",
+    lead: "Common questions about the event and the app. If your answer is not here, write to us.",
+    emailLabel: "Email us",
+    emailNote: "Anything about the event or the app. We reply to every message.",
+    emergencyTitle: "Emergency during the event",
+    emergencyBody:
+      "Find a marshal in an orange vest at the nearest station, or press the SOS button in the app · **For a medical emergency call 1669.**",
+    followLabel: "Follow us",
+    privacyLink: "Read the privacy policy →",
+    groups: [
+      {
+        title: "Signing in and using the app",
+        items: [
+          {
+            q: "How do I sign in?",
+            a: [
+              "Use the **student ID** and password you registered with on the event website. The iOS app has no sign-up — registration happened on the website only, and it is now closed.",
+            ],
+          },
+          {
+            q: "I forgot my password, or I cannot get in",
+            a: [
+              "Contact the MFU Student Union at student-union@lamduan.mfu.ac.th or through the channels below. Include your student ID so we can check the right account.",
+            ],
+          },
+          {
+            q: "How do I check in at a station?",
+            a: ["Show the QR code on your participant pass to a marshal, or give them your bib number."],
+          },
+          {
+            q: "Something is wrong during the event",
+            a: ["Find a **marshal in an orange vest** right away. Every station has a first-aid kit."],
+          },
+        ],
+      },
+      {
+        title: "The iOS app",
+        items: [
+          {
+            q: "What does the SOS button do?",
+            a: [
+              "Hold it for three seconds and the app sends a help request to the event team with your location at that moment, and alerts your group that something happened.",
+              "**This button alerts the event team. It is not a call to emergency services — for a real emergency call 1669.**",
+            ],
+          },
+          {
+            q: "Why does the app ask for my location? Can I decline?",
+            a: [
+              "Two cases only: placing your dot on the event map, which is computed on your device and never sent to the server; and the moment you press SOS, the only case where coordinates leave your device.",
+              "**If you decline, everything still works, including SOS** — staff simply see the last station you checked in at instead of your actual position. The app never reads your location while closed, does not track you periodically, and keeps no history of the route you walked.",
+            ],
+          },
+          {
+            q: "The app misbehaves, or I want to report a bug",
+            a: [
+              "Email student-union@lamduan.mfu.ac.th with your **iOS version** and what you tapped just before the problem. A screenshot helps a lot.",
+            ],
+          },
+        ],
+      },
+      {
+        title: "Account and personal data",
+        items: [
+          {
+            q: "How do I delete my account?",
+            a: [
+              "Email student-union@lamduan.mfu.ac.th · **We delete within 7 days** of receiving the request and confirm back to you when it is done.",
+              "Deleting your account removes your participant data, health data, emergency contact, check-ins, station feedback, and your group chat messages.",
+            ],
+          },
+          {
+            q: "Who can see the health data I filled in?",
+            a: [
+              "The event medical and safety teams, when needed to care for you. Station staff see only **a flag showing whether you have a health caution** at check-in scan — never the condition details.",
+              "Health data and emergency contacts are **deleted within 30 days** of the end of the event. Full details are in sections 4 and 5 of the privacy policy.",
+            ],
+          },
+        ],
+      },
+      {
+        title: "The event and the route",
+        items: [
+          {
+            q: "What is the route like?",
+            a: [
+              "A **6 km** walk around Doi Mae Fah Luang through headwater forest and ridgeline, with 5 activity stations, drinking water, and first-aid teams along the way. You can see the route in 3D on the map page.",
+            ],
+          },
+          {
+            q: "What time do we gather, and what should I bring?",
+            a: [
+              "**Follow the latest announcement** on the website's announcements page and in the app — times and on-the-day details can change up to the event, so this page does not fix numbers here.",
+            ],
+          },
+        ],
+      },
+    ] as SupportGroup[],
   },
 
   errorPage: {
@@ -1413,6 +1627,7 @@ const en: Dict = {
     partners: "In collaboration with",
     bottom: "Student Union Executive Board, Mae Fah Luang University",
     privacy: "Privacy Policy",
+    support: "Support",
   },
 
   dash: {

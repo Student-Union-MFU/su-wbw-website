@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { headingFont, useT } from "@/lib/i18n/LanguageProvider";
 
 /**
@@ -133,6 +135,16 @@ export default function SiteFooter() {
         {/* bottom bar */}
         <div className="mt-12 border-t border-cream/30 pt-6 text-center text-xs text-cream/85">
           {t.footer.bottom}
+          {/* ลิงก์นโยบายความเป็นส่วนตัว — URL เดียวกับที่กรอกใน App Store Connect
+              Apple ต้องเปิดจากหน้าเว็บเจอด้วย ไม่ใช่รู้ URL ตรง ๆ อย่างเดียว */}
+          <div className="mt-2">
+            <Link
+              href="/privacy"
+              className="underline decoration-cream/40 underline-offset-2 transition-colors hover:text-goldsoft"
+            >
+              {t.footer.privacy}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

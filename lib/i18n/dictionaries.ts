@@ -5,6 +5,17 @@
 
 export type Lang = "th" | "en";
 
+/** โครงของหัวข้อในหน้านโยบายความเป็นส่วนตัว (/privacy) — ประกาศชนิดตรง ๆ แทนปล่อยให้
+    TypeScript เดาจาก th เพราะบางหัวข้อไม่มีตาราง (table: null) ปล่อยให้เดาแล้ว
+    ชุด en จะถูกมองว่าชนิดไม่ตรงทั้งที่เนื้อหาเข้าคู่กันอยู่ */
+export type PrivacySection = {
+  title: string;
+  paras: string[];
+  bullets: string[];
+  table: { head: string[]; rows: string[][] } | null;
+  after: string[];
+};
+
 const th = {
   meta: {
     title: "สมัครเข้าร่วม · เดินรอบดอย 2569",
@@ -183,6 +194,186 @@ const th = {
     orgLabel: "หน่วยงาน",
     org: "องค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง",
     followLabel: "ช่องทางติดตาม",
+  },
+
+  /** หน้านโยบายความเป็นส่วนตัว (/privacy) — URL ของหน้านี้คือค่าที่กรอกใน App Store Connect
+      ช่อง Privacy Policy URL · เนื้อหาต้องตรงกับ Privacy Nutrition Label และ
+      WBW/PrivacyInfo.xcprivacy ของแอป iOS เสมอ Apple เทียบสามอย่างนี้เอง */
+  privacy: {
+    eyebrow: "ความเป็นส่วนตัว",
+    heading: "นโยบายความเป็นส่วนตัว",
+    updated: "ปรับปรุงล่าสุด 22 สิงหาคม 2569",
+    lead: "นโยบายนี้ใช้กับเว็บไซต์ลงทะเบียนและแอปพลิเคชัน “เดินรอบดอย” บน iOS",
+    note: "ฉบับภาษาไทยเป็นฉบับที่ใช้อ้างอิง คำแปลภาษาอังกฤษมีไว้เพื่อความสะดวกเท่านั้น",
+    sections: [
+      {
+        title: "1. เราเป็นใคร",
+        paras: [
+          "กิจกรรมเดินรอบดอย จัดโดย **องค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง** ซึ่งเป็นผู้ควบคุมข้อมูลส่วนบุคคลตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562",
+          "ติดต่อเรื่องข้อมูลส่วนบุคคล ใช้สิทธิของคุณ หรือขอลบบัญชี: **student-union@lamduan.mfu.ac.th**",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+      {
+        title: "2. ข้อมูลที่เราเก็บ",
+        paras: [
+          "**ข้อมูลบัญชี** — รหัสนักศึกษาที่ใช้เข้าสู่ระบบ ชื่อที่แสดง รหัสผ่าน (เก็บเป็นค่าที่เข้ารหัสทางเดียวด้วย bcrypt ไม่มีใครรวมถึงผู้ดูแลระบบอ่านรหัสผ่านจริงของคุณได้) สถานะบัญชี และวันที่สมัคร",
+          "**ข้อมูลผู้เข้าร่วม** — ชื่อ นามสกุล วันเกิด เพศ เบอร์โทรศัพท์ สำนักวิชา สาขาวิชา ชั้นปี กลุ่มที่สังกัด หมายเลขประจำตัวผู้เข้าร่วม รหัส QR ประจำตัว รูปโปรไฟล์ และ**ชื่อกับเบอร์โทรของผู้ติดต่อฉุกเฉิน**",
+          "รูปโปรไฟล์ตั้งผ่านเว็บลงทะเบียน — **แอปบน iOS ไม่ได้ขอสิทธิ์เข้าถึงคลังรูปหรือกล้องเพื่อเลือกรูปโปรไฟล์** มันแสดงรูปที่มีอยู่แล้วเท่านั้น",
+          "**ข้อมูลสุขภาพ — เป็นข้อมูลอ่อนไหว เก็บโดยความยินยอมของคุณเท่านั้น** — กรุ๊ปเลือด น้ำหนัก ส่วนสูง อาหารที่แพ้ โรคประจำตัว ยาที่ใช้ประจำ ข้อจำกัดทางร่างกาย ข้อมูลประกัน และหมายเหตุด้านสุขภาพอื่นที่คุณกรอก",
+          "เราเก็บข้อมูลกลุ่มนี้เพื่อ**ความปลอดภัยของคุณระหว่างกิจกรรมกลางแจ้งบนพื้นที่ภูเขาเท่านั้น** ไม่ใช้เพื่อวัตถุประสงค์อื่นใด และไม่ใช้ประกอบการตัดสินใจใดที่มีผลต่อคุณนอกเหนือจากการดูแลความปลอดภัย เราบันทึกด้วยว่าคุณให้ความยินยอมเมื่อใด และคุณเพิกถอนได้ทุกเมื่อ (ดูข้อ 6)",
+          "**ข้อมูลการเข้าร่วมกิจกรรม** — เวลาและฐานที่คุณเช็คอิน เจ้าหน้าที่ที่เป็นผู้สแกน และพิกัดตำแหน่งของจุดเช็คอินหากอุปกรณ์ที่ใช้สแกนส่งมาด้วย",
+          "**ตำแหน่งของเครื่องคุณ — สองที่ และมีที่เดียวที่ถูกส่งออกจากเครื่อง** แอปขอสิทธิ์ตำแหน่งแบบ “ระหว่างใช้งานแอป” (When In Use) และใช้ในสองกรณีเท่านั้น",
+          "ก่อนกล่องขอสิทธิ์ของระบบจะขึ้น แอปแสดงจอของตัวเองอธิบายก่อนว่าเอาไปทำอะไร และคุณกด “ไว้ทีหลัง” ได้ — ทุกอย่างในแอปยังใช้ได้ครบรวมทั้งปุ่ม SOS",
+        ],
+        bullets: [
+          "**แผนที่พื้นที่งาน** วางจุดของคุณลงบนแผนที่ — คำนวณและอยู่บนเครื่องคุณเท่านั้น ไม่ถูกส่งขึ้นเซิร์ฟเวอร์ ไม่ถูกบันทึกถาวร และหายไปเมื่อคุณปิดแอป",
+          "**ตอนคุณกดปุ่ม SOS ค้างครบสามวินาที — กรณีเดียวที่พิกัดถูกส่งออกจากเครื่อง** ณ จังหวะนั้นแอปอ่านพิกัด (ละติจูด ลองจิจูด) พร้อมค่าความคลาดเคลื่อนโดยประมาณเป็นเมตร แล้วส่งไปพร้อมกับเคสขอความช่วยเหลือ เพื่อให้ทีมที่ไปช่วยรู้ว่าต้องไปที่ไหน",
+          "พิกัดถูกเก็บไว้กับเคสขอความช่วยเหลือนั้น และ**เจ้าหน้าที่ที่รับผิดชอบเคสนั้นเห็นได้** เพื่อไปให้ถึงตัวคุณ",
+          "**ไม่อนุญาตก็ยังกด SOS ได้** เคสจะถูกส่งเหมือนเดิม เพียงแต่เจ้าหน้าที่จะเห็นแค่ฐานล่าสุดที่คุณเช็คอินแทนพิกัดจริง คุณเปลี่ยนใจอนุญาตหรือยกเลิกได้ทุกเมื่อที่ตั้งค่าของเครื่อง",
+        ],
+        table: null,
+        after: [
+          "ทั้งสองกรณี**แอปไม่ใช้ตำแหน่งเบื้องหลัง** (ไม่มี background location) ไม่มีการอ่านตำแหน่งขณะแอปปิด ไม่มีการติดตามเป็นระยะ และไม่มีการเก็บประวัติเส้นทางที่คุณเดิน",
+          "**เนื้อหาที่คุณสร้าง** — ข้อความที่คุณส่งในแชทกลุ่ม และคะแนนกับข้อความความเห็นที่คุณให้กับแต่ละฐานกิจกรรม ความเห็นต่อฐาน**ผูกกับตัวคุณ ไม่ใช่การตอบแบบไม่ระบุชื่อ** ทีมผู้จัดเห็นว่าใครเป็นผู้ตอบ",
+          "**ข้อมูลสำหรับส่งการแจ้งเตือน** — รหัสอุปกรณ์สำหรับส่งการแจ้งเตือน (device token) และชนิดของระบบปฏิบัติการ ใช้เพื่อส่งการแจ้งเตือนมายังเครื่องของคุณเท่านั้น ไม่ใช่ตัวระบุเพื่อการโฆษณาหรือติดตามข้ามแอป",
+          "**บริการภายนอกที่แอปเรียก** — หน้าหลักแสดงอุณหภูมิและค่าฝุ่นของพื้นที่งาน โดยเรียกบริการสาธารณะ Open-Meteo (api.open-meteo.com และ air-quality-api.open-meteo.com) · คำขอนั้นส่งไปเฉพาะ**พิกัดคงที่ของเส้นทางเดิน** ซึ่งเป็นพิกัดของภูเขา ไม่ใช่ของคุณ — ไม่มีรหัสประจำตัว ไม่มีบัญชีผู้ใช้ และไม่มีตำแหน่งของเครื่องคุณอยู่ในคำขอเลย",
+          "**สิ่งที่เราไม่เก็บ** — **แอปไม่ได้ขอสิทธิ์เซ็นเซอร์การเคลื่อนไหวและฟิตเนส และไม่นับก้าวของคุณ** · เราไม่เก็บรายชื่อผู้ติดต่อ ไม่เก็บข้อมูลการชำระเงิน ไม่ใช้เครื่องมือวิเคราะห์พฤติกรรมของบุคคลที่สาม และ**ไม่ติดตามคุณข้ามแอปหรือข้ามเว็บไซต์อื่น** · เราไม่เก็บตำแหน่งของเครื่องคุณเป็นประจำหรือเป็นเส้นทาง และไม่เก็บประวัติการเดินของคุณ — พิกัดถูกส่งออกจากเครื่องเฉพาะตอนที่คุณกด SOS เท่านั้น และเราไม่ใช้ตำแหน่งเพื่อการโฆษณาหรือการวิเคราะห์ใดๆ",
+        ],
+      },
+      {
+        title: "3. เราใช้ข้อมูลทำอะไร",
+        paras: [],
+        bullets: [
+          "ยืนยันตัวตนและให้คุณเข้าใช้งานระบบ",
+          "บันทึกและแสดงความคืบหน้าการเข้าร่วมกิจกรรมของคุณ",
+          "ให้คุณสื่อสารกับสมาชิกในกลุ่มผ่านแชท",
+          "ส่งการแจ้งเตือนที่เกี่ยวกับกิจกรรมของคุณ",
+          "**ดูแลความปลอดภัยและช่วยเหลือทางการแพทย์** ระหว่างกิจกรรม (เฉพาะข้อมูลสุขภาพและผู้ติดต่อฉุกเฉิน)",
+          "**ส่งทีมไปหาคุณเมื่อคุณกดขอความช่วยเหลือฉุกเฉิน (SOS)** — ใช้ตำแหน่งของเครื่อง ณ จังหวะที่กดเท่านั้น เพื่อบอกทีมว่าต้องไปที่ไหน และแจ้งเพื่อนในกลุ่มของคุณว่ามีเหตุเกิดขึ้น",
+          "รวบรวมความเห็นเพื่อปรับปรุงการจัดกิจกรรมครั้งถัดไป",
+        ],
+        table: null,
+        after: [
+          "เราไม่ใช้ข้อมูลของคุณเพื่อการโฆษณา และ**ไม่ขายหรือให้เช่าข้อมูลของคุณแก่บุคคลใด**",
+        ],
+      },
+      {
+        title: "4. ใครเห็นข้อมูลของคุณบ้าง",
+        paras: [],
+        bullets: [],
+        table: {
+          head: ["ใคร", "เห็นอะไร"],
+          rows: [
+            ["ผู้เข้าร่วมคนอื่นในกลุ่มเดียวกัน", "ชื่อที่แสดง รูปโปรไฟล์ และข้อความที่คุณส่งในแชทกลุ่ม"],
+            ["เจ้าหน้าที่ประจำฐาน", "ชื่อ หมายเลขประจำตัว และ**สัญลักษณ์ว่ามีข้อควรระวังด้านสุขภาพหรือไม่** ตอนสแกนเช็คอิน (ไม่เห็นรายละเอียดโรค)"],
+            ["ทีมพยาบาลและทีมความปลอดภัยของงาน", "ข้อมูลสุขภาพและผู้ติดต่อฉุกเฉิน เมื่อจำเป็นต่อการดูแลคุณ"],
+            ["เจ้าหน้าที่ที่รับผิดชอบเคส SOS ของคุณ", "ชื่อ หมายเลขประจำตัว เบอร์โทร **ตำแหน่งที่คุณอยู่ตอนกด** และข้อมูลสุขภาพ (เฉพาะเมื่อคุณยินยอมไว้ และเฉพาะขณะเคสยังเปิดอยู่)"],
+            ["เพื่อนในกลุ่มเดียวกับคุณ", "เมื่อคุณกด SOS: การแจ้งเตือนว่ามีเหตุเกิดขึ้น และ**ตำแหน่งที่คุณอยู่ตอนกด** (ไม่เห็นข้อมูลสุขภาพและไม่เห็นเบอร์โทรของคุณ)"],
+            ["ทีมผู้จัดงาน", "ข้อมูลการเข้าร่วม และความเห็นต่อฐานพร้อมชื่อผู้ตอบ"],
+          ],
+        },
+        after: [
+          "**ผู้ให้บริการภายนอกที่เกี่ยวข้อง** — **Apple** ส่งการแจ้งเตือนถึงเครื่องของคุณ (Apple Push Notification service) · **Google (Firebase Cloud Messaging)** เป็นตัวกลางส่งการแจ้งเตือน ได้รับเฉพาะรหัสอุปกรณ์กับหัวข้อและข้อความของการแจ้งเตือน ไม่ได้รับข้อมูลสุขภาพหรือข้อมูลโปรไฟล์ของคุณ · **Cloudflare** ทำหน้าที่เป็นทางผ่านของการเชื่อมต่อมายังเซิร์ฟเวอร์ของเรา",
+          "เราจะเปิดเผยข้อมูลแก่บุคคลอื่นเมื่อกฎหมายกำหนด หรือเมื่อจำเป็นเร่งด่วนเพื่อป้องกันอันตรายต่อชีวิตหรือสุขภาพของคุณหรือผู้อื่นเท่านั้น",
+        ],
+      },
+      {
+        title: "5. เราเก็บข้อมูลไว้นานแค่ไหน",
+        paras: [],
+        bullets: [],
+        table: {
+          head: ["ข้อมูล", "เก็บนานแค่ไหน"],
+          rows: [
+            ["**ข้อมูลสุขภาพ** (กรุ๊ปเลือด อาหารที่แพ้ โรคประจำตัว ยา ข้อจำกัดทางร่างกาย ข้อมูลประกัน)", "**ลบภายใน 30 วัน** นับจากวันที่กิจกรรมสิ้นสุด"],
+            ["**ชื่อและเบอร์โทรผู้ติดต่อฉุกเฉิน**", "**ลบภายใน 30 วัน** นับจากวันที่กิจกรรมสิ้นสุด"],
+            ["**เคสขอความช่วยเหลือฉุกเฉิน (SOS)** รวมพิกัดที่ส่งไปตอนกด", "**ลบภายใน 30 วัน** นับจากวันที่กิจกรรมสิ้นสุด"],
+            ["ข้อมูลบัญชี ข้อมูลผู้เข้าร่วม การเช็คอิน และความเห็นต่อฐาน", "เก็บไว้ 1 ปีเพื่อการจัดงานครั้งถัดไป แล้วลบ"],
+            ["ข้อความในแชทกลุ่ม", "เก็บไว้ 1 ปี แล้วลบ"],
+            ["รหัสอุปกรณ์สำหรับแจ้งเตือน (device token)", "ลบทันทีที่คุณออกจากระบบ หรือเมื่อกิจกรรมสิ้นสุด"],
+          ],
+        },
+        after: [
+          "ถ้าคุณขอลบก่อนครบกำหนด เราลบให้เร็วกว่านั้นได้ (ดูข้อ 6)",
+        ],
+      },
+      {
+        title: "6. สิทธิของคุณ",
+        paras: [
+          "ตาม PDPA คุณมีสิทธิดังนี้ และใช้สิทธิได้โดยติดต่อเราตามช่องทางในข้อ 1",
+        ],
+        bullets: [
+          "**ขอเข้าถึงและขอสำเนา**ข้อมูลส่วนบุคคลของคุณ",
+          "**ขอแก้ไข**ข้อมูลที่ไม่ถูกต้องหรือไม่เป็นปัจจุบัน",
+          "**ขอลบ**ข้อมูลของคุณ",
+          "**ขอให้ระงับการใช้**ข้อมูลชั่วคราว",
+          "**คัดค้าน**การเก็บรวบรวม ใช้ หรือเปิดเผยข้อมูล",
+          "**ขอให้โอนย้าย**ข้อมูลไปยังผู้ควบคุมข้อมูลรายอื่น",
+          "**เพิกถอนความยินยอม** โดยเฉพาะความยินยอมให้เก็บข้อมูลสุขภาพ ซึ่งเพิกถอนได้ทุกเมื่อ โดยไม่กระทบความชอบด้วยกฎหมายของการเก็บก่อนหน้า",
+          "**ร้องเรียน**ต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล หากเห็นว่าเราไม่ปฏิบัติตามกฎหมาย",
+        ],
+        table: null,
+        after: [
+          "การเพิกถอนความยินยอมเรื่องข้อมูลสุขภาพอาจทำให้เราไม่สามารถให้คุณเข้าร่วมกิจกรรมได้ เพราะเป็นข้อมูลที่จำเป็นต่อความปลอดภัยของคุณเองในพื้นที่กลางแจ้ง",
+          "**การลบบัญชี** — แอปบน iOS **ไม่มีการสมัครสมาชิก** (การลงทะเบียนทำบนเว็บของกิจกรรมเท่านั้น และปิดรับสมัครไปแล้ว) การลบบัญชีจึงทำโดยติดต่อเราที่ **student-union@lamduan.mfu.ac.th** · **เราลบให้ภายใน 7 วัน** นับจากวันที่ได้รับคำขอ และจะแจ้งกลับเมื่อลบเสร็จ",
+          "การลบบัญชีจะลบข้อมูลผู้เข้าร่วม ข้อมูลสุขภาพ ผู้ติดต่อฉุกเฉิน การเช็คอิน ความเห็นต่อฐาน และข้อความในแชทกลุ่มของคุณ",
+        ],
+      },
+      {
+        title: "7. ความปลอดภัย",
+        paras: [],
+        bullets: [
+          "รหัสผ่านเก็บด้วย bcrypt ไม่ได้เก็บเป็นข้อความธรรมดา",
+          "การเชื่อมต่อระหว่างแอปกับเซิร์ฟเวอร์เข้ารหัสด้วย HTTPS ทั้งหมด",
+          "เข้าถึงข้อมูลสุขภาพได้เฉพาะผู้ที่มีหน้าที่เกี่ยวข้องกับความปลอดภัยของงาน",
+        ],
+        table: null,
+        after: [],
+      },
+      {
+        title: "8. เด็กและเยาวชน",
+        paras: [
+          "กิจกรรมนี้จัดสำหรับนักศึกษาของมหาวิทยาลัยเท่านั้น **ไม่ได้จัดทำขึ้นสำหรับเด็ก** และแอปไม่มีเนื้อหาที่มุ่งไปที่เด็ก",
+          "ผู้เข้าร่วมบางคนอายุต่ำกว่า 20 ปีบริบูรณ์ ซึ่งตาม PDPA มาตรา 20 การให้ความยินยอมของผู้เยาว์ในบางกรณีต้องได้รับความยินยอมจากผู้ใช้อำนาจปกครองด้วย · กรณีที่กฎหมายกำหนดเช่นนั้น ผู้จัดกิจกรรมเป็นผู้ดำเนินการขอความยินยอมจากผู้ใช้อำนาจปกครอง **นอกระบบลงทะเบียนของกิจกรรม** และเก็บหลักฐานไว้กับงานธุรการของกิจกรรม",
+          "หากคุณเป็นผู้ใช้อำนาจปกครองและต้องการให้ลบข้อมูลของผู้เยาว์ในความปกครองของคุณ ติดต่อเราที่ **student-union@lamduan.mfu.ac.th** ได้ทุกเมื่อ",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+      {
+        title: "9. ข้อมูลที่แอปบน iOS ส่งออกจากเครื่องคุณ",
+        paras: [
+          "หัวข้อนี้ตรงกับที่เราประกาศไว้ใน App Store (Privacy Nutrition Label) และในไฟล์ privacy manifest ที่ฝังมากับแอป ทั้งหมดผูกกับตัวคุณ และ**ไม่มีข้อไหนใช้เพื่อการติดตาม**",
+        ],
+        bullets: [],
+        table: {
+          head: ["ประเภท", "คืออะไรในแอปนี้"],
+          rows: [
+            ["รหัสผู้ใช้", "รหัสนักศึกษาที่ใช้เข้าสู่ระบบ"],
+            ["ชื่อ", "ชื่อที่แสดงบนบัตรผู้เข้าร่วมและในแชทกลุ่ม"],
+            ["เนื้อหาที่ผู้ใช้สร้าง", "ข้อความในแชทกลุ่ม และความเห็นต่อฐาน"],
+            ["รหัสอุปกรณ์", "device token สำหรับส่งการแจ้งเตือน"],
+            ["ตำแหน่งแบบละเอียด", "เฉพาะตอนกดปุ่ม SOS เท่านั้น (ดูข้อ 2)"],
+          ],
+        },
+        after: [
+          "**ข้อมูลสุขภาพไม่อยู่ในรายการนี้เพราะแอปไม่ได้เก็บมัน** — คุณกรอกบนเว็บลงทะเบียน แอปแค่แสดงให้คุณกับเจ้าหน้าที่ที่มีหน้าที่ดูแลความปลอดภัยเห็นเท่านั้น การเก็บและการลบอยู่ในความรับผิดชอบของผู้จัดกิจกรรมตามข้อ 5",
+          "**แอปไม่มีการซื้อขายในแอป ไม่มีโฆษณา และไม่มีเครื่องมือวิเคราะห์ของบุคคลที่สาม**",
+        ],
+      },
+      {
+        title: "10. การเปลี่ยนแปลงนโยบายนี้",
+        paras: [
+          "หากมีการแก้ไข เราจะปรับวันที่ด้านบนและแจ้งให้ทราบผ่านแอปหรือช่องทางของกิจกรรม",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+    ] as PrivacySection[],
   },
 
   /** หน้า 404 (app/not-found.tsx) และหน้าเมื่อเกิดข้อผิดพลาด (app/error.tsx)
@@ -374,6 +565,7 @@ const th = {
     org: "องค์การนักศึกษา มฟล.",
     partners: "ร่วมกับ",
     bottom: "องค์การบริหารองค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง",
+    privacy: "นโยบายความเป็นส่วนตัว",
   },
 
   /* ============ แผงผู้ดูแล ============ */
@@ -859,6 +1051,183 @@ const en: Dict = {
     followLabel: "Follow us",
   },
 
+  privacy: {
+    eyebrow: "Privacy",
+    heading: "Privacy Policy",
+    updated: "Last updated 22 August 2026",
+    lead: "This policy covers the registration website and the “Walk Beyond the Wild” iOS app.",
+    note: "The Thai version is the authoritative text. This English translation is provided for convenience only.",
+    sections: [
+      {
+        title: "1. Who we are",
+        paras: [
+          "Walk Beyond the Wild is organised by the **Student Union of Mae Fah Luang University**, which is the data controller under the Thai Personal Data Protection Act B.E. 2562 (PDPA).",
+          "For anything about your personal data, to exercise your rights, or to request account deletion: **student-union@lamduan.mfu.ac.th**",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+      {
+        title: "2. What we collect",
+        paras: [
+          "**Account data** — the student ID you sign in with, display name, password (stored as a one-way bcrypt hash; nobody, including administrators, can read your actual password), account status, and the date you registered.",
+          "**Participant data** — first and last name, date of birth, gender, phone number, school, major, year of study, assigned group, participant number, personal QR code, profile photo, and **the name and phone number of your emergency contact**.",
+          "The profile photo is set through the registration website — **the iOS app does not request photo library or camera access to pick a profile photo**. It only displays the photo you already have.",
+          "**Health data — sensitive data, collected only with your consent** — blood type, weight, height, food allergies, chronic conditions, regular medication, physical limitations, insurance details, and any other health note you fill in.",
+          "We collect this group **solely for your safety during an outdoor activity in mountain terrain**. It is not used for any other purpose, and never for any decision about you beyond keeping you safe. We also record when you gave consent, and you may withdraw it at any time (see section 6).",
+          "**Activity data** — the time and station where you check in, which staff member scanned you, and the coordinates of the check-in point if the scanning device sends them.",
+          "**Your device location — two places, and only one of them ever leaves your device.** The app requests “When In Use” location permission and uses it in two cases only.",
+          "Before the system permission dialog appears, the app shows its own screen explaining what the location is for, and you can tap “Later” — everything in the app still works, including the SOS button.",
+        ],
+        bullets: [
+          "**The event map** places your dot on the map — computed and kept on your device only. It is never sent to the server, never stored, and is gone when you close the app.",
+          "**When you hold the SOS button for three seconds — the only case where coordinates leave your device.** At that moment the app reads your coordinates (latitude, longitude) with an approximate accuracy in metres and sends them with the help request, so the response team knows where to go.",
+          "Those coordinates are stored with that help request and **are visible to the staff member handling your case**, so they can reach you.",
+          "**SOS still works if you decline location.** The request is sent as usual; staff simply see the last station you checked in at instead of your actual position. You can allow or revoke permission at any time in your device settings.",
+        ],
+        table: null,
+        after: [
+          "In both cases **the app never uses background location**. It does not read your location while closed, does not track you periodically, and keeps no history of the route you walked.",
+          "**Content you create** — messages you send in the group chat, and the rating and comment you give each activity station. Station feedback **is linked to you; it is not anonymous** — the organising team can see who wrote it.",
+          "**Push notification data** — your device token and operating system type, used only to deliver notifications to your device. It is not an advertising identifier and is not used for cross-app tracking.",
+          "**External services the app calls** — the home screen shows temperature and air quality for the event area by calling the public Open-Meteo service (api.open-meteo.com and air-quality-api.open-meteo.com). Those requests carry only **the fixed coordinates of the walking route**, which are the mountain's, not yours — no identifier, no user account, and no device location at all.",
+          "**What we do not collect** — **the app does not request motion and fitness sensor access and does not count your steps.** We do not collect your contacts, do not collect payment data, do not use third-party behavioural analytics, and **do not track you across other apps or websites**. We do not collect your device location routinely or as a track, and keep no walking history — coordinates leave your device only when you press SOS — and we never use location for advertising or analytics.",
+        ],
+      },
+      {
+        title: "3. What we use the data for",
+        paras: [],
+        bullets: [
+          "To authenticate you and give you access to the system",
+          "To record and show your progress through the activity",
+          "To let you talk with your group members in chat",
+          "To send notifications about your activity",
+          "**Safety and medical assistance** during the event (health data and emergency contact only)",
+          "**To send a team to you when you request emergency help (SOS)** — using your device location at the moment you press it, to tell the team where to go, and to alert your group that something happened",
+          "To collect feedback to improve the next event",
+        ],
+        table: null,
+        after: [
+          "We do not use your data for advertising, and **we do not sell or rent your data to anyone**.",
+        ],
+      },
+      {
+        title: "4. Who can see your data",
+        paras: [],
+        bullets: [],
+        table: {
+          head: ["Who", "What they see"],
+          rows: [
+            ["Other participants in your group", "Your display name, profile photo, and the messages you send in the group chat"],
+            ["Station staff", "Your name, participant number, and **a flag showing whether you have a health caution**, at check-in scan (no condition details)"],
+            ["The event medical and safety teams", "Health data and emergency contact, when needed to care for you"],
+            ["The staff member handling your SOS case", "Your name, participant number, phone number, **your position when you pressed SOS**, and health data (only if you consented, and only while the case is open)"],
+            ["Members of your group", "When you press SOS: an alert that something happened, and **your position when you pressed it** (they do not see your health data or phone number)"],
+            ["The organising team", "Attendance data, and station feedback together with the name of who wrote it"],
+          ],
+        },
+        after: [
+          "**External service providers involved** — **Apple** delivers notifications to your device (Apple Push Notification service) · **Google (Firebase Cloud Messaging)** relays notifications and receives only the device token and the notification title and body; it receives no health or profile data · **Cloudflare** carries the connection to our server.",
+          "We disclose data to others only where the law requires it, or where it is urgently necessary to prevent harm to the life or health of you or another person.",
+        ],
+      },
+      {
+        title: "5. How long we keep it",
+        paras: [],
+        bullets: [],
+        table: {
+          head: ["Data", "Retention"],
+          rows: [
+            ["**Health data** (blood type, allergies, chronic conditions, medication, physical limitations, insurance)", "**Deleted within 30 days** of the end of the event"],
+            ["**Emergency contact name and phone number**", "**Deleted within 30 days** of the end of the event"],
+            ["**Emergency help requests (SOS)**, including the coordinates sent when pressed", "**Deleted within 30 days** of the end of the event"],
+            ["Account data, participant data, check-ins, and station feedback", "Kept for 1 year to organise the next event, then deleted"],
+            ["Group chat messages", "Kept for 1 year, then deleted"],
+            ["Push notification device token", "Deleted as soon as you sign out, or when the event ends"],
+          ],
+        },
+        after: [
+          "If you ask us to delete earlier, we can do so sooner (see section 6).",
+        ],
+      },
+      {
+        title: "6. Your rights",
+        paras: [
+          "Under the PDPA you have the following rights, exercised by contacting us through the channel in section 1.",
+        ],
+        bullets: [
+          "**Access and obtain a copy** of your personal data",
+          "**Rectify** data that is inaccurate or out of date",
+          "**Erase** your data",
+          "**Restrict** the use of your data temporarily",
+          "**Object** to the collection, use, or disclosure of your data",
+          "**Data portability** — have your data transferred to another controller",
+          "**Withdraw consent**, in particular consent to health data, which you may withdraw at any time without affecting the lawfulness of processing before withdrawal",
+          "**Lodge a complaint** with the Personal Data Protection Committee if you believe we are not complying with the law",
+        ],
+        table: null,
+        after: [
+          "Withdrawing consent to health data may mean we cannot let you take part in the event, because that data is necessary for your own safety in outdoor terrain.",
+          "**Account deletion** — the iOS app **has no sign-up** (registration happens on the event website only, and it is now closed), so account deletion is done by contacting us at **student-union@lamduan.mfu.ac.th**. **We delete within 7 days** of receiving the request and confirm back to you when it is done.",
+          "Deleting your account removes your participant data, health data, emergency contact, check-ins, station feedback, and your group chat messages.",
+        ],
+      },
+      {
+        title: "7. Security",
+        paras: [],
+        bullets: [
+          "Passwords are stored with bcrypt, never as plain text",
+          "All traffic between the app and the server is encrypted with HTTPS",
+          "Health data is accessible only to people with an event safety role",
+        ],
+        table: null,
+        after: [],
+      },
+      {
+        title: "8. Children and minors",
+        paras: [
+          "This event is for university students only. **It is not directed at children** and the app contains no child-directed content.",
+          "Some participants are under 20 years of age. Under PDPA section 20, consent given by a minor requires the consent of the person exercising parental authority in certain cases. Where the law requires this, the organisers obtain that consent **outside the event registration system** and keep the record with the event's administrative files.",
+          "If you hold parental authority and want a minor's data deleted, contact us at **student-union@lamduan.mfu.ac.th** at any time.",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+      {
+        title: "9. Data the iOS app sends off your device",
+        paras: [
+          "This section matches what we declare in the App Store (Privacy Nutrition Label) and in the privacy manifest shipped inside the app. All of it is linked to you, and **none of it is used for tracking**.",
+        ],
+        bullets: [],
+        table: {
+          head: ["Type", "What it is in this app"],
+          rows: [
+            ["User ID", "The student ID you sign in with"],
+            ["Name", "The display name on your participant card and in group chat"],
+            ["Other user content", "Group chat messages and station feedback"],
+            ["Device ID", "The device token used to send notifications"],
+            ["Precise location", "Only at the moment you press SOS (see section 2)"],
+          ],
+        },
+        after: [
+          "**Health data is not in this list because the app does not collect it** — you fill it in on the registration website; the app only displays it to you and to staff with a safety role. Its storage and deletion are the organisers' responsibility under section 5.",
+          "**The app has no in-app purchases, no advertising, and no third-party analytics.**",
+        ],
+      },
+      {
+        title: "10. Changes to this policy",
+        paras: [
+          "If we revise this policy we will update the date above and announce it through the app or the event's channels.",
+        ],
+        bullets: [],
+        table: null,
+        after: [],
+      },
+    ] as PrivacySection[],
+  },
+
   errorPage: {
     notFoundEyebrow: "404",
     notFoundHeading: "Page not found",
@@ -1043,6 +1412,7 @@ const en: Dict = {
     org: "MFU Student Union",
     partners: "In collaboration with",
     bottom: "Student Union Executive Board, Mae Fah Luang University",
+    privacy: "Privacy Policy",
   },
 
   dash: {

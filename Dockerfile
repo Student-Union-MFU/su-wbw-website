@@ -4,6 +4,10 @@ WORKDIR /app
 # rewrites ถูก serialize ตอน build → ต้องตั้ง upstream เป็น build ARG (runtime env ไม่มีผลกับ rewrites)
 ARG API_UPSTREAM=http://localhost:4000
 ENV API_UPSTREAM=$API_UPSTREAM
+# NEXT_PUBLIC_* ก็ถูกฝังตอน build เหมือนกัน — ไม่ตั้งตรงนี้ canonical/sitemap/OG
+# จะไปหยิบค่า fallback ใน lib/seo.ts แทนที่จะเป็นโดเมนที่ใช้จริง
+ARG NEXT_PUBLIC_SITE_URL=https://walkbeyondthewild.studentunion.social
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .

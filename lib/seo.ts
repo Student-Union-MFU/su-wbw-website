@@ -5,7 +5,7 @@
 
 /** URL จริงของเว็บ · ตั้ง NEXT_PUBLIC_SITE_URL ตอน build ถ้าย้ายโดเมน
     (NEXT_PUBLIC_* ถูกฝังตอน `next build` เหมือน NEXT_PUBLIC_API_BASE) */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wbw.sumfu.xyz";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://walkbeyondthewild.studentunion.social";
 
 export const SITE_NAME_TH = "เดินรอบดอย 2569";
 export const SITE_NAME_EN = "Walk Beyond the Wild 2026";

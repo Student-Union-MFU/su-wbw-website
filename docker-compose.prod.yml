@@ -18,6 +18,8 @@ services:
       args:
         # ฝังตอน build — ยิงหา service "backend" บน fullstack-network
         API_UPSTREAM: http://backend:8080/wbw
+        # โดเมนจริงของเว็บ ต้องตรงกับ hostname ใน Cloudflare tunnel
+        NEXT_PUBLIC_SITE_URL: https://walkbeyondthewild.studentunion.social
     image: su-web:latest
     container_name: su-web
     # ไม่ publish host port — cloudflared เข้าถึงผ่าน network ภายในที่ web:3001

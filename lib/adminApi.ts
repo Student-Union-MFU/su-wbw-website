@@ -64,6 +64,26 @@ export async function getMyProfile(token: string): Promise<MyProfile> {
   return res.json();
 }
 
+/**
+ * ลบบัญชีของตัวเอง (DELETE /wbw/me) — ถาวร กู้คืนไม่ได้
+ *
+ * ใช้ token เป็นตัวยืนยันตัวตน ไม่ต้องส่งรหัสผ่านซ้ำ: หน้า /privacy บังคับให้
+ * ล็อกอินใหม่ก่อนถึงจะเรียกตัวนี้ได้อยู่แล้ว จึงเท่ากับยืนยันรหัสผ่านไปในตัว
+ *
+ * ฝั่ง backend เปิดเฉพาะ role participant — เจ้าหน้าที่/ผู้ดูแลได้ 403 กลับมา
+ * พร้อมข้อความบอกให้ติดต่อผู้ดูแลระบบ ซึ่งหน้าเว็บแสดงต่อตรง ๆ
+ */
+export async function deleteMyAccount(token: string): Promise<void> {
+  const res = await fetch(apiUrl("/api/me"), {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}));
+    throw new Error(b.error || "ลบบัญชีไม่สำเร็จ");
+  }
+}
+
 export type Stats = {
   participants: number;
   total_checkins: number;

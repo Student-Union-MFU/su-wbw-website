@@ -73,6 +73,8 @@ export const PUBLIC_ROUTES = [
   { path: "/announcements", priority: 0.7, changeFrequency: "daily" as const },
   { path: "/map", priority: 0.6, changeFrequency: "monthly" as const },
   { path: "/contact", priority: 0.5, changeFrequency: "monthly" as const },
+  // สโตร์ต้องเปิด URL นี้ได้จากภายนอก — ต้องอยู่ใน sitemap และห้ามติด disallow ใน robots.ts
+  { path: "/privacy", priority: 0.4, changeFrequency: "yearly" as const },
 ];
 
 /** ภาพการ์ดตอนแชร์ลิงก์ — ไฟล์ app/opengraph-image.png (สร้างด้วย scripts/brand-images.py)

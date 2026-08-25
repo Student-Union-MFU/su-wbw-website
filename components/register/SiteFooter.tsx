@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { headingFont, useT } from "@/lib/i18n/LanguageProvider";
 
 /**
@@ -133,6 +134,18 @@ export default function SiteFooter() {
         {/* bottom bar */}
         <div className="mt-12 border-t border-cream/30 pt-6 text-center text-xs text-cream/85">
           {t.footer.bottom}
+          {/* ทางเข้าหน้า /privacy — สโตร์ต้องหา URL นี้เจอจากหน้าเว็บโดยไม่ต้องล็อกอิน
+              และ footer นี้อยู่ทั้งหน้า /landing กับ /register จึงเป็นที่ที่เห็นแน่ที่สุด
+              ใช้ Link ของ next ไม่ใช่ <a> เพราะเป็นหน้าในเว็บเดียวกัน (ไม่โหลดใหม่ทั้งหน้า) */}
+          <span className="mx-2 text-cream/40" aria-hidden>
+            ·
+          </span>
+          <Link
+            href="/privacy"
+            className="underline decoration-cream/30 underline-offset-4 transition-colors hover:text-goldsoft"
+          >
+            {t.privacy.heading}
+          </Link>
         </div>
       </div>
     </footer>

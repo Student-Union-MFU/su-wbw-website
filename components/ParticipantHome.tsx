@@ -144,6 +144,17 @@ export default function ParticipantHome({
                 {t.dash.me.signOut}
               </button>
             </div>
+
+            {/* ลบบัญชีอยู่ที่หน้า /privacy ไม่ใช่ปุ่มตรงนี้ — หน้านั้นบอกครบว่าอะไรจะหายไปบ้าง
+                และเป็น URL เดียวกับที่สโตร์ใช้ ทำสองที่แล้วต้องคอยไล่แก้ข้อความให้ตรงกัน */}
+            <div className="mt-5 border-t border-cream/12 pt-4 text-center">
+              <Link
+                href="/privacy#delete"
+                className="text-xs text-cream/45 underline decoration-cream/20 underline-offset-4 transition-colors hover:text-cream/80"
+              >
+                {t.privacy.delTitle}
+              </Link>
+            </div>
           </div>
         </div>
       </main>

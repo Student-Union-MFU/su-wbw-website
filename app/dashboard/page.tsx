@@ -18,6 +18,7 @@ import { Participants } from "@/components/dashboard/Participants";
 import { Users } from "@/components/dashboard/Users";
 import { StaffRequests } from "@/components/dashboard/StaffRequests";
 import { Bases } from "@/components/dashboard/Bases";
+import { GroupTime } from "@/components/dashboard/GroupTime";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Logs } from "@/components/dashboard/Logs";
 import { Insights } from "@/components/dashboard/Insights";
@@ -63,6 +64,7 @@ const TAB_KEYS = [
   "chats",
   "participants",
   "bases",
+  "grouptime",
   "users",
   "requests",
   "announce",
@@ -77,6 +79,7 @@ const TAB_GROUP: Record<TabKey, "view" | "live" | "setup"> = {
   chats: "live",
   participants: "live",
   bases: "live",
+  grouptime: "live",
   users: "setup",
   requests: "setup",
   announce: "setup",
@@ -154,6 +157,7 @@ function DashboardHome({ token, username, onLogout }: { token: string; username:
         {tab === "users" && <Users token={token} currentUsername={username} />}
         {tab === "requests" && <StaffRequests token={token} />}
         {tab === "bases" && <Bases token={token} />}
+        {tab === "grouptime" && <GroupTime token={token} />}
         {tab === "announce" && <Announcements token={token} />}
         {tab === "logs" && <Logs token={token} />}
       </main>
@@ -501,6 +505,12 @@ function TabIcon({ name }: { name: TabKey }) {
       <>
         <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z" strokeLinejoin="round" />
         <circle cx="12" cy="10" r="2.5" />
+      </>
+    ),
+    grouptime: (
+      <>
+        <circle cx="12" cy="13" r="7" />
+        <path d="M12 13V9M10 3h4" strokeLinecap="round" />
       </>
     ),
     users: (

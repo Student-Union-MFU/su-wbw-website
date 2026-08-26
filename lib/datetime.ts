@@ -15,6 +15,16 @@ export function parseTs(iso: string | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+/** format ระยะเวลาเป็นข้อความ · labels มาจาก dictionary เพื่อรองรับ th/en เช่น "1 ชม. 23 นาที" / "1h 23m" */
+export function formatDuration(ms: number, labels: { hr: string; min: string }): string {
+  const mins = Math.max(0, Math.round(ms / 60_000));
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h === 0) return `${m} ${labels.min}`;
+  if (m === 0) return `${h} ${labels.hr}`;
+  return `${h} ${labels.hr} ${m} ${labels.min}`;
+}
+
 /** format timestamp เป็นข้อความตาม locale · คืน iso เดิมถ้าแปลงไม่ได้ (ไม่โชว์ "Invalid Date") */
 export function formatTs(
   iso: string | null | undefined,

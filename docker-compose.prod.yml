@@ -29,7 +29,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: cloudflared-web
+    container_name: cloudflared-wbw-website
     command: tunnel --no-autoupdate run
     # token อ่านจากไฟล์ .env (gitignored) — ต้องมีบรรทัด TUNNEL_TOKEN=eyJ...
     # ดูตัวอย่างใน .env.example ; ถ้าไม่มีไฟล์ .env compose จะ error ให้เห็นชัด

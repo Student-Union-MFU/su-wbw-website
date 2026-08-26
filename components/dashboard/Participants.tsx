@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
+  createParticipant,
   getParticipants,
   patchParticipant,
   getParticipantDetail,
@@ -11,11 +12,15 @@ import {
   type Participant,
   type ParticipantDetail,
   type NotiGroup,
+  type NewParticipant,
+  exportUrls,
 } from "@/lib/adminApi";
 import { getSchools, type School } from "@/lib/api";
 import { MAJORS_BY_SCHOOL } from "@/components/register/mfu-data";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
+import { ExportButton } from "@/components/dashboard/ExportButton";
+import { saveServerCSV } from "@/lib/csv";
 import type { Dict } from "@/lib/i18n/dictionaries";
 import { PHONE_RE, STUDENT_ID_RE, digitsOnly } from "@/lib/validation";
 import { formatTs } from "@/lib/datetime";
@@ -56,6 +61,9 @@ export function Participants({ token }: { token: string }) {
   const [schoolFilter, setSchoolFilter] = useState(""); // "" = ทุกสำนักวิชา
   const [quotaZeroOnly, setQuotaZeroOnly] = useState(false); // คำถามจริงของ admin คือ "ใครติดล็อกบ้าง"
   const [editing, setEditing] = useState<Participant | null>(null);
+  // กางได้ทีละแถว — กางพร้อมกันหลายแถวทำให้ตารางยาวจนหาแถวที่กำลังดูอยู่ไม่เจอ
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -129,35 +137,54 @@ export function Participants({ token }: { token: string }) {
           >
             {t.dash.participants.quotaZeroOnly}
           </button>
+          {/* สองปุ่มอยู่ในแถวเดียวกันเสมอ · ปล่อยให้ stack ตามพ่อจะได้ปุ่มหนึ่งชิดขวา
+              อีกปุ่มเต็มความกว้างบนมือถือ ซึ่งดูเหมือนวางพลาดมากกว่าตั้งใจ */}
+          <div className="flex items-center gap-2">
+            <ExportButton
+              onExport={() => saveServerCSV(exportUrls.participants(), token, "wbw-participants.csv")}
+            />
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="flex-1 rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 sm:flex-none"
+            >
+              {t.dash.participants.add}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-[20px] border border-line bg-card">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-sm">
+          <table className="w-full text-sm">
             <thead>
+              {/* สิบเอ็ดคอลัมน์บังคับให้ตารางกว้าง 820px ซึ่งแปลว่าต้องเลื่อนแนวนอน
+                  ตลอดเวลาแม้บนจอโน้ตบุ๊ก · เหลือเฉพาะคอลัมน์ที่ใช้ "หาคน" จริง ๆ
+                  แล้วย้ายที่เหลือ (สาขา เบอร์ กรุ๊ปเลือด ผู้ติดต่อฉุกเฉิน ประวัติกลุ่ม)
+                  ลงไปในแผงที่กางออกเมื่อกดแถว ซึ่งมีที่ให้จัดวางอ่านง่ายกว่ามาก */}
               <tr className="border-b border-line text-left text-xs text-muted">
-                <th className="px-4 py-3 font-medium">BIB</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colName}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colStudentId}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colSchool}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colMajor}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colGroup}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colPhone}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colBlood}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colCheckin}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.participants.colQuota}</th>
-                <th className="px-4 py-3" />
+                <th className="px-3 py-3 font-medium sm:px-4">BIB</th>
+                <th className="px-3 py-3 font-medium sm:px-4">{t.dash.participants.colName}</th>
+                {/* รหัสนักศึกษาและสำนักวิชาซ่อนบนจอเล็ก — ทั้งคู่โผล่ใต้ชื่อ
+                    (รหัส) และในแผงที่กางออก (สำนักวิชา) อยู่แล้ว การบังคับให้
+                    ตารางกว้าง 680px เพื่อคอลัมน์ที่มีข้อมูลซ้ำ แลกมาด้วยการต้อง
+                    ปัดซ้ายขวาตลอดเวลาบนมือถือ */}
+                <th className="hidden px-4 py-3 font-medium md:table-cell">{t.dash.participants.colStudentId}</th>
+                <th className="hidden px-4 py-3 font-medium lg:table-cell">{t.dash.participants.colSchool}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t.dash.participants.colGroup}</th>
+                <th className="px-3 py-3 font-medium sm:px-4">{t.dash.participants.colCheckin}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t.dash.participants.colQuota}</th>
+                <th className="px-2 py-3 sm:px-4" />
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
+                  <td colSpan={8} className="px-4 py-10 text-center text-muted">{t.dash.common.loading}</td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-10 text-center text-muted">
+                  <td colSpan={8} className="px-4 py-10 text-center text-muted">
                     {t.dash.participants.emptyBefore}{" "}
                     <a href="/auth/participant/register" className="text-forest underline hover:text-forestdeep">
                       {t.dash.participants.emptyLink}
@@ -166,47 +193,83 @@ export function Participants({ token }: { token: string }) {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
+                  <td colSpan={8} className="px-4 py-10 text-center text-muted">{t.dash.participants.noMatch}</td>
                 </tr>
               ) : (
-                filtered.map((r) => (
-                  <tr key={r.id} className="border-b border-line/70 transition-colors last:border-0 hover:bg-cream/50">
-                    <td className="px-4 py-3 text-muted">{r.bib ?? "—"}</td>
-                    <td className="px-4 py-3 font-medium text-ink">{`${r.first_name ?? ""} ${r.last_name ?? ""}`.trim() || "—"}</td>
-                    <td className="px-4 py-3 text-ink">{r.student_id}</td>
-                    <td className="px-4 py-3 text-muted">{r.school_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted">{r.major ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted">{r.group_number != null ? t.dash.common.group(r.group_number) : "—"}</td>
-                    <td className="px-4 py-3 text-muted">{r.contact_phone || "—"}</td>
-                    <td className="px-4 py-3 text-muted">{bloodLabel(r.blood_type, t)}</td>
-                    <td className="px-4 py-3">
-                      <CheckinBadge on={r.checked_in} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs ${
-                          r.leave_quota === 0 ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                filtered.map((r) => {
+                  const open = expanded === r.id;
+                  return (
+                    <Fragment key={r.id}>
+                      <tr
+                        onClick={() => setExpanded(open ? null : r.id)}
+                        className={`cursor-pointer border-b border-line/70 transition-colors last:border-0 ${
+                          open ? "bg-cream/60" : "hover:bg-cream/50"
                         }`}
                       >
-                        {r.leave_quota}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setEditing(r)}
-                        className="rounded-full px-3 py-1.5 text-sm text-forest transition-colors hover:bg-forest/8"
-                      >
-                        {t.dash.common.edit}
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                        <td className="px-3 py-3 text-muted sm:px-4">{r.bib ?? "—"}</td>
+                        <td className="px-3 py-3 sm:px-4">
+                          <span className="font-medium text-ink">
+                            {`${r.first_name ?? ""} ${r.last_name ?? ""}`.trim() || "—"}
+                          </span>
+                          {/* รหัสนักศึกษาใต้ชื่อเมื่อคอลัมน์ของมันถูกซ่อน — เป็นค่าที่
+                              ผู้ดูแลเอาไปค้นต่อ จึงหายไปเฉย ๆ ไม่ได้ */}
+                          <span className="mt-0.5 block font-mono text-xs text-muted md:hidden">{r.student_id}</span>
+                        </td>
+                        <td className="hidden px-4 py-3 text-ink md:table-cell">{r.student_id}</td>
+                        <td className="hidden px-4 py-3 text-muted lg:table-cell">{r.school_name ?? "—"}</td>
+                        <td className="hidden px-4 py-3 text-muted sm:table-cell">{r.group_number != null ? t.dash.common.group(r.group_number) : "—"}</td>
+                        <td className="px-3 py-3 sm:px-4">
+                          <CheckinBadge on={r.checked_in} />
+                        </td>
+                        <td className="hidden px-4 py-3 sm:table-cell">
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs ${
+                              r.leave_quota === 0 ? "bg-danger/12 text-danger" : "bg-forest/10 text-forest"
+                            }`}
+                          >
+                            {r.leave_quota}
+                          </span>
+                        </td>
+                        <td className="px-2 py-3 text-right sm:px-4">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className={`ml-auto h-4 w-4 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            aria-hidden
+                          >
+                            <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </td>
+                      </tr>
+                      {open && (
+                        <tr className="border-b border-line/70 bg-cream/40 last:border-0">
+                          <td colSpan={8} className="px-4 pb-5 pt-1">
+                            <RowDetail token={token} row={r} onEdit={() => setEditing(r)} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {adding && (
+        <NewParticipantModal
+          token={token}
+          schools={schools}
+          onClose={() => setAdding(false)}
+          onDone={(created) => {
+            setAdding(false);
+            setRows((prev) => [created, ...prev]);
+          }}
+        />
+      )}
 
       {editing && (
         <EditModal
@@ -235,6 +298,282 @@ function CheckinBadge({ on }: { on: boolean }) {
       <span className={`h-1.5 w-1.5 rounded-full ${on ? "bg-forest" : "bg-muted"}`} />
       {on ? t.dash.participants.isCheckedIn : t.dash.participants.notCheckedIn}
     </span>
+  );
+}
+
+/* ============================================================
+   แผงที่กางออกเมื่อกดแถว
+
+   ทำไมไม่เปิด modal ทันทีที่กดแถว: modal ปิดตารางทั้งหน้าจอ ซึ่งทำให้ดูคนสองคน
+   เทียบกันไม่ได้เลย และเป็นสิ่งที่คนทำงานกับตารางทะเบียนทำตลอดเวลา · แผงที่
+   กางอยู่ในตารางให้ดูรายละเอียดโดยยังเห็นแถวรอบ ๆ อยู่ ส่วน modal ยังอยู่
+   สำหรับ "แก้ไข" ซึ่งเป็นงานที่ต้องโฟกัสจริง ๆ
+
+   ดึงรายละเอียดตอนกางเท่านั้น ไม่ใช่ตอนโหลดตาราง — ผู้เข้าร่วมหลักพันคนคูณด้วย
+   หนึ่ง request ต่อคนคือการยิง DB พันครั้งเพื่อข้อมูลที่แทบไม่มีใครเปิดดู
+   ============================================================ */
+
+function RowDetail({ token, row, onEdit }: { token: string; row: Participant; onEdit: () => void }) {
+  const t = useT();
+  const [detail, setDetail] = useState<ParticipantDetail | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    setDetail(null);
+    setFailed(false);
+    getParticipantDetail(token, row.id)
+      .then((d) => alive && setDetail(d))
+      .catch(() => alive && setFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [token, row.id]);
+
+  const p = t.dash.participants;
+
+  return (
+    <div className="rounded-[18px] border border-line bg-card p-5">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+        <FactList
+          title={p.groupContact}
+          rows={[
+            [p.colMajor, row.major ?? "—"],
+            [p.colPhone, row.contact_phone || "—"],
+            [p.colBlood, bloodLabel(row.blood_type, t)],
+            [p.sex, row.sex ? sexOptions(t).find((o) => o.value === row.sex)?.label ?? row.sex : "—"],
+          ]}
+        />
+        <FactList
+          title={p.emergencyName}
+          rows={[
+            [p.emergencyName, detail?.emergency_contact_name || "—"],
+            [p.emergencyPhone, detail?.emergency_contact_phone || "—"],
+            [p.birthdate, detail?.date_of_birth || "—"],
+            [
+              p.weight + " / " + p.height,
+              detail?.weight_kg || detail?.height_cm ? `${detail?.weight_kg ?? "—"} / ${detail?.height_cm ?? "—"}` : "—",
+            ],
+          ]}
+        />
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{p.consentTitle}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <ConsentTag ok={detail?.consent_health_data ?? null} label={p.consentHealth} />
+            <ConsentTag ok={detail?.consent_emergency_treatment ?? null} label={p.consentEmergency} />
+            <ConsentTag ok={detail?.waiver_accepted ?? null} label={p.consentWaiver} />
+          </div>
+          <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted">{p.registeredOn}</p>
+          <p className="mt-1 text-sm text-ink">{row.created ?? "—"}</p>
+        </div>
+      </div>
+
+      {/* ประวัติเข้า/ออกกลุ่ม — คำถามที่ตามมาเสมอคือ "ทำไมคนนี้ออกกลุ่มไม่ได้" */}
+      <div className="mt-5 border-t border-line pt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{p.historyHeading}</p>
+        {failed ? (
+          <p className="mt-1.5 text-sm text-danger">{t.dash.common.saveFailed}</p>
+        ) : !detail ? (
+          <p className="mt-1.5 text-sm text-muted">{t.dash.common.loading}</p>
+        ) : detail.membership_log.length === 0 ? (
+          <p className="mt-1.5 text-sm text-muted">{p.historyEmpty}</p>
+        ) : (
+          <ul className="mt-2 space-y-1.5">
+            {detail.membership_log.slice(0, 6).map((l, i) => (
+              <li key={i} className="flex flex-wrap items-baseline gap-x-3 text-sm">
+                <span className="text-ink">{ACTION_LABEL(t)[l.action]}</span>
+                {l.group_number != null && <span className="text-muted">{t.dash.common.group(l.group_number)}</span>}
+                <span className="text-xs text-muted/80">{formatTs(l.created_at, t.dash.locale)}</span>
+                <span className="text-xs text-muted/80">
+                  {l.actor_name ? p.historyBy(l.actor_name) : p.historySelf}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="mt-5 flex justify-end">
+        <button
+          type="button"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onEdit();
+          }}
+          className="rounded-full bg-forest px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:brightness-110"
+        >
+          {t.dash.common.edit}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function FactList({ title, rows }: { title: string; rows: [string, string][] }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{title}</p>
+      <dl className="mt-2 space-y-1.5">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex gap-3 text-sm">
+            <dt className="w-24 flex-none text-muted">{k}</dt>
+            <dd className="min-w-0 flex-1 break-words text-ink">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+/* ============================================================
+   เพิ่มผู้เข้าร่วมด้วยมือ
+
+   ยิงไป POST /wbw/admin/participants ซึ่งฝั่ง backend เดินเส้นทางเดียวกับหน้า
+   สมัครสาธารณะ — โควตา รหัสซ้ำ และเลข BIB จึงเป็นกติกาชุดเดียวกัน · ฟอร์มนี้
+   จงใจสั้นกว่าหน้าสมัครจริง: กรอกเท่าที่จำเป็นให้มีตัวตนในระบบ ส่วนที่เหลือ
+   แก้เพิ่มได้จากปุ่ม "แก้ไข" ซึ่งมีทุกช่องอยู่แล้ว
+   ============================================================ */
+
+function NewParticipantModal({
+  token,
+  schools,
+  onClose,
+  onDone,
+}: {
+  token: string;
+  schools: School[];
+  onClose: () => void;
+  onDone: (p: Participant) => void;
+}) {
+  const t = useT();
+  const p = t.dash.participants;
+  const [f, setF] = useState({
+    student_id: "",
+    password: "",
+    first_name: "",
+    last_name: "",
+    sex: "",
+    contact_phone: "",
+    school_id: "",
+    major: "",
+    blood_type: "",
+    emergency_contact_name: "",
+    emergency_contact_phone: "",
+  });
+  const [consent, setConsent] = useState({ health: false, emergency: false, waiver: false });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const set = (k: keyof typeof f) => (v: string) => setF((x) => ({ ...x, [k]: v }));
+
+  const majors = f.school_id ? MAJORS_BY_SCHOOL[Number(f.school_id)] ?? [] : [];
+  const ready = f.student_id.trim().length > 0 && f.password.length >= 8 && f.first_name.trim() && f.last_name.trim();
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    const body: NewParticipant = {
+      student_id: f.student_id.trim(),
+      password: f.password,
+      profile: {
+        first_name: f.first_name.trim(),
+        last_name: f.last_name.trim(),
+        sex: f.sex || "unspecified",
+        contact_phone: f.contact_phone.trim() || null,
+        school_id: f.school_id ? Number(f.school_id) : null,
+        major: f.major || null,
+        emergency_contact_name: f.emergency_contact_name.trim() || null,
+        emergency_contact_phone: f.emergency_contact_phone.trim() || null,
+      },
+      medical: { blood_type: f.blood_type || null },
+      consent: {
+        consent_health_data: consent.health,
+        consent_emergency_treatment: consent.emergency,
+        waiver_accepted: consent.waiver,
+      },
+    };
+    try {
+      onDone(await createParticipant(token, body));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.dash.common.saveFailed);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-6">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-[26px] border border-line bg-card p-6 sm:rounded-[26px]">
+        <h3 className="text-base font-semibold text-forestdeep">{p.addTitle}</h3>
+        <p className="mt-1 text-sm text-muted">{p.addSub}</p>
+
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <TextField label={p.studentId} value={f.student_id} onChange={set("student_id")} inputMode="numeric" required />
+          <TextField label={p.newPwPlaceholder} value={f.password} onChange={set("password")} type="password" required />
+          <TextField label={p.firstName} value={f.first_name} onChange={set("first_name")} required />
+          <TextField label={p.lastName} value={f.last_name} onChange={set("last_name")} required />
+          <SelectField label={p.sex} value={f.sex} onChange={set("sex")} options={sexOptions(t)} placeholder={p.sexPlaceholder} />
+          <TextField label={p.phone} value={f.contact_phone} onChange={set("contact_phone")} inputMode="tel" />
+          <SelectField
+            label={p.school}
+            value={f.school_id}
+            onChange={(v) => setF((x) => ({ ...x, school_id: v, major: "" }))}
+            options={schools.map((s) => ({ value: String(s.school_id), label: s.name }))}
+            placeholder={p.schoolPlaceholder}
+          />
+          <SelectField
+            label={p.major}
+            value={f.major}
+            onChange={set("major")}
+            options={majors.map((m) => ({ value: m, label: m }))}
+            placeholder={p.majorPlaceholder}
+          />
+          <SelectField label={p.blood} value={f.blood_type} onChange={set("blood_type")} options={bloodOptions(t)} placeholder={p.bloodPlaceholder} />
+          <TextField label={p.emergencyName} value={f.emergency_contact_name} onChange={set("emergency_contact_name")} />
+          <TextField label={p.emergencyPhone} value={f.emergency_contact_phone} onChange={set("emergency_contact_phone")} inputMode="tel" />
+        </div>
+
+        {/* ความยินยอมเป็นสิ่งที่ "คนนั้น" ให้ ไม่ใช่สิ่งที่แอดมินตั้งให้ตามสะดวก —
+            จึงตั้งต้นเป็นไม่ติ๊กทั้งสามช่อง และให้ติ๊กเฉพาะที่เจ้าตัวบอกจริง */}
+        <div className="mt-5 rounded-[16px] border border-line bg-cream/40 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{p.consentTitle}</p>
+          <p className="mt-1 text-xs text-muted">{p.addConsentHint}</p>
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+            {(
+              [
+                ["health", p.consentHealth],
+                ["emergency", p.consentEmergency],
+                ["waiver", p.consentWaiver],
+              ] as const
+            ).map(([k, label]) => (
+              <label key={k} className="flex items-center gap-2 text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={consent[k]}
+                  onChange={(ev) => setConsent((c) => ({ ...c, [k]: ev.target.checked }))}
+                  className="h-4 w-4 accent-[var(--color-forest)]"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="rounded-full border border-line px-5 py-2.5 text-sm text-muted transition-colors hover:text-ink">
+            {t.dash.common.cancel}
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={busy || !ready}
+            className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:brightness-110 disabled:opacity-45"
+          >
+            {busy ? t.dash.common.saving : p.add}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

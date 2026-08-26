@@ -146,6 +146,22 @@ function BaseCard({
         </div>
       </div>
 
+      {/* ตัวเลขหน้างานของฐานนี้ — คำถามที่คนเปิดแท็บนี้ถามระหว่างงานคือ "ฐานไหน
+          คนแน่น ฐานไหนยังไม่มีใครไปถึง ฐานไหนคนบ่น" ซึ่งเดิมหน้านี้ตอบไม่ได้เลย
+          ต้องไปเปิดแท็บอื่นแล้วจำชื่อฐานกลับมาเทียบเอง
+
+          คะแนนขึ้นเป็นขีดเมื่อยังไม่มีใครตอบ ไม่ใช่ 0.0 — ฐานที่ไม่มีข้อมูลกับ
+          ฐานที่ได้ศูนย์ดาวต้องอ่านออกว่าต่างกัน */}
+      <div className="mb-3 grid grid-cols-3 gap-2 rounded-2xl border border-line/70 bg-cream/40 p-3">
+        <Metric label={t.dash.bases.mCheckins} value={base.checkin_count} />
+        <Metric
+          label={t.dash.bases.mRating}
+          value={base.avg_rating == null ? "—" : base.avg_rating.toFixed(1)}
+          sub={base.feedback_count > 0 ? t.dash.insights.answers(base.feedback_count) : undefined}
+        />
+        <Metric label={t.dash.bases.mSOS} value={base.sos_count} alert={base.sos_count > 0} />
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         {base.staff.length === 0 && !adding && <span className="text-sm text-muted">{t.dash.bases.noStaff}</span>}
         {base.staff.map((s) => (
@@ -175,6 +191,16 @@ function BaseCard({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function Metric({ label, value, sub, alert }: { label: string; value: number | string; sub?: string; alert?: boolean }) {
+  return (
+    <div className="text-center">
+      <p className={`text-lg font-semibold tabular-nums ${alert ? "text-danger" : "text-ink"}`}>{value}</p>
+      <p className="text-[11px] text-muted">{label}</p>
+      {sub && <p className="text-[10px] text-muted/70">{sub}</p>}
     </div>
   );
 }

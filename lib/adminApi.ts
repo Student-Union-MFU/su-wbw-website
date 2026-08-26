@@ -331,6 +331,11 @@ export type Checkpoint = {
   type: string;
   sequence: number | null;
   staff: CheckpointStaff[];
+  /** ตัวเลขหน้างานของฐานนี้ · avg_rating เป็น null = ยังไม่มีใครให้คะแนน ไม่ใช่ 0 ดาว */
+  checkin_count: number;
+  feedback_count: number;
+  avg_rating: number | null;
+  sos_count: number;
 };
 
 export async function getCheckpoints(token: string): Promise<Checkpoint[]> {
@@ -523,3 +528,324 @@ export async function getSchools(token: string): Promise<School[]> {
   const res = await fetch(apiUrl("/api/admin/schools"), { headers: { Authorization: `Bearer ${token}` } });
   return handle(res, "โหลดสำนักวิชาไม่สำเร็จ");
 }
+
+/* ===== สถิติรวม (แท็บ "วิเคราะห์") =====
+
+   ตรงกับ model.Analytics ฝั่ง backend (GET /wbw/admin/analytics) · ทุกฟิลด์ที่
+   เป็น `| null` คือ "ยังไม่มีข้อมูลพอจะคำนวณ" ไม่ใช่ศูนย์ — หน้าเว็บต้องวาด
+   เป็น "—" ไม่ใช่แท่งความสูงศูนย์ ซึ่งอ่านเป็นคะแนนแย่ทั้งที่ยังไม่มีใครตอบ  */
+
+export type CountByKey = { key: string; count: number };
+export type TimeBucket = { bucket: string; count: number };
+
+export type Analytics = {
+  generated_at: string;
+  capacity: { max: number; taken: number; seats_left: number; checked_in: number };
+  registration: { day: string; count: number; cumulative: number }[];
+  demographics: {
+    profiled: number;
+    sex: CountByKey[];
+    year: CountByKey[];
+    blood: CountByKey[];
+    school: { school_id: number | null; name: string; count: number; checked_in: number }[];
+  };
+  groups: {
+    total: number;
+    full: number;
+    empty: number;
+    assigned: number;
+    unassigned: number;
+    seats: number;
+    items: { group_id: number; group_number: number; capacity: number; member_count: number; staff_count: number }[];
+  };
+  checkins: {
+    total: number;
+    walkers: number;
+    funnel: { checkpoint_id: number; sequence: number | null; name: string; name_en: string | null; count: number }[];
+    timeline: TimeBucket[];
+    completion: { bases_done: number; participants: number }[];
+    by_staff: CountByKey[];
+    /** เวลาระหว่างเช็คอินสองครั้งที่ติดกันของคนเดียวกัน · คู่ฐานคือเส้นทางที่เดินจริง */
+    pace: {
+      from_id: number;
+      from_name: string;
+      from_name_en: string | null;
+      to_id: number;
+      to_name: string;
+      to_name_en: string | null;
+      walkers: number;
+      median_sec: number | null;
+      p90_sec: number | null;
+      fastest_sec: number | null;
+      slowest_sec: number | null;
+    }[];
+    total_median_sec: number | null;
+    total_p90_sec: number | null;
+  };
+  sos: {
+    total: number;
+    open: number;
+    resolved: number;
+    escalated: number;
+    for_other: number;
+    acked: number;
+    open_unacked: number;
+    with_gps: number;
+    by_severity: CountByKey[];
+    by_reason: CountByKey[];
+    by_base: CountByKey[];
+    timeline: TimeBucket[];
+    ack_median_sec: number | null;
+    ack_p90_sec: number | null;
+    resolve_median_sec: number | null;
+    resolve_p90_sec: number | null;
+  };
+  feedback: {
+    responses: number;
+    respondents: number;
+    avg_overall: number | null;
+    distribution: number[];
+    by_checkpoint: {
+      checkpoint_id: number;
+      sequence: number | null;
+      name: string;
+      name_en: string | null;
+      responses: number;
+      avg_overall: number | null;
+      avg_scenery: number | null;
+      avg_activity: number | null;
+      avg_staff: number | null;
+    }[];
+    recent: { checkpoint_name: string; rating: number; comment: string; created_at: string }[];
+  };
+  staff: {
+    total: number;
+    pending: number;
+    admins: number;
+    by_role: CountByKey[];
+    bases_total: number;
+    bases_with_staff: number;
+    groups_total: number;
+    groups_with_staff: number;
+    checked_in_by_staff: number;
+  };
+  notifications: {
+    total: number;
+    active: number;
+    by_level: CountByKey[];
+    by_audience: CountByKey[];
+    delivered: number;
+    read: number;
+    timeline: TimeBucket[];
+  };
+};
+
+export async function getAnalytics(token: string): Promise<Analytics> {
+  const res = await fetch(apiUrl("/api/admin/analytics"), { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
+  return handle(res, "โหลดสถิติไม่สำเร็จ");
+}
+
+
+/* ===== เพิ่มผู้เข้าร่วมด้วยมือ (แผงผู้ดูแล) =====
+
+   ใช้ก้อนเดียวกับหน้าสมัครสาธารณะ (model.RegisterRequest ฝั่ง backend) เพราะ
+   backend เดินเส้นทาง Register ตัวเดียวกัน — โควตา รหัสซ้ำ เลข BIB และการ
+   เข้ารหัสรหัสผ่านจึงเป็นกติกาชุดเดียวกันทั้งสองทาง  */
+
+export type NewParticipant = {
+  student_id: string;
+  password: string;
+  profile: {
+    first_name: string;
+    last_name: string;
+    sex: string;
+    contact_phone?: string | null;
+    school_id?: number | null;
+    major?: string | null;
+    date_of_birth?: string | null;
+    emergency_contact_name?: string | null;
+    emergency_contact_phone?: string | null;
+  };
+  medical?: { weight_kg?: number | null; height_cm?: number | null; blood_type?: string | null };
+  consent?: { consent_health_data: boolean; consent_emergency_treatment: boolean; waiver_accepted: boolean };
+};
+
+export async function createParticipant(token: string, data: NewParticipant): Promise<Participant> {
+  const res = await fetch(apiUrl("/api/admin/participants"), {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+  return handle(res, "เพิ่มผู้เข้าร่วมไม่สำเร็จ");
+}
+
+/* ===== เคสฉุกเฉิน (แท็บ "เหตุฉุกเฉิน") =====
+
+   ต่างจาก /staff/sos ที่เจ้าหน้าที่ใช้หน้างาน ซึ่งตอบเฉพาะเคสที่ยังต้องจัดการ —
+   ตัวนี้คืนทุกเคสของทั้งงานรวมที่ปิดไปแล้ว เพราะคำถามของแอดมินคือ "ทั้งงานเกิด
+   อะไรขึ้นบ้าง" ไม่ใช่ "ตอนนี้ต้องวิ่งไปไหน"  */
+
+export type SOSSeverity = "minor" | "major" | "urgent";
+
+export type SOSCase = {
+  id: number;
+  for_other: boolean;
+  lat: number | null;
+  lng: number | null;
+  accuracy_m: number | null;
+  loc_source: string | null;
+  checkpoint_id: number | null;
+  checkpoint_name: string | null;
+  message: string | null;
+  resolved: boolean;
+  resolve_reason: string | null;
+  acked_at: string | null;
+  acked_by_name: string | null;
+  created_at: string;
+  updated_at: string;
+  severity: SOSSeverity | null;
+  escalated: boolean;
+  participant_id: string;
+  first_name: string;
+  last_name: string;
+  bib: number | null;
+  group_number: number | null;
+  contact_phone: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  /** ข้อมูลสุขภาพเปิดเฉพาะเคสที่ยังเปิดอยู่ + เจ้าตัวยินยอม + ไม่ใช่กดแทนคนอื่น
+   *  เงื่อนไขบังคับอยู่ใน SQL ฝั่ง backend ไม่ใช่ที่หน้าจอ */
+  blood_type: string | null;
+  health_notes: string | null;
+};
+
+export async function getSOSCases(token: string, limit = 200): Promise<SOSCase[]> {
+  const res = await fetch(apiUrl(`/api/admin/sos?limit=${limit}`), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
+  return handle(res, "โหลดรายการเคสไม่สำเร็จ");
+}
+
+export type NewSOSCase = {
+  participant_id: string;
+  message?: string | null;
+  severity?: SOSSeverity | null;
+  for_other?: boolean;
+};
+
+export async function createSOSCase(token: string, data: NewSOSCase): Promise<SOSCase> {
+  const res = await fetch(apiUrl("/api/admin/sos"), {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+  return handle(res, "เปิดเคสไม่สำเร็จ");
+}
+
+/** ทุกช่องเป็น optional โดยตั้งใจ — ส่งเฉพาะสิ่งที่เปลี่ยนจริง
+ *  severity: "" = ล้างระดับที่เคยประเมิน · undefined = ไม่แตะ */
+export type SOSPatch = {
+  severity?: SOSSeverity | "";
+  escalated?: boolean;
+  resolved?: boolean;
+  reason?: string;
+};
+
+export async function patchSOSCase(token: string, id: number, patch: SOSPatch): Promise<SOSCase> {
+  const res = await fetch(apiUrl(`/api/admin/sos/${id}`), {
+    method: "PATCH",
+    headers: authHeaders(token),
+    body: JSON.stringify(patch),
+  });
+  return handle(res, "แก้ไขเคสไม่สำเร็จ");
+}
+
+/* ===== แชทกลุ่มในมุมผู้ดูแล (แท็บ "แชท") =====
+
+   ผู้ดูแลอ่านได้ทุกห้องโดยไม่ต้องเป็นสมาชิก และเห็นสิ่งที่ถูกจัดการไปแล้ว —
+   ข้อความที่ลบยังอ่านได้ที่นี่ (ผู้เข้าร่วมเห็นเป็นข้อความแจ้งแทน) และข้อความ
+   ที่เซ็นเซอร์มี original_body ติดมาด้วย เพื่อให้ตัดสินใจกู้คืนได้โดยไม่ต้องเดา  */
+
+export type ChatRoom = {
+  group_id: number;
+  group_number: number;
+  member_count: number;
+  message_count: number;
+  deleted_count: number;
+  censored_count: number;
+  last_message_at: string | null;
+};
+
+export type ChatMessage = {
+  id: number;
+  group_id: number;
+  sender_id: string;
+  client_id: string;
+  /** ค่าดิบ — ข้อความที่ถูกลบก็ยังอ่านได้ที่นี่ ต่างจากที่แอปได้รับ */
+  body: string;
+  created_at: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  username: string | null;
+  sender_role: string | null;
+  /** ว่างสำหรับบัญชีเจ้าหน้าที่/ผู้ดูแลที่ไม่ได้ผูกกับรหัสนักศึกษา */
+  student_id: string;
+  avatar: string | null;
+  deleted_at: string | null;
+  deleted_by: string | null;
+  censored_at: string | null;
+  censored_by: string | null;
+  /** ข้อความก่อนถูกเซ็นเซอร์ · null เมื่อไม่เคยถูกเซ็นเซอร์ */
+  original_body: string | null;
+};
+
+export type ChatAction = "delete" | "restore" | "censor" | "uncensor";
+
+export async function getChatRooms(token: string): Promise<ChatRoom[]> {
+  const res = await fetch(apiUrl("/api/admin/chat"), { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  if (res.status === 403) throw new Error("forbidden");
+  return handle(res, "โหลดรายการห้องไม่สำเร็จ");
+}
+
+export async function getChatMessages(token: string, groupId: number): Promise<ChatMessage[]> {
+  const res = await fetch(apiUrl(`/api/admin/chat/${groupId}`), { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new Error("unauthorized");
+  return handle(res, "โหลดข้อความไม่สำเร็จ");
+}
+
+export async function searchChat(token: string, q: string): Promise<ChatMessage[]> {
+  const res = await fetch(apiUrl(`/api/admin/chat/search?q=${encodeURIComponent(q)}`), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new Error("unauthorized");
+  return handle(res, "ค้นหาไม่สำเร็จ");
+}
+
+export async function moderateChatMessage(
+  token: string,
+  id: number,
+  action: ChatAction,
+  replacement?: string,
+): Promise<ChatMessage> {
+  const res = await fetch(apiUrl(`/api/admin/chat/messages/${id}`), {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ action, replacement: replacement ?? "" }),
+  });
+  return handle(res, "ดำเนินการไม่สำเร็จ");
+}
+
+/* ===== ส่งออก CSV =====
+
+   URL ของสองไฟล์นี้ประกาศไว้ที่เดียว แล้วให้แต่ละหน้าเรียกผ่าน saveServerCSV
+   (lib/csv.ts) — path ที่พิมพ์ซ้ำในหลายคอมโพเนนต์คือ path ที่วันหนึ่งจะแก้ไม่ครบ */
+
+export const exportUrls = {
+  participants: () => apiUrl("/api/admin/export/participants.csv"),
+  staff: () => apiUrl("/api/admin/export/staff.csv"),
+};

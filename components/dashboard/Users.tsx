@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   changePassword,
   createUser,
@@ -8,15 +8,20 @@ import {
   getUsers,
   patchUser,
   type AdminUser,
+  exportUrls,
 } from "@/lib/adminApi";
 import { SelectField, TextField } from "@/components/register/ui";
 import { useT } from "@/lib/i18n/LanguageProvider";
+import { ExportButton } from "@/components/dashboard/ExportButton";
+import { saveServerCSV } from "@/lib/csv";
 
 export function Users({ token, currentUsername }: { token: string; currentUsername: string }) {
   const t = useT();
   const roleLabel: Record<string, string> = { admin: t.dash.users.roleAdmin, staff: t.dash.users.roleStaff };
   const [rows, setRows] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
+  // เหมือนตารางผู้เข้าร่วม — กางในที่ ไม่เปิด modal ทับทั้งหน้า
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [modal, setModal] = useState<
     | { type: "create" }
     | { type: "edit"; user: AdminUser }
@@ -39,24 +44,27 @@ export function Users({ token, currentUsername }: { token: string; currentUserna
         <h2 className="text-lg font-semibold text-forestdeep">
           {t.dash.users.heading} <span className="text-sm font-normal text-muted">({rows.length})</span>
         </h2>
-        <button
-          type="button"
-          onClick={() => setModal({ type: "create" })}
-          className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
-        >
-          {t.dash.users.add}
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={() => saveServerCSV(exportUrls.staff(), token, "wbw-staff.csv")} />
+          <button
+            type="button"
+            onClick={() => setModal({ type: "create" })}
+            className="rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
+          >
+            {t.dash.users.add}
+          </button>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-[20px] border border-line bg-card">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs text-muted">
                 <th className="px-4 py-3 font-medium">{t.dash.users.colUsername}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.users.colDisplayName}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t.dash.users.colDisplayName}</th>
                 <th className="px-4 py-3 font-medium">{t.dash.users.colRole}</th>
-                <th className="px-4 py-3 font-medium">{t.dash.users.colCreated}</th>
+                <th className="hidden px-4 py-3 font-medium md:table-cell">{t.dash.users.colCreated}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -66,27 +74,69 @@ export function Users({ token, currentUsername }: { token: string; currentUserna
               ) : (
                 rows.map((u) => {
                   const isSelf = u.username === currentUsername;
+                  const open = expanded === u.id;
                   return (
-                    <tr key={u.id} className="border-b border-line/70 transition-colors last:border-0 hover:bg-cream/50">
-                      <td className="px-4 py-3 font-medium text-ink">
-                        {u.username}
-                        {isSelf && <span className="ml-2 text-xs text-muted">{t.dash.users.you}</span>}
-                      </td>
-                      <td className="px-4 py-3 text-muted">{u.display_name || "—"}</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-2.5 py-1 text-xs ${u.role === "admin" ? "bg-gold/12 text-gold" : "bg-forest/10 text-forest"}`}>
-                          {roleLabel[u.role]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-muted">{u.created}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-end gap-1">
-                          <TableAction onClick={() => setModal({ type: "edit", user: u })}>{t.dash.common.edit}</TableAction>
-                          <TableAction onClick={() => setModal({ type: "password", user: u })}>{t.dash.users.passwordAction}</TableAction>
-                          {!isSelf && <TableAction danger onClick={() => setModal({ type: "delete", user: u })}>{t.dash.common.delete}</TableAction>}
-                        </div>
-                      </td>
-                    </tr>
+                    <Fragment key={u.id}>
+                      <tr
+                        onClick={() => setExpanded(open ? null : u.id)}
+                        className={`cursor-pointer border-b border-line/70 transition-colors last:border-0 ${
+                          open ? "bg-cream/60" : "hover:bg-cream/50"
+                        }`}
+                      >
+                        <td className="px-4 py-3 font-medium text-ink">
+                          {u.username}
+                          {isSelf && <span className="ml-2 text-xs text-muted">{t.dash.users.you}</span>}
+                        </td>
+                        <td className="hidden px-4 py-3 text-muted sm:table-cell">{u.display_name || "—"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full px-2.5 py-1 text-xs ${u.role === "admin" ? "bg-gold/12 text-gold" : "bg-forest/10 text-forest"}`}>
+                            {roleLabel[u.role]}
+                          </span>
+                        </td>
+                        <td className="hidden px-4 py-3 text-muted md:table-cell">{u.created}</td>
+                        <td className="px-4 py-3 text-right">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className={`ml-auto h-4 w-4 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            aria-hidden
+                          >
+                            <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </td>
+                      </tr>
+                      {open && (
+                        <tr className="border-b border-line/70 bg-cream/40 last:border-0">
+                          <td colSpan={5} className="px-4 pb-5 pt-1">
+                            {/* ปุ่มสามอันที่เคยเบียดกันอยู่ในคอลัมน์สุดท้ายมาอยู่ตรงนี้แทน —
+                                "ลบบัญชี" ที่อยู่ห่างจาก "แก้ไข" สองพิกเซลคือปุ่มที่จะถูกกดพลาด
+                                วันหนึ่งแน่นอน และมันลบบัญชีเจ้าหน้าที่จริง */}
+                            <div className="rounded-[18px] border border-line bg-card p-5">
+                              <dl className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-3">
+                                <Fact k={t.dash.users.colUsername} v={u.username} />
+                                <Fact k={t.dash.users.colDisplayName} v={u.display_name || "—"} />
+                                <Fact k={t.dash.users.colCreated} v={u.created ?? "—"} />
+                              </dl>
+                              <div className="mt-5 flex flex-wrap justify-end gap-2">
+                                <RowButton onClick={() => setModal({ type: "edit", user: u })}>
+                                  {t.dash.common.edit}
+                                </RowButton>
+                                <RowButton onClick={() => setModal({ type: "password", user: u })}>
+                                  {t.dash.users.passwordAction}
+                                </RowButton>
+                                {!isSelf && (
+                                  <RowButton danger onClick={() => setModal({ type: "delete", user: u })}>
+                                    {t.dash.common.delete}
+                                  </RowButton>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })
               )}
@@ -111,17 +161,32 @@ export function Users({ token, currentUsername }: { token: string; currentUserna
   );
 }
 
-function TableAction({ children, onClick, danger }: { children: React.ReactNode; onClick: () => void; danger?: boolean }) {
+function Fact({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="text-sm">
+      <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">{k}</dt>
+      <dd className="mt-0.5 break-words text-ink">{v}</dd>
+    </div>
+  );
+}
+
+function RowButton({ children, onClick, danger }: { children: React.ReactNode; onClick: () => void; danger?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={["rounded-full px-3 py-1.5 text-sm transition-colors", danger ? "text-danger hover:bg-danger/8" : "text-forest hover:bg-forest/8"].join(" ")}
+      className={[
+        "rounded-full border px-4 py-2 text-sm transition-colors",
+        danger
+          ? "border-danger/50 text-danger hover:bg-danger/10"
+          : "border-line text-muted hover:border-forest/40 hover:text-forest",
+      ].join(" ")}
     >
       {children}
     </button>
   );
 }
+
 
 function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   return (

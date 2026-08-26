@@ -114,12 +114,17 @@ export function SchoolChart({ rows, schools }: { rows: Participant[]; schools: S
   );
 }
 
-/* ---------- การ์ดโควตา (มีแถบความคืบหน้า) ---------- */
+/* ---------- การ์ดโควตา (มีแถบความคืบหน้า) ----------
+
+   เพดานมาจากตาราง wbw_capacity ผ่าน /admin/analytics ไม่ใช่ค่าคงที่ในโค้ดเว็บ
+   อีกต่อไป — ตัวเลขเดียวกันนี้บังคับ "ที่นั่งเต็ม" อยู่ฝั่ง backend ด้วย ถ้าเว็บ
+   ถือสำเนาของตัวเอง วันที่ผู้จัดขยับเพดาน หน้าสมัครกับแผงผู้ดูแลจะบอกคนละเลข
+   QUOTA ที่เหลือไว้เป็นแค่ค่าสำรองตอนโหลดยังไม่เสร็จ ไม่ใช่แหล่งความจริง */
 export const QUOTA = 2000;
 
-export function QuotaCard({ total }: { total: number }) {
+export function QuotaCard({ total, max = QUOTA }: { total: number; max?: number }) {
   const t = useT();
-  const pct = Math.min(100, (total / QUOTA) * 100);
+  const pct = Math.min(100, (total / Math.max(1, max)) * 100);
   return (
     <div className="rounded-[20px] border border-line bg-card p-5 transition-all duration-200 hover:-translate-y-0.5">
       <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-gold/12 text-gold">
@@ -129,7 +134,7 @@ export function QuotaCard({ total }: { total: number }) {
         </svg>
       </span>
       <div className="text-3xl font-bold text-ink">
-        {total} <small className="text-base font-normal text-muted">/ {QUOTA}</small>
+        {total} <small className="text-base font-normal text-muted">/ {max}</small>
       </div>
       <div className="mt-0.5 text-sm text-muted">{t.dash.charts.quota}</div>
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">

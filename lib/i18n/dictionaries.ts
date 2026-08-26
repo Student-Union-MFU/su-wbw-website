@@ -123,8 +123,6 @@ const th = {
     login: "เข้าสู่ระบบ",
     about: "เกี่ยวกับ",
     contact: "ติดต่อ",
-    soon: "เร็ว ๆ นี้",
-    soonBody: "หน้านี้กำลังจัดทำ ติดตามได้เร็ว ๆ นี้",
     back: "กลับหน้าแรก",
   },
 
@@ -1037,8 +1035,6 @@ const th = {
 
     charts: {
       noData: "ยังไม่มีข้อมูล",
-      daily: "สมัครรายวัน",
-      bySchool: "สัดส่วนตามสำนักวิชา",
       people: (n: number) => `${n} คน`,
       quota: "โควตา",
     },
@@ -1549,8 +1545,6 @@ const en: Dict = {
     login: "Log in",
     about: "About",
     contact: "Contact",
-    soon: "Coming soon",
-    soonBody: "This page is still being built. Check back soon.",
     back: "Back to home",
   },
 
@@ -2441,8 +2435,6 @@ const en: Dict = {
 
     charts: {
       noData: "No data yet",
-      daily: "Registrations per day",
-      bySchool: "By school",
       people: (n: number) => `${n} people`,
       quota: "Quota",
     },

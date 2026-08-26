@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ไฟล์ส่งออกจากแผงผู้ดูแล — มีข้อมูลส่วนตัวของผู้เข้าร่วม ห้ามขึ้น git
+*.csv

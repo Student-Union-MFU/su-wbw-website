@@ -381,6 +381,135 @@ const th = {
         after: [],
       },
     ] as PrivacySection[],
+
+    jumpToDelete: "ข้ามไปที่การลบบัญชี",
+
+    policyTitle: "นโยบายความเป็นส่วนตัว",
+    policy: [
+      {
+        h: "ใครเป็นผู้ดูแลข้อมูล",
+        body: "องค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง เป็นผู้เก็บและดูแลข้อมูลนี้ ข้อมูลทั้งหมดอยู่บนเซิร์ฟเวอร์เครื่องเดียวที่องค์การนักศึกษาดูแลเอง ไม่ได้ฝากไว้กับผู้ให้บริการภายนอก และไม่ถูกส่งต่อไปที่อื่น",
+      },
+      {
+        h: "เก็บไปทำไม",
+        body: "เพื่อจัดกลุ่มและออกหมายเลข BIB ให้คุณ เพื่อให้เจ้าหน้าที่หน้าฐานยืนยันตัวคุณตอนเช็คอิน และเพื่อให้ทีมปฐมพยาบาลรู้ข้อมูลที่จำเป็นทันทีถ้าคุณต้องการความช่วยเหลือระหว่างเดิน",
+      },
+      {
+        h: "ใครเห็นข้อมูลของคุณบ้าง",
+        body: "เจ้าหน้าที่หน้าฐานเห็นชื่อ หมายเลข BIB และธงว่าคุณมีข้อมูลทางการแพทย์ที่ต้องระวังหรือไม่ ตอนสแกนเช็คอินเท่านั้น ผู้ดูแลระบบขององค์การนักศึกษาเห็นข้อมูลทั้งหมดเพื่อใช้จัดงาน ข้อมูลในระบบนี้ไม่ถูกขาย ไม่ถูกส่งให้ผู้โฆษณา และไม่ถูกใช้ทำอย่างอื่นนอกจากงานนี้",
+      },
+      {
+        h: "รหัสผ่านของคุณ",
+        body: "รหัสผ่านถูกแปลงด้วย bcrypt ก่อนบันทึก ระบบเก็บไว้แต่ค่าที่แปลงแล้ว ไม่มีใครรวมถึงผู้ดูแลระบบอ่านรหัสผ่านจริงของคุณได้ และเราจะไม่ถามรหัสผ่านของคุณทางแชท โทรศัพท์ หรืออีเมล",
+      },
+      {
+        h: "ข้อมูลที่อยู่ในเบราว์เซอร์ของคุณ",
+        body: "เว็บนี้ไม่ใช้คุกกี้ติดตาม สิ่งที่เก็บไว้ในเครื่องคุณมีแค่โทเคนสำหรับคงสถานะเข้าสู่ระบบและภาษาที่คุณเลือก ทั้งสองอย่างอยู่ใน localStorage ของเบราว์เซอร์ และหายไปเมื่อคุณกดออกจากระบบหรือล้างข้อมูลเว็บไซต์",
+      },
+      {
+        h: "เก็บไว้นานแค่ไหน",
+        body: "บัญชีและประวัติของคุณถูกเก็บไว้ตลอดช่วงจัดงานและหลังงานเพื่อสรุปผล แล้วถูกลบหรือแปลงเป็นยอดรวมแบบไม่ระบุตัวตนภายใน 90 วันนับจากวันสิ้นสุดงาน ถ้าไม่อยากรอ ลบบัญชีเองได้ทันทีที่ด้านล่างหน้านี้",
+      },
+      {
+        h: "สิทธิของคุณ",
+        body: "ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 คุณมีสิทธิขอดูข้อมูลที่เราเก็บเกี่ยวกับคุณ ขอให้แก้ไขให้ถูกต้อง ขอให้ลบ หรือถอนความยินยอมที่เคยให้ไว้ การลบบัญชีทำเองได้ทันทีที่ด้านล่าง ส่วนเรื่องอื่นติดต่อองค์การนักศึกษาตามช่องทางท้ายหน้า",
+      },
+    ],
+
+    dataTitle: "ข้อมูลที่เก็บ",
+    dataIntro: "รายการนี้ตรงกับสิ่งที่อยู่ในฐานข้อมูลจริง ไม่ใช่คำอธิบายกว้าง ๆ",
+    dataGroups: [
+      {
+        h: "ตอนสมัคร",
+        items: [
+          "รหัสนักศึกษา ซึ่งใช้เป็นชื่อผู้ใช้ และรหัสผ่านที่เข้ารหัสแล้ว",
+          "ชื่อ นามสกุล วันเกิด เพศ และเบอร์โทรศัพท์",
+          "สำนักวิชาและสาขาวิชา",
+          "รูปถ่ายที่คุณอัปโหลด เก็บอยู่ในฐานข้อมูลของเราเอง ไม่ได้ฝากไว้ที่บริการภายนอก",
+          "ชื่อและเบอร์โทรของผู้ติดต่อกรณีฉุกเฉิน",
+          "กรุ๊ปเลือด น้ำหนัก และส่วนสูง",
+          "ความยินยอมที่คุณติ๊ก พร้อมเวลาที่ติ๊ก",
+        ],
+      },
+      {
+        h: "ระบบสร้างให้อัตโนมัติ",
+        items: [
+          "หมายเลข BIB ประจำตัวคุณ",
+          "รหัส QR สำหรับให้เจ้าหน้าที่สแกนตอนเช็คอิน",
+          "กลุ่มที่คุณอยู่ และประวัติการเข้าออกกลุ่ม",
+        ],
+      },
+      {
+        h: "ระหว่างงาน",
+        items: [
+          "ฐานที่คุณเช็คอิน เวลาที่เช็คอิน และเจ้าหน้าที่ที่เป็นคนสแกน",
+          "คะแนนและความเห็นที่คุณให้แต่ละฐาน",
+          "ข้อความที่คุณส่งในแชทกลุ่ม",
+          "ประกาศที่ส่งถึงคุณ และสถานะว่าอ่านแล้วหรือยัง",
+        ],
+      },
+      {
+        h: "เฉพาะตอนคุณกดขอความช่วยเหลือ (SOS)",
+        items: [
+          "พิกัดตำแหน่งของคุณ ณ ตอนที่กด พร้อมค่าความแม่นยำของพิกัดนั้น",
+          "ข้อความที่คุณพิมพ์แจ้ง และเวลาที่เจ้าหน้าที่รับเรื่องกับปิดเคส",
+        ],
+      },
+      {
+        h: "ถ้าคุณใช้แอปบนมือถือ",
+        items: ["โทเคนอุปกรณ์สำหรับส่งการแจ้งเตือน และชนิดของระบบปฏิบัติการ (iOS หรือ Android)"],
+      },
+    ],
+
+    notCollectedTitle: "สิ่งที่เราไม่ได้เก็บ",
+    notCollected: [
+      "ตำแหน่งของคุณระหว่างเดิน ระบบไม่ได้ติดตามเส้นทางของคุณ พิกัดถูกบันทึกเฉพาะตอนคุณกด SOS เท่านั้น",
+      "โรคประจำตัวที่คุณเลือกในขั้นตอนสมัคร ค่านั้นใช้ตรวจสิทธิ์เข้าร่วม ณ ตอนสมัครแล้วทิ้งไป ไม่ได้ถูกบันทึกลงฐานข้อมูล",
+      "ข้อมูลจากโซเชียลมีเดียของคุณ และเว็บนี้ไม่มีตัวติดตามโฆษณาหรือ analytics ของบุคคลที่สาม",
+    ],
+
+    delTitle: "ลบบัญชี",
+    delIntro:
+      "ลบได้เองทันที ไม่ต้องรอผู้ดูแลอนุมัติ การลบเป็นการถาวรและกู้คืนไม่ได้ ถ้าเปลี่ยนใจภายหลังต้องสมัครใหม่ ซึ่งอาจไม่มีที่นั่งเหลือแล้ว",
+    delWhatTitle: "สิ่งที่ถูกลบทันที",
+    delWhat: [
+      "บัญชีและรหัสผ่านของคุณ",
+      "โปรไฟล์ ข้อมูลติดต่อ รูปถ่าย และผู้ติดต่อฉุกเฉิน",
+      "กรุ๊ปเลือด น้ำหนัก ส่วนสูง และความยินยอมที่เคยให้ไว้",
+      "ประวัติการเช็คอิน ความเห็นต่อฐาน และข้อความที่คุณส่งในแชทกลุ่ม",
+      "การขอความช่วยเหลือ (SOS) และพิกัดที่เคยบันทึกไว้",
+      "โทเคนแจ้งเตือนของทุกอุปกรณ์ที่เคยเข้าสู่ระบบ",
+    ],
+    delKeepTitle: "สิ่งที่ยังเหลืออยู่",
+    delKeep:
+      "บันทึกหนึ่งบรรทัดในสมุดบันทึกของผู้ดูแลว่ามีผู้ใช้ลบบัญชีตัวเองเมื่อไหร่ พร้อมรหัสนักศึกษา เพื่อให้ผู้จัดกระทบยอดรายชื่อและจำนวนที่นั่งได้ว่าคนที่หายไปเป็นเพราะอะไร บรรทัดนี้ถูกลบพร้อมข้อมูลที่เหลือทั้งหมดภายใน 90 วันหลังจบงาน",
+    delSeatNote: "ที่นั่งของคุณถูกคืนให้คนอื่นสมัครแทนได้ทันทีที่ลบเสร็จ",
+
+    delSignInTitle: "ยืนยันตัวตนก่อนลบ",
+    delSignInHint: "กรอกรหัสนักศึกษาและรหัสผ่านชุดเดียวกับที่ใช้เข้าสู่ระบบ",
+    delStudentId: "รหัสนักศึกษา",
+    delPassword: "รหัสผ่าน",
+    delVerify: "ยืนยันตัวตน",
+    delVerifying: "กำลังตรวจสอบ…",
+    delSignedInAs: (name: string) => `เข้าสู่ระบบอยู่ในชื่อ ${name}`,
+    delNotYou: "ไม่ใช่คุณ? ออกจากระบบ",
+    delConfirmLabel: "พิมพ์เพื่อยืนยัน",
+    delConfirmWord: "ลบบัญชี",
+    delConfirmHint: (word: string) => `พิมพ์คำว่า “${word}” ลงในช่องนี้ เพื่อยืนยันว่าอ่านครบแล้ว`,
+    delConfirmMismatch: "ข้อความยืนยันยังไม่ตรง",
+    delSubmit: "ลบบัญชีถาวร",
+    delSubmitting: "กำลังลบ…",
+    delFailed: "ลบบัญชีไม่สำเร็จ",
+    delDoneTitle: "ลบบัญชีเรียบร้อยแล้ว",
+    delDoneBody: "ข้อมูลของคุณถูกลบออกจากระบบแล้ว ขอบคุณที่สนใจกิจกรรมเดินรอบดอย",
+    delBackHome: "กลับหน้าแรก",
+    delStaffTitle: "บัญชีเจ้าหน้าที่",
+    delStaffBody:
+      "บัญชีเจ้าหน้าที่และผู้ดูแลลบเองจากหน้านี้ไม่ได้ เพราะยังถูกอ้างถึงจากฐานที่รับผิดชอบและเคสที่เคยดูแลอยู่ กรุณาติดต่อผู้ดูแลระบบตามช่องทางด้านล่างเพื่อให้ดำเนินการให้",
+
+    contactTitle: "ติดต่อเรื่องข้อมูลส่วนบุคคล",
+    contactOrg: "องค์การนักศึกษา มหาวิทยาลัยแม่ฟ้าหลวง",
+    contactAddress: "333 หมู่ 1 ตำบลท่าสุด อำเภอเมืองเชียงราย จังหวัดเชียงราย 57100",
   },
 
   /** หน้าช่วยเหลือ (/support) — URL ของหน้านี้คือค่าที่กรอกใน App Store Connect
@@ -1626,6 +1755,135 @@ const en: Dict = {
         after: [],
       },
     ] as PrivacySection[],
+
+    jumpToDelete: "Skip to account deletion",
+
+    policyTitle: "Privacy policy",
+    policy: [
+      {
+        h: "Who holds your data",
+        body: "The Student Union of Mae Fah Luang University collects and looks after this data. All of it lives on a single server the Student Union runs itself — not with an outside provider — and none of it is passed on anywhere else.",
+      },
+      {
+        h: "Why we hold it",
+        body: "To place you in a group and issue your BIB number, to let checkpoint staff confirm who you are when you check in, and to give the first-aid team what they need straight away if you ask for help along the route.",
+      },
+      {
+        h: "Who can see it",
+        body: "Checkpoint staff see your name, your BIB number and a flag for whether you have medical details worth knowing — only at the moment they scan you in. Student Union administrators see everything, to run the event. Nothing here is sold, passed to advertisers, or used for anything other than this event.",
+      },
+      {
+        h: "Your password",
+        body: "Your password is hashed with bcrypt before it is stored; only the hash is kept. Nobody — administrators included — can read your actual password, and we will never ask you for it by chat, phone or email.",
+      },
+      {
+        h: "What sits in your browser",
+        body: "This site uses no tracking cookies. All it keeps on your device is a token that holds your sign-in and the language you chose, both in your browser's localStorage. Both disappear when you sign out or clear the site's data.",
+      },
+      {
+        h: "How long we keep it",
+        body: "Your account and history are kept through the event and the wrap-up afterwards, then deleted or reduced to anonymous totals within 90 days of the event ending. If you would rather not wait, you can delete your account yourself at the bottom of this page.",
+      },
+      {
+        h: "Your rights",
+        body: "Under Thailand's Personal Data Protection Act B.E. 2562, you may ask to see the data we hold about you, ask for corrections, ask for it to be deleted, or withdraw a consent you gave earlier. Deleting your account is immediate and self-service below; for anything else, contact the Student Union using the details at the end of this page.",
+      },
+    ],
+
+    dataTitle: "What we collect",
+    dataIntro: "This list matches what is actually in the database — it is not a general description.",
+    dataGroups: [
+      {
+        h: "When you register",
+        items: [
+          "Your student ID, which doubles as your username, and your hashed password",
+          "First and last name, date of birth, sex, and phone number",
+          "School and major",
+          "The photo you upload, held in our own database rather than with an outside service",
+          "The name and phone number of your emergency contact",
+          "Blood type, weight, and height",
+          "The consents you ticked, and when you ticked them",
+        ],
+      },
+      {
+        h: "Generated for you",
+        items: [
+          "Your BIB number",
+          "A QR token for staff to scan at check-in",
+          "The group you are in, and your history of joining and leaving groups",
+        ],
+      },
+      {
+        h: "During the event",
+        items: [
+          "Which checkpoints you checked in at, when, and which staff member scanned you",
+          "The rating and comment you leave for each checkpoint",
+          "Messages you send in your group chat",
+          "Announcements sent to you, and whether you have read them",
+        ],
+      },
+      {
+        h: "Only when you press SOS",
+        items: [
+          "Your location at the moment you pressed it, with how accurate that reading was",
+          "The message you typed, and when staff acknowledged and closed the case",
+        ],
+      },
+      {
+        h: "If you use the mobile app",
+        items: ["A device token for push notifications, and which platform it is (iOS or Android)"],
+      },
+    ],
+
+    notCollectedTitle: "What we do not collect",
+    notCollected: [
+      "Your location while you walk. The system does not track your route — a position is recorded only when you press SOS.",
+      "The chronic conditions you pick during registration. That answer decides eligibility at that moment and is then discarded; it is never written to the database.",
+      "Anything from your social media. This site carries no advertising trackers and no third-party analytics.",
+    ],
+
+    delTitle: "Delete your account",
+    delIntro:
+      "You can do this yourself, immediately, with no approval step. Deletion is permanent and cannot be undone — if you change your mind you would have to register again, and there may be no seats left.",
+    delWhatTitle: "Deleted immediately",
+    delWhat: [
+      "Your account and password",
+      "Your profile, contact details, photo, and emergency contact",
+      "Blood type, weight, height, and the consents you gave",
+      "Your check-in history, checkpoint feedback, and the messages you sent in group chat",
+      "Any SOS you raised, and the locations recorded with it",
+      "Notification tokens for every device you signed in on",
+    ],
+    delKeepTitle: "What remains",
+    delKeep:
+      "One line in the organisers' log recording that a user deleted their own account, when, and under which student ID — so the organisers can reconcile the roster and the seat count and know why someone disappeared. That line is deleted along with everything else within 90 days of the event ending.",
+    delSeatNote: "Your seat is returned to the pool for someone else as soon as the deletion finishes.",
+
+    delSignInTitle: "Confirm who you are",
+    delSignInHint: "Enter the same student ID and password you use to sign in.",
+    delStudentId: "Student ID",
+    delPassword: "Password",
+    delVerify: "Verify",
+    delVerifying: "Checking…",
+    delSignedInAs: (name: string) => `Signed in as ${name}`,
+    delNotYou: "Not you? Sign out",
+    delConfirmLabel: "Type to confirm",
+    delConfirmWord: "DELETE",
+    delConfirmHint: (word: string) => `Type “${word}” in this box to confirm you have read the above.`,
+    delConfirmMismatch: "That does not match yet",
+    delSubmit: "Delete my account permanently",
+    delSubmitting: "Deleting…",
+    delFailed: "Could not delete the account",
+    delDoneTitle: "Your account has been deleted",
+    delDoneBody: "Your data has been removed from the system. Thank you for your interest in Walk Beyond the Wild.",
+    delBackHome: "Back to the home page",
+    delStaffTitle: "Staff accounts",
+    delStaffBody:
+      "Staff and administrator accounts cannot be deleted from this page — they are still referenced by the checkpoints they cover and the cases they handled. Please contact an administrator using the details below and they will do it for you.",
+
+    contactTitle: "Data protection contact",
+    contactOrg: "Student Union, Mae Fah Luang University",
+    contactAddress: "333 Moo 1, Tha Sut, Mueang Chiang Rai, Chiang Rai 57100, Thailand",
   },
 
   support: {

@@ -26,6 +26,8 @@ export type LoginCopy = {
   failed: string;
   noAccount: string;
   registerLink: string;
+  /** ป้ายลิงก์ไป /auth/forgot — หน้าเดียวกันทั้งผู้เข้าร่วมและเจ้าหน้าที่ */
+  forgot: string;
 };
 
 export default function LoginForm({
@@ -101,6 +103,14 @@ export default function LoginForm({
           >
             {busy ? copy.signingIn : copy.signIn}
           </button>
+          <div className="mt-3 text-center">
+            <Link
+              href="/auth/forgot"
+              className="text-sm text-cream/70 underline-offset-4 transition-colors hover:text-cream hover:underline"
+            >
+              {copy.forgot}
+            </Link>
+          </div>
         </div>
 
         <div className="border-t border-cream/15 pt-5 text-center">

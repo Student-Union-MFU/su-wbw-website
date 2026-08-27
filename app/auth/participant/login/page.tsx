@@ -40,6 +40,7 @@ export default function ParticipantLoginPage() {
             failed: L.failed,
             noAccount: L.noAccount,
             registerLink: L.registerLink,
+            forgot: t.passwordReset.forgotLink,
           }}
           registerHref="/auth/participant/register"
         >

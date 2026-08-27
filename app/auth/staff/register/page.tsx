@@ -15,11 +15,20 @@ import { DAY_STILL } from "@/lib/dayCycle";
  * ส่งคำขอแล้วขึ้นหน้า "รออนุมัติ" · ผู้ดูแลอนุมัติในแผงก่อนถึงจะล็อกอินได้
  * สไตล์เดียวกับหน้าเข้าสู่ระบบ (ฉากป่านิ่ง + การ์ดกระจกเข้ม)
  */
+/**
+ * โดเมนที่รับได้ ต้องตรงกับค่าเริ่มต้นของ WBW_STAFF_EMAIL_DOMAINS ฝั่ง su-server
+ * (internal/service/wbw_auth_service.go) — ที่เช็คซ้ำตรงนี้เพื่อให้คนกรอกรู้ผลทันที
+ * ไม่ต้องรอ round trip · ตัวตัดสินจริงอยู่ที่ backend เสมอ ถ้าฝั่งโน้นถูกตั้งให้รับ
+ * โดเมนอื่นเพิ่ม อย่างแย่ที่สุดคือหน้านี้เข้มเกินไป ไม่ใช่ปล่อยของที่ backend ไม่รับ
+ */
+const STAFF_EMAIL_RE = /^[^\s@]+@(mfu\.ac\.th|lamduan\.mfu\.ac\.th)$/i;
+
 export default function StaffRegisterPage() {
   const { t, lang } = useLang();
   const s = t.staffAuth.register;
 
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [schoolId, setSchoolId] = useState("");
@@ -56,6 +65,7 @@ export default function StaffRegisterPage() {
   function validate() {
     const e: Record<string, string> = {};
     if (!username.trim()) e.username = s.errUsername;
+    if (!STAFF_EMAIL_RE.test(email.trim())) e.email = s.errEmail;
     if (password.length < 8) e.password = s.errPassword;
     if (confirm !== password) e.confirm = s.errConfirm;
     if (!schoolId) e.schoolId = s.errSchool;
@@ -72,6 +82,7 @@ export default function StaffRegisterPage() {
     try {
       await registerStaff({
         username: username.trim(),
+        email: email.trim(),
         password,
         school_id: Number(schoolId),
         major: major || undefined,
@@ -136,6 +147,16 @@ export default function StaffRegisterPage() {
               hint={s.usernameHint}
               required
               error={errors.username}
+            />
+            <TextField
+              label={s.email}
+              type="email"
+              value={email}
+              onChange={setEmail}
+              autoComplete="email"
+              hint={s.emailHint}
+              required
+              error={errors.email}
             />
             <TextField
               label={s.password}

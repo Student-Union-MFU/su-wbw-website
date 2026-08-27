@@ -39,6 +39,7 @@ export default function StaffLoginPage() {
             failed: s.failed,
             noAccount: s.noAccount,
             registerLink: s.registerLink,
+            forgot: t.passwordReset.forgotLink,
           }}
           registerHref="/auth/staff/register"
         />

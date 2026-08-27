@@ -33,6 +33,39 @@ export async function login(username: string, password: string): Promise<Session
   };
 }
 
+/* ===== ลืมรหัสผ่าน ===== */
+
+/**
+ * ขอลิงก์ตั้งรหัสผ่านใหม่ทางอีเมล
+ *
+ * ⚠ สำเร็จเสมอเมื่อ backend ตอบ 200 — ซึ่งมันตอบ 200 ทั้งกรณีที่มีบัญชีจริงและ
+ * ไม่มี (รวมถึงบัญชีที่ไม่มีอีเมล ยังรออนุมัติ หรือขอถี่เกินโควตา) จงใจให้แยกไม่ออก
+ * ไม่งั้น endpoint นี้จะกลายเป็นเครื่องมือไล่เช็คว่ารหัสนักศึกษาไหนสมัครงานนี้ไว้บ้าง
+ * · หน้าเว็บจึงต้องขึ้นข้อความแบบ "ถ้ามีบัญชีนี้อยู่ เราส่งลิงก์ไปแล้ว" เท่านั้น
+ * ห้ามขึ้นว่า "ส่งแล้ว" เฉย ๆ เพราะจะกลายเป็นการยืนยันการมีอยู่ของบัญชีแทน backend
+ */
+export async function requestPasswordReset(username: string): Promise<void> {
+  const res = await fetch(apiUrl("/api/auth/forgot"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username }),
+  });
+  await handle(res, "ขอลิงก์ตั้งรหัสผ่านใหม่ไม่สำเร็จ");
+}
+
+/**
+ * ตั้งรหัสผ่านใหม่ด้วยตั๋วจากลิงก์ในอีเมล · ตั๋วใช้ได้ครั้งเดียว ภายใน 30 นาที
+ * ตั๋วที่หมดอายุ/ถูกใช้แล้ว/ปลอม ได้ 400 เหมือนกันหมด (backend ไม่บอกว่าอันไหน)
+ */
+export async function resetPassword(token: string, password: string): Promise<void> {
+  const res = await fetch(apiUrl("/api/auth/reset"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  });
+  await handle(res, "ตั้งรหัสผ่านใหม่ไม่สำเร็จ");
+}
+
 /** โปรไฟล์ของผู้เข้าร่วมที่ล็อกอินอยู่ — ตรงกับ model.ParticipantDetail ฝั่ง backend (/wbw/me) */
 export type MyProfile = {
   id: string;
@@ -299,6 +332,8 @@ export async function deleteUser(token: string, id: string): Promise<void> {
 export async function registerStaff(data: {
   username: string;
   password: string;
+  /** อีเมลมหาวิทยาลัย — backend บังคับตั้งแต่ migration 000036 ไม่ส่งมา = 400 */
+  email: string;
   school_id: number;
   major?: string;
   staff_role: string;
